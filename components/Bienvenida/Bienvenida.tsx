@@ -36,17 +36,6 @@ const Bienvenida = () => {
         onStart: () => {
           setCurrentIndex(0);
           setDisplayedText(words[0]); // Mostrar la primera palabra inmediatamente
-          interval = setInterval(() => {
-            setCurrentIndex((prevIndex) => {
-              if (prevIndex < words.length - 1) {
-                setDisplayedText((prevText) => prevText + ' ' + words[prevIndex + 1]);
-                return prevIndex + 1;
-              }
-              clearInterval(interval);
-              setIsSpeaking(false);
-              return prevIndex;
-            });
-          }, wordDuration);
         },
         onDone: () => {
           setCurrentIndex(words.length);
