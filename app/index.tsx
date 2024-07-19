@@ -1,12 +1,10 @@
-import Bienvenida from "@/components/Bienvenida";
-import Opciones from "@/components/Opciones";
-import Login from "@/components/Login";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import Splash from "@/components/Splash";
 
 export default function Index() {
   return (
     <View style={style.container}>
-      <Login></Login>
+      <Splash></Splash>
     </View>
   );
 }
