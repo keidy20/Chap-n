@@ -1,9 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
+import { styles } from './Styles';
+import CryptoJS from 'crypto-js';
+import { Link, router } from 'expo-router';
 
 const Login = () => {
+
+  //const secretKey: any = process.env.EXPO_PUBLIC_SECRET_KEY
+  const secretKey: string = 'test'
+
+  const [ nombre, setNombre ] = useState('')
+  const [ edad, setEdad ] = useState('')
+  const [ correo, setCorreo ] = useState('')
+  const [ password, setPassword ] = useState('')
+
+  const [ usuario, setUsuario ] = useState({
+    nombre: '',
+    edad: '',
+    correo: '',
+    password: ''
+  })
+
+  const encrypt = (txt: string) => {
+    return CryptoJS.AES.encrypt(txt, secretKey).toString()
+  }
+
+  const crearCuenta = () => {
+    
+    setUsuario({...usuario, password: encrypt(usuario.password)})
+    console.log('Usuario ', usuario)
+  }
+
+  const gotToLecciones = () => {
+    router.navigate('/lecciones')
+  }
   return (
     <LinearGradient
       colors={['#56BBE1', '#285769']}
@@ -15,111 +47,58 @@ const Login = () => {
         style={styles.input}
         placeholder="Nombre"
         placeholderTextColor="#aaa"
+        value={usuario.nombre}
+        onChangeText={text => setUsuario({...usuario, nombre: text})}
       />
       <TextInput
         style={styles.input}
         placeholder="Edad"
         placeholderTextColor="#aaa"
+        value={usuario.edad}
+        onChangeText={text => setUsuario({...usuario, edad: text})}
       />
       <TextInput
         style={styles.input}
         placeholder="Correo Electrónico"
         placeholderTextColor="#aaa"
+        value={usuario.correo}
+        onChangeText={text => setUsuario({...usuario, correo: text})}
       />
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
         placeholderTextColor="#aaa"
         secureTextEntry
+        value={usuario.password}
+        onChangeText={text => setUsuario({...usuario, password: text})}
       />
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={crearCuenta}>
         <LinearGradient
           colors={['#ff6600', '#F49726']}
           style={styles.gradient}
+          
         >
           <Text style={styles.buttonText}>CREAR CUENTA</Text>
         </LinearGradient>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={gotToLecciones}>
+        <LinearGradient
+          colors={['#ff6600', '#F49726']}
+          style={styles.gradient}
+          
+        >
+          <Text style={styles.buttonText}>Ir a lecciones</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+
+      <View>
+        <Link href="/lecciones">Lecciones</Link>
+      </View>
     </LinearGradient>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    paddingHorizontal: 30
-  },
-  icon: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 32,
-    color: '#fff',
-    fontWeight: 'bold',
-    marginBottom: 30,
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    fontSize: 16,
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-  gradient: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  orText: {
-    color: '#fff',
-    fontSize: 16,
-    marginVertical: 10,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#db4437',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-  googleIcon: {
-    marginRight: 10,
-  },
-  googleButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
 
 export default Login;
 
