@@ -8,7 +8,7 @@ const Splash: React.FC = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.navigate('/login')
+      router.navigate('/crear_cuenta')
     }, 1500); // Duración del splash screen
     
 
