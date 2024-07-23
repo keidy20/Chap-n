@@ -1,11 +1,11 @@
-import Bienvenida from '@/components/Bienvenida'
+import CrearCuenta from '@/components/CrearCuenta'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
-export default function BienvenidaRoute() {
+export default function CrearCuentaRoute() {
   return (
     <View style={style.container}>
-      <Bienvenida/>
+      <CrearCuenta></CrearCuenta>
     </View>
   )
 }

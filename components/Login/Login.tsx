@@ -7,7 +7,6 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Aquí puedes manejar el inicio de sesión con email y contraseña
     console.log('Email:', email);
     console.log('Password:', password);
     onLogin();

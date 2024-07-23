@@ -21,11 +21,13 @@ const Bienvenida: React.FC = () => {
 
   const handleContinue = () => {
     console.log('Iniciar sesión presionado');
+    router.navigate('/login')
     // Navegar a la pantalla de inicio de sesión u otra acción
   };
 
   const handleCreateAccount = () => {
     console.log('Crear cuenta presionado');
+    router.navigate('/crear_cuenta')
     // Navegar a la pantalla de creación de cuenta u otra acción
   };
 
