@@ -1,105 +1,89 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './Styles';
-import CryptoJS from 'crypto-js';
-import { Link, router } from 'expo-router';
 
-const Login = () => {
+const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  //const secretKey: any = process.env.EXPO_PUBLIC_SECRET_KEY
-  const secretKey: string = 'test'
+  const handleLogin = () => {
+    // Aquí puedes manejar el inicio de sesión con email y contraseña
+    console.log('Email:', email);
+    console.log('Password:', password);
+    onLogin();
+  };
 
-  const [ nombre, setNombre ] = useState('')
-  const [ edad, setEdad ] = useState('')
-  const [ correo, setCorreo ] = useState('')
-  const [ password, setPassword ] = useState('')
-
-  const [ usuario, setUsuario ] = useState({
-    nombre: '',
-    edad: '',
-    correo: '',
-    password: ''
-  })
-
-  const encrypt = (txt: string) => {
-    return CryptoJS.AES.encrypt(txt, secretKey).toString()
-  }
-
-  const crearCuenta = () => {
-    
-    setUsuario({...usuario, password: encrypt(usuario.password)})
-    console.log('Usuario ', usuario)
-  }
-
-  const gotToLecciones = () => {
-    router.navigate('/lecciones')
-  }
   return (
     <LinearGradient
-      colors={['#56BBE1', '#285769']}
+      colors={['#637cb4', '#3a5692', '#213b83']}
       style={styles.container}
     >
-      <Icon name="user" size={100} color="#fff" style={styles.icon} />
-      <Text style={styles.title}>EDÚCATE CHAPÍN</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        placeholderTextColor="#aaa"
-        value={usuario.nombre}
-        onChangeText={text => setUsuario({...usuario, nombre: text})}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Edad"
-        placeholderTextColor="#aaa"
-        value={usuario.edad}
-        onChangeText={text => setUsuario({...usuario, edad: text})}
-      />
+      <Text style={styles.title}>Inicio de Sesión</Text>
       <TextInput
         style={styles.input}
         placeholder="Correo Electrónico"
-        placeholderTextColor="#aaa"
-        value={usuario.correo}
-        onChangeText={text => setUsuario({...usuario, correo: text})}
+        placeholderTextColor="#fff"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
-        placeholderTextColor="#aaa"
+        placeholderTextColor="#fff"
         secureTextEntry
-        value={usuario.password}
-        onChangeText={text => setUsuario({...usuario, password: text})}
+        value={password}
+        onChangeText={setPassword}
       />
-      <TouchableOpacity style={styles.button} onPress={crearCuenta}>
-        <LinearGradient
-          colors={['#ff6600', '#F49726']}
-          style={styles.gradient}
-          
-        >
-          <Text style={styles.buttonText}>CREAR CUENTA</Text>
-        </LinearGradient>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Iniciar Sesión</Text>
       </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button} onPress={gotToLecciones}>
-        <LinearGradient
-          colors={['#ff6600', '#F49726']}
-          style={styles.gradient}
-          
-        >
-          <Text style={styles.buttonText}>Ir a lecciones</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-
-      <View>
-        <Link href="/lecciones">Lecciones</Link>
-      </View>
     </LinearGradient>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 20,
+  },
+  input: {
+    width: '80%',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    marginBottom: 15,
+    color: '#fff',
+  },
+  button: {
+    backgroundColor: '#FF5722',
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    borderRadius: 30,
+    marginTop: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    width: '80%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+});
 
 export default Login;
-
-

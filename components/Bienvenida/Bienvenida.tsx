@@ -1,79 +1,60 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { useRouter } from 'expo-router';
+import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
-const Bienvenida = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState('');
+const Bienvenida: React.FC = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [showButton, setShowButton] = useState(false); // Estado para mostrar el botón
-
-  const router = useRouter();
-  
-  const text = "¡Bienvenidos a Aprende Fácil! Estamos aquí para ayudarte a descubrir el maravilloso mundo de la lectura. Presiona el botón para acompañarte en este emocionante viaje y que puedas disfrutar de los beneficios de la lectura en tu vida diaria.";
-  const words = text.split(' ');
 
   useEffect(() => {
-    let interval: string;
-
-    const speakText = async () => {
-      const availableVoices = await Speech.getAvailableVoicesAsync();
-      const selectedVoice = availableVoices.find(voice => voice.language === 'es-ES' && voice.quality === 'Enhanced');
-      const voiceIdentifier = selectedVoice ? selectedVoice.identifier : undefined;
-
-      // Obtener la duración estimada del texto
-      const estimatedDuration = text.length * 50; // Aproximadamente 50ms por caracter
-
-      // Calcular el tiempo para cada palabra
-      const wordDuration = estimatedDuration / words.length;
-
-      setIsSpeaking(true);
-      Speech.speak(text, {
-        language: 'es',
-        voice: voiceIdentifier,
-        onStart: () => {
-          setCurrentIndex(0);
-          setDisplayedText(words[0]); // Mostrar la primera palabra inmediatamente
-        },
-        onDone: () => {
-          setCurrentIndex(words.length);
-          clearInterval(interval);
-          setIsSpeaking(false);
-          setShowButton(true); // Mostrar el botón después de que termine la reproducción
-        },
-      });
-    };
-
-    speakText();
-
-    return () => {
-      clearInterval(interval);
-      Speech.stop();
-      setIsSpeaking(false);
-    };
+    const welcomeMessage = 'Bienvenido a Edùcate Chapìn. ¡Vamos a aprender a leer juntos! Empecemos';
+    Speech.speak(welcomeMessage, {
+      language: 'es',
+      onStart: () => setIsSpeaking(true),
+      onDone: () => setIsSpeaking(false),
+      onStopped: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
   }, []);
 
+  const handleContinue = () => {
+    console.log('Iniciar sesión presionado');
+    // Navegar a la pantalla de inicio de sesión u otra acción
+  };
+
+  const handleCreateAccount = () => {
+    console.log('Crear cuenta presionado');
+    // Navegar a la pantalla de creación de cuenta u otra acción
+  };
+
   return (
-    <View style={styles.container}>
-      <Icon name="volume-up" size={50} color={isSpeaking ? '#ff6347' : '#000'} style={styles.icon} />
-      <View style={styles.textContainer}>
-        {displayedText.split(' ').map((word, index) => (
-          <Text
-            key={index}
-            style={styles.word}
-          >
-            {word}{' '}
-          </Text>
-        ))}
+    <LinearGradient
+      colors={['#637cb4', '#3a5692', '#213b83']}
+      style={styles.container}
+    >
+      <Text style={styles.title}>EDÚCATE CHAPÍN</Text>
+      <View style={styles.avatarContainer}>
+        <Image
+          source={require('../../assets/imagen.jpg')} 
+          style={styles.avatar}
+        />
       </View>
-      {showButton && (
-        <TouchableOpacity style={styles.button} onPress={()=> router.push('/opciones')}>
-          <Text style={styles.buttonText}>Comenzar</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+      <TouchableOpacity
+        onPress={() => Speech.speak('Bienvenido a Edùcate Chapìn. ¡Vamos a aprender a leer juntos!', { language: 'es' })}
+        style={styles.speakerIcon}
+      >
+        <FontAwesome name="volume-up" size={30} color={isSpeaking ? '#1e90ff' : 'black'} />
+      </TouchableOpacity>
+      <Text style={styles.welcomeText}>¡BIENVENIDO!</Text>
+      <TouchableOpacity style={styles.button} onPress={handleContinue}>
+        <Text style={styles.buttonText}>INICIAR SESIÓN </Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, styles.createAccountButton]} onPress={handleCreateAccount}>
+        <Text style={[styles.buttonText, styles.createAccountButtonText]}>CREAR CUENTA</Text>
+      </TouchableOpacity>
+    </LinearGradient>
   );
 };
 
@@ -83,42 +64,68 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f0f8ff',
   },
-  icon: {
-    marginBottom: 20,
-  },
-  textContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  word: {
-    color: 'black',
-    fontSize: 24,
-  },
-  highlightedWord: {
-    color: '#ff6347',
+  title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 20,
+  },
+  avatarContainer: {
+    marginBottom: 30,
+    borderRadius: 100,
+    overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  avatar: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+  },
+  speakerIcon: {
+    position: 'absolute',
+    top: 60,
+    right: 25,
+  },
+  welcomeText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+    color: '#fff',
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#fff',
   },
   button: {
-    backgroundColor: '#ff6347',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 20,
+    backgroundColor: '#FF5722',
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    borderRadius: 30,
+    marginTop: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    width: '80%',
+    alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
     fontSize: 18,
-    textAlign: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  createAccountButton: {
+    backgroundColor: '#fff',
+  },
+  createAccountButtonText: {
+    color: '#FF5722',
   },
 });
 
 export default Bienvenida;
-
-
-
-

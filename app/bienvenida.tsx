@@ -1,11 +1,11 @@
-import Login from '@/components/Login'
+import LeccionesVocales from '@/components/LeccionesVocales'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
-export default function LoginRoute() {
+export default function BienvenidaRoute() {
   return (
     <View style={style.container}>
-      <Login></Login>
+      <LeccionesVocales letter='A'/>
     </View>
   )
 }
