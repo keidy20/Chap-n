@@ -18,6 +18,16 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 30,
       },
+      goBackButton: {
+        position: 'absolute',
+        top: 40,
+        left: 20,
+        padding: 10,
+      },
+      goBackButtonText: {
+        color: '#fff',
+        fontSize: 18,
+      },
       input: {
         width: '100%',
         height: 50,

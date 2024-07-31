@@ -1,12 +1,11 @@
-import Login from '@/components/Login';
+import HistoriasLeccion from '@/components/HistoriasLeccion';
 import React from 'react'
 import { View, StyleSheet } from 'react-native';
 
-export default function LoginRoute() {
-    const handleLogin = () => {}
+export default function HistoriasLeccionRouter() {
   return (
     <View style={styles.container}>
-      <Login/>
+      <HistoriasLeccion></HistoriasLeccion>
     </View>
   )
 }

@@ -1,152 +1,219 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import  Icon  from 'react-native-vector-icons/FontAwesome';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './Styles';
 import CryptoJS from 'crypto-js';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { validarCampos } from '@/utils/StringUtils';
-import { crearUsuario } from '@/services/UsuarioServices';
 
-const CrearCuenta = () => {
+const { width, height } = Dimensions.get('window');
 
-  const secretKey: any = process.env.EXPO_PUBLIC_SECRET_KEY
-  const baseUrl: any = process.env.EXPO_PUBLIC_URL
+const CrearCuenta: React.FC = () => {
+  const secretKey: any = process.env.EXPO_PUBLIC_SECRET_KEY;
+  const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
-  const [ disabled, setDisabled ] = useState(true)
+  const goBack = () => {
+    router.back();
+  };
 
-  const [ usuario, setUsuario ] = useState({
+  const [disabled, setDisabled] = useState(true);
+  const [usuario, setUsuario] = useState({
     nombre: '',
-    edad: '',
     email: '',
+    telefono: '',
     password: ''
-  })
+  });
 
   useEffect(() => {
-    
-    if (validarCampos(usuario)) {
-      console.log('usuario lleno')
-      setDisabled(false)
+    if (validarCampos(usuario) && validarPassword(usuario.password)) {
+      setDisabled(false);
     } else {
-      setDisabled(true)
+      setDisabled(true);
     }
-
-    if (!validarPassword(usuario.password)) {
-      console.log('La contraseña debe tener como minimo 8 caracteres, una letra mayuscula y un caracter especial')
-      setDisabled(true)
-    }
-  }, [usuario])
+  }, [usuario]);
 
   const validarPassword = (password: string) => {
     const regex = /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
-
-    console.log('Contraseña correcta ', regex.test(password))
-    return regex.test(password)
-  }
-
+    return regex.test(password);
+  };
 
   const encrypt = (txt: string) => {
-    return CryptoJS.AES.encrypt(txt, secretKey).toString()
-  }
+    return CryptoJS.AES.encrypt(txt, secretKey).toString();
+  };
 
   const crearCuenta = async () => {
-    
-    let usuarioTemp: any = {...usuario, password: encrypt(usuario.password)}
-    console.log('Usuario ', usuario)
-    console.log('Usuario temp', {...usuario, password: encrypt(usuario.password)})
-    console.log('URL ', baseUrl)
-
-    const url = `${baseUrl}/usuarios`
-    console.log('URL a consumir: ', url)
+    let usuarioTemp: any = { ...usuario, password: encrypt(usuario.password) };
+    const url = `${baseUrl}/usuarios`;
 
     try {
       const res = await fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json', 
-            'Accept': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify(usuarioTemp)
-      })
+      });
 
       if (!res.ok) {
         throw new Error('Network response was not ok ' + res.statusText);
       }
-    } catch(error) {
-      console.log('Error ', error)
+    } catch (error) {
+      console.log('Error ', error);
     }
-    
-    
-  }
-
-
-  const gotToLecciones = () => {
-    router.navigate('/lecciones')
-  }
+  };
 
   return (
     <LinearGradient
-      colors={['#637cb4', '#3a5692', '#213b83']}
-      style={styles.container}
+      colors={['#2A6F97', '#FFFFFF']}
+      style={styles.gradient}
     >
-      <Icon name="user" size={100} color="#fff" style={styles.icon} />
-      <Text style={styles.title}>EDÚCATE CHAPÍN</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        placeholderTextColor="#aaa"
-        value={usuario.nombre}
-        onChangeText={text => setUsuario({...usuario, nombre: text})}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Edad"
-        placeholderTextColor="#aaa"
-        value={usuario.edad}
-        keyboardType='numeric'
-        maxLength={2}
-        onChangeText={text => setUsuario({...usuario, edad: text})}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Correo Electrónico"
-        placeholderTextColor="#aaa"
-        value={usuario.email}
-        onChangeText={text => setUsuario({...usuario, email: text})}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor="#fff"
-        secureTextEntry
-        value={usuario.password}
-        onChangeText={text => setUsuario({...usuario, password: text})}
-      />
-      <TouchableOpacity style={styles.button} onPress={crearCuenta} disabled={disabled}>
-        <LinearGradient
-          colors={disabled ? ['#808080', '#FFF'] : ['#F59200', '#A07535']}
-          style={styles.gradient}
-          
-        >
-          <Text style={styles.buttonText}>CREAR CUENTA</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-
-      {/* <TouchableOpacity style={styles.button} onPress={gotToLecciones}>
-        <LinearGradient
-          colors={['#ff6600', '#F49726']}
-          style={styles.gradient}
-          
-        >
-          <Text style={styles.buttonText}>Ir a lecciones</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-
-      <View>
-        <Link href="/lecciones">Lecciones</Link>
-      </View> */}
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
+          <View style={styles.goBackCircle}>
+            <Ionicons name="arrow-back" size={24} color="#2A6F97" />
+          </View>
+        </TouchableOpacity>
+        <View style={styles.card}>
+          <View style={styles.logoContainer}>
+            <Ionicons name="checkmark-circle" size={80} color="#2A6F97" />
+          </View>
+          <Text style={styles.title}>Crear Cuenta</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre Completo"
+            placeholderTextColor="#242424"
+            value={usuario.nombre}
+            onChangeText={text => setUsuario({ ...usuario, nombre: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Correo Electrónico"
+            placeholderTextColor="#242424"
+            keyboardType="email-address"
+            value={usuario.email}
+            onChangeText={text => setUsuario({ ...usuario, email: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Número de telefono"
+            placeholderTextColor="#242424"
+            keyboardType="phone-pad"
+            value={usuario.telefono}
+            onChangeText={text => setUsuario({ ...usuario, telefono: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            placeholderTextColor="#242424"
+            secureTextEntry={true}
+            value={usuario.password}
+            onChangeText={text => setUsuario({ ...usuario, password: text })}
+          />
+          <TouchableOpacity style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]} onPress={crearCuenta} disabled={disabled}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => console.log('Sign in')}>
+            <Text style={styles.signInText}>Ya tienes una cuenta? <Text style={styles.signInLink}>Sign in</Text></Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </LinearGradient>
   );
 };
+
+const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  goBackButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: -22,
+    width: 90,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#2A6F97',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  goBackCircle: {
+    width: 40,
+    height: 40,
+    left: 19,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  card: {
+    width: width * 0.9,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#242424',
+    marginBottom: 20,
+  },
+  input: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    marginBottom: 15,
+    width: '100%',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    color: '#242424',
+  },
+  button: {
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    borderRadius: 30,
+    marginTop: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    width: '100%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  signInText: {
+    marginTop: 10,
+    color: '#242424',
+  },
+  signInLink: {
+    color: '#2A6F97',
+    fontWeight: 'bold',
+  },
+});
 
 export default CrearCuenta;

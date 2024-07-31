@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
-import { FontAwesome } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 
 const Bienvenida: React.FC = () => {
@@ -21,112 +20,105 @@ const Bienvenida: React.FC = () => {
 
   const handleContinue = () => {
     console.log('Iniciar sesión presionado');
-    router.navigate('/login')
-    // Navegar a la pantalla de inicio de sesión u otra acción
+    router.navigate('/login');
   };
 
   const handleCreateAccount = () => {
     console.log('Crear cuenta presionado');
-    router.navigate('/crear_cuenta')
-    // Navegar a la pantalla de creación de cuenta u otra acción
+    router.navigate('/crear_cuenta');
   };
 
   return (
     <LinearGradient
-      colors={['#637cb4', '#3a5692', '#213b83']}
-      style={styles.container}
+      colors={['#2A6F97', '#FFFFFF']}
+      style={styles.gradient}
     >
-      <Text style={styles.title}>EDÚCATE CHAPÍN</Text>
-      <View style={styles.avatarContainer}>
+      <View style={styles.container}>
         <Image
-          source={require('../../assets/imagen.jpg')} 
+          source={require('../../assets/3.png')}
           style={styles.avatar}
         />
+        <View style={styles.card}>
+          <Text style={styles.welcomeText}>HOLA!</Text>
+          <Text style={styles.subtitle}>¡Vamos a aprender a leer juntos! Empecemos</Text>
+          <TouchableOpacity style={styles.button} onPress={handleContinue}>
+            <Text style={styles.buttonText}>INICIAR SESIÓN</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.createAccountButton]} onPress={handleCreateAccount}>
+            <Text style={[styles.buttonText, styles.createAccountButtonText]}>CREAR CUENTA</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <TouchableOpacity
-        onPress={() => Speech.speak('Bienvenido a Edùcate Chapìn. ¡Vamos a aprender a leer juntos!', { language: 'es' })}
-        style={styles.speakerIcon}
-      >
-        <FontAwesome name="volume-up" size={30} color={isSpeaking ? '#1e90ff' : 'black'} />
-      </TouchableOpacity>
-      <Text style={styles.welcomeText}>¡BIENVENIDO!</Text>
-      <TouchableOpacity style={styles.button} onPress={handleContinue}>
-        <Text style={styles.buttonText}>INICIAR SESIÓN </Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, styles.createAccountButton]} onPress={handleCreateAccount}>
-        <Text style={[styles.buttonText, styles.createAccountButtonText]}>CREAR CUENTA</Text>
-      </TouchableOpacity>
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     alignItems: 'center',
     padding: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 20,
-  },
-  avatarContainer: {
-    marginBottom: 30,
-    borderRadius: 100,
-    overflow: 'hidden',
-    borderWidth: 3,
-    borderColor: '#fff',
-  },
   avatar: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 250,
+    height: 250,
+    marginTop: 110,
   },
-  speakerIcon: {
-    position: 'absolute',
-    top: 60,
-    right: 25,
-  },
-  welcomeText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-    color: '#fff',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#fff',
-  },
-  button: {
-    backgroundColor: '#FF5722',
-    paddingVertical: 15,
-    paddingHorizontal: 50,
-    borderRadius: 30,
-    marginTop: 10,
-    elevation: 5,
+  card: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+  },
+  welcomeText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+    color: '#242424',
+  },
+  subtitle: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#242424',
+    marginBottom: 10,
+  },
+  smallText: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#242424',
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#2A6F97',
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    borderRadius: 30,
+    marginTop: 10,
     width: '80%',
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: 15,
     color: '#fff',
     fontWeight: 'bold',
   },
   createAccountButton: {
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#2A6F97',
   },
   createAccountButtonText: {
-    color: '#FF5722',
+    color: '#2A6F97',
   },
 });
 
