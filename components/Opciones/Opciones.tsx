@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Speech from 'expo-speech';
-import * as Animatable from 'react-native-animatable';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const Opciones: React.FC = () => {
   const router = useRouter();
   const [isBouncing, setIsBouncing] = useState(false);
+  const [completedLessons, setCompletedLessons] = useState([false, false, false, false, false, false]); // Cambia según el número de lecciones
+  const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   useEffect(() => {
     // Texto de bienvenida
@@ -20,41 +22,53 @@ const Opciones: React.FC = () => {
     });
   }, []);
 
+  // Función para manejar la selección de la tarjeta
+  const handleCardPress = (index: number) => {
+    if (index === 0 || completedLessons[0]) { // Asegurarse de que la primera lección esté completada o sea la primera tarjeta
+      setSelectedCard(index);
+      // Aquí puedes redirigir a la lección correspondiente
+          router.navigate('/lecciones');
+    }
+  };
+
+  const lessonTitles = [
+    "Abecedario",
+    "Reconocimiento de sonido y letras",
+    "Sílabas y combinaciones de letras",
+    "Palabras simples",
+    "Frases simples",
+    "Comprensión Lectora"
+  ];
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <LinearGradient
+        colors={['#2A6F97', '#539ec9']}
+        style={styles.header}
+      >
         <View style={styles.headerTop}>
-          <Text style={styles.languageText}>Recorrido</Text>
-          <View style={styles.iconContainer}>
-            <Icon name="volume-up" size={20} color="#fff" />
-          </View>
+          <Text style={styles.languageText}>INICIO</Text>
         </View>
         <Text style={styles.subtitle}>2 Lecciones</Text>
-      </View>
+      </LinearGradient>
       <View style={styles.cardContainer}>
-        <Animatable.View 
-          animation={isBouncing ? "bounce" : undefined}
-          iterationCount="infinite"
-          direction="alternate"
-          style={[styles.card, isBouncing && styles.highlightedCard]}
-        >
-          <TouchableOpacity onPress={() => router.push('/recorrido-vocales')}>
-            <Text style={styles.cardTitle}>Recorrido de Vocales</Text>
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardSubtitle}>5 lecturas</Text>
-              <Icon name="check-circle" size={20} color="#ff6347" />
-            </View>
-          </TouchableOpacity>
-        </Animatable.View>
-        <View style={styles.card}>
-          <TouchableOpacity onPress={() => router.push('/recorrido-consonantes')}>
-            <Text style={styles.cardTitle}>Recorrido de Consonantes</Text>
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardSubtitle}>5 lecturas</Text>
-              <Icon name="play-circle" size={20} color="#ff6347" />
-            </View>
-          </TouchableOpacity>
-        </View>
+        {lessonTitles.map((title, index) => (
+          <View
+            key={index}
+            style={[
+              styles.card,
+              (selectedCard === index || (index === 0 && completedLessons[0])) && styles.highlightedCard,
+            ]}
+          >
+            <TouchableOpacity onPress={() => handleCardPress(index)}>
+              <Text style={styles.cardTitle}>{title}</Text>
+              <View style={styles.cardFooter}>
+                <Text style={styles.cardSubtitle}>5 lecturas</Text>
+                <Icon name="arrow-right" size={20} color="#05517e" />
+              </View>
+            </TouchableOpacity>
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -63,32 +77,31 @@ const Opciones: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFFFFF',
   },
   header: {
-    backgroundColor: '#4a90e2',
     width: '100%',
     height: '30%',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
     paddingTop: 40,
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
   },
   headerTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center', // Cambiado a 'center'
     alignItems: 'center',
   },
   languageText: {
-    fontSize: 28,
+    fontSize: 30,
     color: '#fff',
     fontWeight: 'bold',
+    textAlign: 'center',
+    paddingTop: 40,
   },
   iconContainer: {
+    marginLeft: 10, // Agregado para dar espacio entre el texto y el icono
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ff6347',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -96,14 +109,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     marginTop: 10,
-  },
-  progress: {
-    fontSize: 16,
-    color: '#fff',
-    marginTop: 5,
+    textAlign: 'center', // Centrado el subtítulo
   },
   cardContainer: {
-    marginTop: -40, // Para superponer las opciones encima del fondo azul
+    marginTop: -40,
     paddingHorizontal: 20,
   },
   card: {
@@ -119,7 +128,7 @@ const styles = StyleSheet.create({
   },
   highlightedCard: {
     borderWidth: 2,
-    borderColor: '#ff6347',
+    borderColor: '#05517e',
   },
   cardTitle: {
     fontSize: 18,
@@ -139,4 +148,3 @@ const styles = StyleSheet.create({
 });
 
 export default Opciones;
-

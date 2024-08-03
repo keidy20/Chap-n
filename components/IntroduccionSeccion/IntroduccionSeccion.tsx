@@ -1,62 +1,78 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import * as Animatable from 'react-native-animatable';
+import { router } from 'expo-router';
 
-interface LetterDisplayProps {
-  letter: string;
-}
+const abecedario = [
+  { lower: 'a', upper: 'A' }, { lower: 'b', upper: 'B' }, { lower: 'c', upper: 'C' },
+  { lower: 'd', upper: 'D' }, { lower: 'e', upper: 'E' }, { lower: 'f', upper: 'F' },
+  { lower: 'g', upper: 'G' }, { lower: 'h', upper: 'H' }, { lower: 'i', upper: 'I' },
+  { lower: 'j', upper: 'J' }, { lower: 'k', upper: 'K' }, { lower: 'l', upper: 'L' },
+  { lower: 'm', upper: 'M' }, { lower: 'n', upper: 'N' }, { lower: 'ñ', upper: 'Ñ' },
+  { lower: 'o', upper: 'O' }, { lower: 'p', upper: 'P' }, { lower: 'q', upper: 'Q' },
+  { lower: 'r', upper: 'R' }, { lower: 's', upper: 'S' }, { lower: 't', upper: 'T' },
+  { lower: 'u', upper: 'U' }, { lower: 'v', upper: 'V' }, { lower: 'w', upper: 'W' },
+  { lower: 'x', upper: 'X' }, { lower: 'y', upper: 'Y' }, { lower: 'z', upper: 'Z' },
+];
 
-const IntroduccionSeccion: React.FC<LetterDisplayProps> = ({ letter }) => {
-  const speakerRef = useRef<any>(null); // Referencia para la animación del icono de bocina
+const IntroduccionSeccion: React.FC = () => {
+  const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
+  const currentLetter = abecedario[currentLetterIndex];
+  const [highlighted, setHighlighted] = useState({ lower: false, upper: false });
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
-    // Reproducir el audio de la letra
-    if (letter) {
-      Speech.speak(letter, { language: 'es' });
-      animateSpeaker(); // Iniciar animación del icono de bocina
-    }
-  }, [letter]);
+    const speakAndHighlight = async () => {
+      if (currentLetter) {
+        // Pronunciar la letra minúscula
+        Speech.speak(`${currentLetter.lower} minúscula`, {
+          language: 'es',
+          onStart: () => setHighlighted({ lower: true, upper: false }),
+          onDone: () => {
+            // Pronunciar la letra mayúscula después de una pequeña pausa
+            setTimeout(() => {
+              Speech.speak(`${currentLetter.upper} mayúscula`, {
+                language: 'es',
+                onStart: () => setHighlighted({ lower: false, upper: true }),
+                onDone: () => {
+                  // Pasar a la siguiente letra después de otra pequeña pausa
+                  setTimeout(() => {
+                    setHighlighted({ lower: false, upper: false });
+                    if (currentLetterIndex < abecedario.length - 1) {
+                      setCurrentLetterIndex((prevIndex) => prevIndex + 1);
+                    } else {
+                      setCompleted(true);
+                    }
+                  }, 500);
+                },
+              });
+            }, 500);
+          },
+        });
+      }
+    };
 
-  // Función para animar el icono de bocina
-  const animateSpeaker = () => {
-    if (speakerRef.current) {
-      speakerRef.current.pulse(1000);
+    if (!completed) {
+      speakAndHighlight();
+    }else{
+      router.navigate('/leccionCompleta');
     }
-  };
+  }, [currentLetter, completed]);
 
   return (
     <LinearGradient
-      colors={['#51b8dd', '#1e5799']}
+      colors={['#2A6F97', '#FFFFFF']}
       style={styles.container}
     >
       <View style={styles.letterContainer}>
-        <Text style={styles.letter}>{letter?.toLowerCase()}</Text>
-        <Text style={styles.letter}>{letter?.toUpperCase()}</Text>
+        <Text style={[styles.letter, highlighted.lower && styles.highlightedLetter]}>
+          {currentLetter.lower}
+        </Text>
+        <Text style={[styles.letter, highlighted.upper && styles.highlightedLetter]}>
+          {currentLetter.upper}
+        </Text>
       </View>
-      {/* Icono de bocina con animación */}
-      <TouchableOpacity
-        style={styles.speakerIconContainer}
-        onPress={() => Speech.speak(letter, { language: 'es' })}
-      >
-        <Animatable.View
-          ref={speakerRef}
-          animation="pulse"
-          iterationCount="infinite"
-          style={styles.speakerIcon}
-        >
-          <LinearGradient
-            colors={['#ff6347', '#ff8c00']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.gradientBackground}
-          >
-            <Icon name="volume-up" size={50} color="#fff" />
-          </LinearGradient>
-        </Animatable.View>
-      </TouchableOpacity>
     </LinearGradient>
   );
 };
@@ -77,25 +93,26 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginHorizontal: 20,
   },
-  speakerIconContainer: {
-    position: 'absolute',
-    top: 80,
-    right: 30,
-    alignItems: 'flex-end',
+  highlightedLetter: {
+    color: '#05517e', // Color resaltado
   },
-  speakerIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  congratulationsContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  gradientBackground: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+  congratulationsText: {
+    fontSize: 24,
+    color: '#2A6F97',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  nextButton: {
+    backgroundColor: '#2A6F97',
+    padding: 15,
+    borderRadius: 10,
+  },
+  nextButtonText: {
+    color: '#fff',
+    fontSize: 18,
   },
 });
 

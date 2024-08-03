@@ -19,7 +19,7 @@ const Splash: React.FC = () => {
       style={styles.gradient}
     >
       <View style={styles.container}>
-        <Image source={require('../../assets/1.png')} style={styles.image} />
+        <Image source={require('../../assets/Logo.png')} style={styles.image} />
       </View>
     </LinearGradient>
   );
@@ -35,8 +35,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: '40%',
-    height: '40%',
+    width: '50%',
+    height: '50%',
     resizeMode: 'contain',
   },
 });

@@ -2,15 +2,20 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 const LeccionCompletada: React.FC = () => {
+
+  const handleHome = () => {
+    router.navigate('/home');
+  };
   return (
     <LinearGradient
-      colors={['#4c669f', '#3b5998', '#192f6a']}
+      colors={['#2A6F97', '#e2dddd', '#2A6F97']}
       style={styles.container}
     >
       <View style={styles.content}>
-        <Text style={styles.levelText}>Nivel 3</Text>
+        <Text style={styles.levelText}>Módulo 1</Text>
         <Text style={styles.completedText}>¡COMPLETADO!</Text>
         <View style={styles.starsContainer}>
           <FontAwesome name="star" size={60} color="#FFD700" />
@@ -19,14 +24,12 @@ const LeccionCompletada: React.FC = () => {
         </View>
         <View style={styles.scoreContainer}>
           <Text style={styles.scoreText}>PUNTOS</Text>
-          <Text style={styles.score}>580</Text>
+          <Text style={styles.score}>100</Text>
         </View>
         <View style={styles.statsContainer}>
-          <Text style={styles.stat}>Porcentaje del progreso: 80%</Text>
-          <Text style={styles.stat}>Respuestas correctas: 50%</Text>
           <Text style={styles.stat}>Tiempo gastado: 00:00:21</Text>
         </View>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleHome}>
           <Text style={styles.buttonText}>CONTINUAR</Text>
         </TouchableOpacity>
       </View>
@@ -47,6 +50,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '90%',
     maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   levelText: {
     fontSize: 24,
@@ -77,7 +85,7 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#3b5998',
+    color: '#05517e',
   },
   statsContainer: {
     alignItems: 'flex-start',
@@ -89,7 +97,7 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   button: {
-    backgroundColor: '#3b5998',
+    backgroundColor: '#05517e',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,

@@ -20,7 +20,7 @@ const CrearCuenta: React.FC = () => {
   const [usuario, setUsuario] = useState({
     nombre: '',
     email: '',
-    telefono: '',
+    username: '',
     password: ''
   });
 
@@ -88,19 +88,18 @@ const CrearCuenta: React.FC = () => {
           />
           <TextInput
             style={styles.input}
+            placeholder="Nombre de usuario"
+            placeholderTextColor="#242424"
+            value={usuario.username}
+            onChangeText={text => setUsuario({ ...usuario, username: text })}
+          />
+          <TextInput
+            style={styles.input}
             placeholder="Correo Electrónico"
             placeholderTextColor="#242424"
             keyboardType="email-address"
             value={usuario.email}
             onChangeText={text => setUsuario({ ...usuario, email: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Número de telefono"
-            placeholderTextColor="#242424"
-            keyboardType="phone-pad"
-            value={usuario.telefono}
-            onChangeText={text => setUsuario({ ...usuario, telefono: text })}
           />
           <TextInput
             style={styles.input}
@@ -114,7 +113,7 @@ const CrearCuenta: React.FC = () => {
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => console.log('Sign in')}>
-            <Text style={styles.signInText}>Ya tienes una cuenta? <Text style={styles.signInLink}>Sign in</Text></Text>
+            <Text style={styles.signInText}>¿Ya tienes una cuenta? <Text style={styles.signInLink}>Sign in</Text></Text>
           </TouchableOpacity>
         </View>
       </View>

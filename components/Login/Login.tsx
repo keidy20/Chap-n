@@ -14,7 +14,7 @@ const Login: React.FC = () => {
   const handleLogin = () => {
     console.log('Email:', email);
     console.log('Password:', password);
-    router.navigate('/vocabulario');
+    router.navigate('/home');
   };
 
   const goBack = () => {

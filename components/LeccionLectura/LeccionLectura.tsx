@@ -291,13 +291,13 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   currentProgressDot: {
-    backgroundColor: '#000',
+    backgroundColor: '#05517e',
   },
   pageIndicator: {
     fontSize: 16,
   },
   nextButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#2A6F97',
     padding: 10,
     borderRadius: 20,
   },
