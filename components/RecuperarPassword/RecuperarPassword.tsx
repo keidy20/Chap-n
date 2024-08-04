@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { recoveryPassword } from '@/services/Services';
 
 const { width } = Dimensions.get('window');
 
@@ -21,7 +22,8 @@ const RecuperarPassword: React.FC = () => {
     if (validateEmail(email)) {
       console.log('Email:', email);
       // Aquí puedes agregar la lógica para enviar el correo de recuperación de contraseña
-      router.navigate('/home');
+      recoveryPassword(email)
+      router.navigate('/login');
     } else {
       console.log('Correo electrónico no válido');
     }

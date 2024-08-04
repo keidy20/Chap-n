@@ -5,6 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import CryptoJS from 'crypto-js';
 import { router } from 'expo-router';
 import { validarCampos } from '@/utils/StringUtils';
+import * as Keychain from 'react-native-keychain';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,7 +26,9 @@ const CrearCuenta: React.FC = () => {
     password: ''
   });
 
+
   useEffect(() => {
+
     if (validarCampos(usuario) && validarPassword(usuario.password)) {
       setDisabled(false);
     } else {
@@ -42,9 +46,9 @@ const CrearCuenta: React.FC = () => {
   };
 
   const crearCuenta = async () => {
-    let usuarioTemp: any = { ...usuario, password: encrypt(usuario.password) };
-    const url = `${baseUrl}/usuarios`;
-
+    console.log('Creando cuenta')
+    const url = `${baseUrl}/auth/crear_usuario`;
+    console.log('Url ', url)
     try {
       const res = await fetch(url, {
         method: 'POST',
@@ -52,16 +56,45 @@ const CrearCuenta: React.FC = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify(usuarioTemp)
+        body: JSON.stringify(usuario)
       });
 
       if (!res.ok) {
         throw new Error('Network response was not ok ' + res.statusText);
       }
+      const data = await res.json()
+      console.log('Respuesta del servidor ', data.token)
+      storeToken(data.token)
+      const token = await getToken()
+      console.log('Token guardado ', token)
     } catch (error) {
       console.log('Error ', error);
     }
   };
+
+  const storeToken = async (token: any) => {
+    try {
+      await AsyncStorage.setItem('userToken', token);
+    } catch (error) {
+      console.error('Error al guardar el token:', error);
+    }
+  };
+
+  // Recuperar el token
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      console.log('Obteniendo token ', token)
+      return token;
+    } catch (error) {
+      console.error('Error al obtener el token:', error);
+    }
+  };
+
+  const redirectLogin = () => {
+    router.navigate('/login');
+  }
+
 
   return (
     <LinearGradient
@@ -112,8 +145,8 @@ const CrearCuenta: React.FC = () => {
           <TouchableOpacity style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]} onPress={crearCuenta} disabled={disabled}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log('Sign in')}>
-            <Text style={styles.signInText}>¿Ya tienes una cuenta? <Text style={styles.signInLink}>Sign in</Text></Text>
+          <TouchableOpacity onPress={redirectLogin}>
+            <Text style={styles.signInText}>¿Ya tienes una cuenta? <Text style={styles.signInLink}>Login</Text></Text>
           </TouchableOpacity>
         </View>
       </View>
