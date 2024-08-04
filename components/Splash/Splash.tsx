@@ -2,16 +2,27 @@ import React, { useEffect } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { existToken, removeToken } from '@/utils/TokenUtils';
 
 const Splash: React.FC = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.navigate('/bienvenida')
+      redirect()
+      
     }, 1500); // Duración del splash screen
     
     return () => clearTimeout(timeout);
   }, []);
+
+  const redirect = async () => {
+    await removeToken()
+    if (await existToken()) {
+      router.navigate('/home')
+    } else {
+      router.navigate('/bienvenida')
+    }
+  }
 
   return (
     <LinearGradient
@@ -42,3 +53,4 @@ const styles = StyleSheet.create({
 });
 
 export default Splash;
+

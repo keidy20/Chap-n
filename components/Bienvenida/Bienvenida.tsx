@@ -20,7 +20,7 @@ const Bienvenida: React.FC = () => {
 
   const handleContinue = () => {
     console.log('Iniciar sesión presionado');
-    router.navigate('/recuperarPassword');
+    router.navigate('/login');
   };
 
   const handleCreateAccount = () => {
