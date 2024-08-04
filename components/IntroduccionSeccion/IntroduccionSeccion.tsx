@@ -6,14 +6,6 @@ import { router } from 'expo-router';
 
 const abecedario = [
   { lower: 'a', upper: 'A' }, { lower: 'b', upper: 'B' }, { lower: 'c', upper: 'C' },
-  { lower: 'd', upper: 'D' }, { lower: 'e', upper: 'E' }, { lower: 'f', upper: 'F' },
-  { lower: 'g', upper: 'G' }, { lower: 'h', upper: 'H' }, { lower: 'i', upper: 'I' },
-  { lower: 'j', upper: 'J' }, { lower: 'k', upper: 'K' }, { lower: 'l', upper: 'L' },
-  { lower: 'm', upper: 'M' }, { lower: 'n', upper: 'N' }, { lower: 'ñ', upper: 'Ñ' },
-  { lower: 'o', upper: 'O' }, { lower: 'p', upper: 'P' }, { lower: 'q', upper: 'Q' },
-  { lower: 'r', upper: 'R' }, { lower: 's', upper: 'S' }, { lower: 't', upper: 'T' },
-  { lower: 'u', upper: 'U' }, { lower: 'v', upper: 'V' }, { lower: 'w', upper: 'W' },
-  { lower: 'x', upper: 'X' }, { lower: 'y', upper: 'Y' }, { lower: 'z', upper: 'Z' },
 ];
 
 const IntroduccionSeccion: React.FC = () => {

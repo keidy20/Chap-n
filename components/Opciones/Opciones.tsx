@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Opciones: React.FC = () => {
   const router = useRouter();
@@ -12,22 +13,29 @@ const Opciones: React.FC = () => {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   useEffect(() => {
-    // Texto de bienvenida
-    const welcomeText = "A continuación, haremos un recorrido para saber el nivel de aprendizaje con el que cuentas. Para ello, iniciaremos con las vocales. Presiona la opción que se te resalta para poder continuar.";
+    const fetchLessonProgress = async () => {
+      try {
+        const storedLessons = await AsyncStorage.getItem('completedLessons');
+        const parsedLessons = storedLessons ? JSON.parse(storedLessons) : [false, false, false, false, false, false];
+        setCompletedLessons(parsedLessons);
+      } catch (error) {
+        console.error('Error fetching lesson progress', error);
+      }
+    };
 
-    // Reproducir el texto de bienvenida y comenzar la animación cuando termine
+    fetchLessonProgress();
+
+    const welcomeText = "A continuación, haremos un recorrido para saber el nivel de aprendizaje con el que cuentas. Para ello, iniciaremos con las vocales. Presiona la opción que se te resalta para poder continuar.";
     Speech.speak(welcomeText, {
       language: 'es',
       onDone: () => setIsBouncing(true),
     });
   }, []);
 
-  // Función para manejar la selección de la tarjeta
   const handleCardPress = (index: number) => {
-    if (index === 0 || completedLessons[0]) { // Asegurarse de que la primera lección esté completada o sea la primera tarjeta
+    if (index === 0 || completedLessons[index - 1]) { // Asegurarse de que la lección esté completada o sea la primera tarjeta
       setSelectedCard(index);
-      // Aquí puedes redirigir a la lección correspondiente
-          router.navigate('/lecciones');
+      router.navigate('/lecciones');
     }
   };
 
@@ -58,13 +66,23 @@ const Opciones: React.FC = () => {
             style={[
               styles.card,
               (selectedCard === index || (index === 0 && completedLessons[0])) && styles.highlightedCard,
+              !completedLessons[index] && !((index === 0) || completedLessons[index - 1]) && styles.disabledCard,
             ]}
           >
-            <TouchableOpacity onPress={() => handleCardPress(index)}>
+            <TouchableOpacity 
+              onPress={() => handleCardPress(index)}
+              disabled={!completedLessons[index] && !(index === 0 || completedLessons[index - 1])} // Deshabilitar la tarjeta si no está completa o no es la primera
+            >
               <Text style={styles.cardTitle}>{title}</Text>
               <View style={styles.cardFooter}>
                 <Text style={styles.cardSubtitle}>5 lecturas</Text>
-                <Icon name="arrow-right" size={20} color="#05517e" />
+                {completedLessons[index] ? (
+                  <Icon name="check" size={20} color="#05517e" />
+                ) : !((index === 0) || completedLessons[index - 1]) ? (
+                  <Icon name="lock" size={20} color="#888" />
+                ) : (
+                  <Icon name="arrow-right" size={20} color="#05517e" />
+                )}
               </View>
             </TouchableOpacity>
           </View>
@@ -87,7 +105,7 @@ const styles = StyleSheet.create({
   },
   headerTop: {
     flexDirection: 'row',
-    justifyContent: 'center', // Cambiado a 'center'
+    justifyContent: 'center',
     alignItems: 'center',
   },
   languageText: {
@@ -97,19 +115,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 40,
   },
-  iconContainer: {
-    marginLeft: 10, // Agregado para dar espacio entre el texto y el icono
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   subtitle: {
     fontSize: 16,
     color: '#fff',
     marginTop: 10,
-    textAlign: 'center', // Centrado el subtítulo
+    textAlign: 'center',
   },
   cardContainer: {
     marginTop: -40,
@@ -129,6 +139,9 @@ const styles = StyleSheet.create({
   highlightedCard: {
     borderWidth: 2,
     borderColor: '#05517e',
+  },
+  disabledCard: {
+    opacity: 0.5,
   },
   cardTitle: {
     fontSize: 18,
