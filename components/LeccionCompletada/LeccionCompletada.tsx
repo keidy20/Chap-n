@@ -1,14 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LeccionCompletada: React.FC = () => {
+  const router = useRouter();
 
   const handleHome = () => {
     router.navigate('/home');
   };
+
+  const saveLessonProgress = async () => {
+    try {
+      const storedLessons = await AsyncStorage.getItem('completedLessons');
+      const currentLessons = storedLessons ? JSON.parse(storedLessons) : [false, false, false, false, false, false];
+      
+      // Marca la lección como completada
+      currentLessons[0] = true; // Modifica el índice según la lección que deseas marcar como completada
+      
+      // Guarda el progreso actualizado
+      await AsyncStorage.setItem('completedLessons', JSON.stringify(currentLessons));
+    } catch (error) {
+      console.error('Error saving lesson progress', error);
+    }
+  };
+
+  useEffect(() => {
+    saveLessonProgress();
+  }, []);
+
   return (
     <LinearGradient
       colors={['#2A6F97', '#e2dddd', '#2A6F97']}
