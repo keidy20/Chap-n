@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as Speech from 'expo-speech';
@@ -8,9 +8,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Opciones: React.FC = () => {
   const router = useRouter();
-  const [isBouncing, setIsBouncing] = useState(false);
-  const [completedLessons, setCompletedLessons] = useState([false, false, false, false, false, false]); // Cambia según el número de lecciones
+  const [completedLessons, setCompletedLessons] = useState([false, false, false, false, false, false]);
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
+  const [pulseAnim] = useState(new Animated.Value(1));
+  const [isOverlayVisible, setIsOverlayVisible] = useState(true);
 
   useEffect(() => {
     const fetchLessonProgress = async () => {
@@ -28,14 +29,38 @@ const Opciones: React.FC = () => {
     const welcomeText = "A continuación, haremos un recorrido para saber el nivel de aprendizaje con el que cuentas. Para ello, iniciaremos con las vocales. Presiona la opción que se te resalta para poder continuar.";
     Speech.speak(welcomeText, {
       language: 'es',
-      onDone: () => setIsBouncing(true),
+      onDone: () => {
+        setIsOverlayVisible(false);
+        startPulseAnimation();
+      },
     });
   }, []);
 
+  const startPulseAnimation = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
   const handleCardPress = (index: number) => {
-    if (index === 0 || completedLessons[index - 1]) { // Asegurarse de que la lección esté completada o sea la primera tarjeta
+    if (index === 0 || completedLessons[index - 1]) {
       setSelectedCard(index);
-      router.navigate('/lecciones');
+      if (index === 1) { // Si es la segunda lección
+        router.navigate('/memoria'); // Redirige a MemoryGame
+      } else {
+        router.navigate('/lecciones'); // Redirige a otras lecciones
+      }
     }
   };
 
@@ -61,17 +86,20 @@ const Opciones: React.FC = () => {
       </LinearGradient>
       <View style={styles.cardContainer}>
         {lessonTitles.map((title, index) => (
-          <View
+          <Animated.View
             key={index}
             style={[
               styles.card,
               (selectedCard === index || (index === 0 && completedLessons[0])) && styles.highlightedCard,
               !completedLessons[index] && !((index === 0) || completedLessons[index - 1]) && styles.disabledCard,
+              (selectedCard === index || (index === 0 && completedLessons[0])) && {
+                transform: [{ scale: pulseAnim }],
+              },
             ]}
           >
             <TouchableOpacity 
               onPress={() => handleCardPress(index)}
-              disabled={!completedLessons[index] && !(index === 0 || completedLessons[index - 1])} // Deshabilitar la tarjeta si no está completa o no es la primera
+              disabled={isOverlayVisible || !completedLessons[index] && !(index === 0 || completedLessons[index - 1])}
             >
               <Text style={styles.cardTitle}>{title}</Text>
               <View style={styles.cardFooter}>
@@ -85,8 +113,17 @@ const Opciones: React.FC = () => {
                 )}
               </View>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         ))}
+        {isOverlayVisible && (
+          <View style={styles.overlay}>
+            <Image
+              source={require('../../assets/Ondas.gif')} // Reemplaza con la ruta de tu GIF
+              style={styles.soundWave}
+              resizeMode="contain"
+            />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -122,8 +159,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cardContainer: {
+    flex: 1,
     marginTop: -40,
     paddingHorizontal: 20,
+    position: 'relative',
   },
   card: {
     backgroundColor: '#fff',
@@ -138,7 +177,7 @@ const styles = StyleSheet.create({
   },
   highlightedCard: {
     borderWidth: 2,
-    borderColor: '#05517e',
+    borderColor: '#7e051f',
   },
   disabledCard: {
     opacity: 0.5,
@@ -157,6 +196,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 10,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  soundWave: {
+    width: 400,
+    height: 300,
   },
 });
 

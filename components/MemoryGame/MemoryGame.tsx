@@ -103,7 +103,7 @@ const MemoryGame: React.FC = () => {
 
   return (
     <LinearGradient
-      colors={['#4c669f', '#3b5998', '#192f6a']}
+      colors={['#2A6F97', '#FFFFFF']}
       style={styles.container}
     >
       {!gameStarted ? (
