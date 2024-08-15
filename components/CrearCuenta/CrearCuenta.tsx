@@ -67,6 +67,7 @@ const CrearCuenta: React.FC = () => {
       storeToken(data.token)
       const token = await getToken()
       console.log('Token guardado ', token)
+      router.navigate('/home');
     } catch (error) {
       console.log('Error ', error);
     }

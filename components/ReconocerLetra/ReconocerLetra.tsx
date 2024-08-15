@@ -6,7 +6,7 @@ import { FontAwesome } from '@expo/vector-icons';
 
 // Array de imágenes relacionadas con cada letra
 const images: { [key: string]: { image: any, name: string } } = {
-  'A': { image: require('../../assets/abejas.png'), name: 'ABEJA' },
+  'A': { image: require('../../assets/abeja.png'), name: 'ABEJA' },
   'B': { image: require('../../assets/botas.png'), name: 'BOTA' },
   'C': { image: require('../../assets/casa.png'), name: 'CASA' },
   'D': { image: require('../../assets/dado.png'), name: 'DADO' },
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     height: 80,
     margin: 10,
     borderRadius: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#2A6F97',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000000',
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   letter: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#ffff',
   },
   nextButton: {
     backgroundColor: '#2A6F97',

@@ -16,7 +16,7 @@ const Splash: React.FC = () => {
   }, []);
 
   const redirect = async () => {
-    await removeToken()
+  
     if (await existToken()) {
       router.navigate('/home')
     } else {

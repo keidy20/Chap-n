@@ -28,6 +28,30 @@ const lessons = [
     translation: 'La familia cena pasta los domingos por la noche.',
     options: ["Desayuno", "Almuerzo", "Cena", "Merienda", "Pasta"],
     correctOption: "Pasta"
+  },
+  {
+    text: 'El perro duerme en su ___ durante la noche.',
+    translation: 'El perro duerme en su cama durante la noche.',
+    options: ["Cama", "Sofá", "Silla", "Mesa", "Alfombra"],
+    correctOption: "Cama"
+  },
+  {
+    text: 'Los niños están en la ___ jugando con sus juguetes.',
+    translation: 'Los niños están en la escuela jugando con sus juguetes.',
+    options: ["Escuela", "Casa", "Parque", "Playa", "Biblioteca"],
+    correctOption: "Escuela"
+  },
+  {
+    text: 'La mamá compra ___ para preparar la cena.',
+    translation: 'La mamá compra ingredientes para preparar la cena.',
+    options: ["Ingredientes", "Juguetes", "Ropa", "Libros", "Zapatos"],
+    correctOption: "Ingredientes"
+  },
+  {
+    text: 'En el verano, la gente va a la ___ para nadar.',
+    translation: 'En el verano, la gente va a la piscina para nadar.',
+    options: ["Playa", "Montaña", "Piscina", "Ciudad", "Campo"],
+    correctOption: "Piscina"
   }
 ];
 
@@ -93,7 +117,6 @@ const LeccionLectura = () => {
           source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg' }}
         />
       </View>
-      <Text style={styles.title}>Comida</Text>
       <Text style={styles.subtitle}>Llena los espacios en esta oración</Text>
       <View style={styles.lessonContainer}>
         <View style={styles.sentenceContainer}>
@@ -170,11 +193,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginTop: 45,
+    marginBottom: 45,
     zIndex: 2,
   },
   lessonNumber: {
-    fontSize: 18,
+    fontSize: 30,
     fontWeight: 'bold',
   },
   flagIcon: {
@@ -182,14 +206,15 @@ const styles = StyleSheet.create({
     height: 20,
   },
   title: {
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
+    marginTop: 30,
     zIndex: 2,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 25,
     textAlign: 'center',
     marginBottom: 110,
     zIndex: 2,
@@ -204,6 +229,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     marginBottom: 20,
+    marginTop: -50,
     borderWidth: 1,
     borderColor: '#e0eafc',
     paddingVertical: 30,
@@ -221,16 +247,16 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   sentence: {
-    fontSize: 25,
+    fontSize: 30,
     textAlign: 'center',
     flex: 1,
   },
   word: {
-    fontSize: 25,
+    fontSize: 30,
     color: '#000',
   },
   highlightedWord: {
-    fontSize: 25,
+    fontSize: 30,
     color: '#1e90ff',
     fontWeight: 'bold',
   },
@@ -243,10 +269,11 @@ const styles = StyleSheet.create({
     zIndex: 3,
   },
   translation: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#888',
     textAlign: 'center',
     marginTop: 8,
+    marginBottom: 10,
     zIndex: 2,
   },
   optionsContainer: {
@@ -266,7 +293,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#87ceeb',
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#000',
   },
   footer: {
@@ -294,7 +321,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#05517e',
   },
   pageIndicator: {
-    fontSize: 16,
+    fontSize: 20,
   },
   nextButton: {
     backgroundColor: '#2A6F97',
@@ -302,7 +329,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   nextButtonText: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#fff',
   },
 });

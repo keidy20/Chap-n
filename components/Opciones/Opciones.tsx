@@ -12,6 +12,7 @@ const Opciones: React.FC = () => {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
   const [pulseAnim] = useState(new Animated.Value(1));
   const [isOverlayVisible, setIsOverlayVisible] = useState(true);
+  const [currentUnlockedLesson, setCurrentUnlockedLesson] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchLessonProgress = async () => {
@@ -19,6 +20,10 @@ const Opciones: React.FC = () => {
         const storedLessons = await AsyncStorage.getItem('completedLessons');
         const parsedLessons = storedLessons ? JSON.parse(storedLessons) : [false, false, false, false, false, false];
         setCompletedLessons(parsedLessons);
+
+        // Determinar la última lección desbloqueada
+        const lastUnlocked = parsedLessons.lastIndexOf(true);
+        setCurrentUnlockedLesson(lastUnlocked + 1); // La siguiente lección a desbloquear
       } catch (error) {
         console.error('Error fetching lesson progress', error);
       }
@@ -57,7 +62,7 @@ const Opciones: React.FC = () => {
     if (index === 0 || completedLessons[index - 1]) {
       setSelectedCard(index);
       if (index === 1) { // Si es la segunda lección
-        router.navigate('/memoria'); // Redirige a MemoryGame
+        router.navigate('/vocales'); // Redirige a MemoryGame
       } else {
         router.navigate('/lecciones'); // Redirige a otras lecciones
       }
@@ -90,7 +95,7 @@ const Opciones: React.FC = () => {
             key={index}
             style={[
               styles.card,
-              (selectedCard === index || (index === 0 && completedLessons[0])) && styles.highlightedCard,
+              (index === currentUnlockedLesson) && styles.highlightedCard,
               !completedLessons[index] && !((index === 0) || completedLessons[index - 1]) && styles.disabledCard,
               (selectedCard === index || (index === 0 && completedLessons[0])) && {
                 transform: [{ scale: pulseAnim }],
