@@ -3,50 +3,39 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { recoveryPassword } from '@/services/Services';
 
 const { width } = Dimensions.get('window');
 
-const RecuperarPassword: React.FC = () => {
-  const [email, setEmail] = useState('');
+const IngresarToken: React.FC = () => {
+  const [token, setToken] = useState('');
+  const [password, setPassword] = useState('');
   const [disabled, setDisabled] = useState(true);
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
 
-  // Valida que el correo electrónico sea válido
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
+  const validateInputs = () => {
+    return token.trim() !== '' && password.trim() !== '';
   };
 
-  // Maneja el envío del correo para recuperación de contraseña
-  const handleRecoverPassword = () => {
-    if (validateEmail(email)) {
-      console.log('Email:', email);
-      // Aquí puedes agregar la lógica para enviar el correo de recuperación de contraseña
-      recoveryPassword(email)
-      router.navigate('/nuevaPassword');
+  const handleChangePassword = () => {
+    if (validateInputs()) {
+      console.log('Token:', token);
+      console.log('New Password:', password);
+      router.navigate('/login');
     } else {
-      console.log('Correo electrónico no válido');
+      console.log('Por favor, completa ambos campos');
     }
   };
 
-  // Habilita o deshabilita el botón dependiendo de la validez del correo electrónico
   React.useEffect(() => {
-    setDisabled(!validateEmail(email));
-  }, [email]);
+    setDisabled(!validateInputs());
+  }, [token, password]);
 
   const goBack = () => {
     router.back();
   };
 
-  const NuevaPassword = () => {
-    router.navigate('/nuevaPassword');
-  }
-
   return (
-    <LinearGradient
-      colors={['#2A6F97', '#FFFFFF']}
-      style={styles.gradient}
-    >
+    <LinearGradient colors={['#2A6F97', '#FFFFFF']} style={styles.gradient}>
       <View style={styles.container}>
         <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
           <View style={styles.goBackCircle}>
@@ -55,23 +44,36 @@ const RecuperarPassword: React.FC = () => {
         </TouchableOpacity>
         <View style={styles.card}>
           <View style={styles.logoContainer}>
-            <Ionicons name="key-outline" size={80} color="#2A6F97" />
+            <Ionicons name="lock-closed-outline" size={80} color="#2A6F97" />
           </View>
-          <Text style={styles.title}>Recuperar Contraseña</Text>
+          <Text style={styles.title}>Cambiar Contraseña</Text>
           <TextInput
             style={styles.input}
-            placeholder="Correo Electrónico"
+            placeholder="Token"
             placeholderTextColor="#242424"
-            keyboardType="email-address"
-            value={email}
-            onChangeText={text => setEmail(text)}
+            value={token}
+            onChangeText={text => setToken(text)}
           />
-          <TouchableOpacity 
-            style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]} 
-            onPress={handleRecoverPassword} 
+          <View style={styles.passwordContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color="#242424" style={styles.inputIcon} />
+            <TextInput
+              style={styles.inputPassword}
+              placeholder="Nueva Contraseña"
+              placeholderTextColor="#242424"
+              secureTextEntry={!isPasswordVisible}
+              value={password}
+              onChangeText={text => setPassword(text)}
+            />
+            <TouchableOpacity onPress={() => setPasswordVisible(!isPasswordVisible)}>
+              <Ionicons name={isPasswordVisible ? "eye-outline" : "eye-off-outline"} size={20} color="#242424" />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]}
+            onPress={handleChangePassword}
             disabled={disabled}
           >
-            <Text style={styles.buttonText}>Recuperar</Text>
+            <Text style={styles.buttonText}>Cambiar Contraseña</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -145,6 +147,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     color: '#242424',
   },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: '100%',
+  },
+  inputPassword: {
+    flex: 1,
+    color: '#242424',
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
   button: {
     paddingVertical: 15,
     paddingHorizontal: 50,
@@ -165,4 +183,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RecuperarPassword;
+export default IngresarToken;

@@ -8,6 +8,7 @@ import Nivel1 from '@/components/Nivel1'
 import PalabrasDiarias from '@/components/PalabrasDiarias'
 import Quiz1 from '@/components/Quiz1'
 import ReconocerLetra from '@/components/ReconocerLetra'
+import RecuperarPassword from '@/components/RecuperarPassword'
 import Vocales from '@/components/Vocales'
 import VocalGame from '@/components/VocalGame/VocalGame'
 import React from 'react'
@@ -16,7 +17,7 @@ import { View, StyleSheet } from 'react-native'
 export default function VocalesRoute() {
   return (
     <View style={style.container}>
-      <Vocales/>
+      <RecuperarPassword/>
     </View>
   )
 }
