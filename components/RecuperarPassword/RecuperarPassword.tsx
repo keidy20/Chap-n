@@ -22,12 +22,15 @@ const RecuperarPassword: React.FC = () => {
     if (validateEmail(email)) {
       console.log('Email:', email);
       // Aquí puedes agregar la lógica para enviar el correo de recuperación de contraseña
+
+
       recoveryPassword(email)
       router.navigate('/nuevaPassword');
     } else {
       console.log('Correo electrónico no válido');
     }
   };
+
 
   // Habilita o deshabilita el botón dependiendo de la validez del correo electrónico
   React.useEffect(() => {

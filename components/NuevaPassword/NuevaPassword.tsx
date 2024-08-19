@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { validarPassword } from '@/utils/StringUtils';
+import { changePassword } from '@/services/Services';
 
 const { width } = Dimensions.get('window');
 
@@ -12,23 +14,28 @@ const IngresarToken: React.FC = () => {
   const [disabled, setDisabled] = useState(true);
   const [isPasswordVisible, setPasswordVisible] = useState(false);
 
-  const validateInputs = () => {
+  useEffect(() => {
+    if (validateToken() && validarPassword(password)) {
+      setDisabled(false)
+    } else {
+      setDisabled(true)
+    }
+  }, [token, password])
+
+  const validateToken = () => {
     return token.trim() !== '' && password.trim() !== '';
   };
 
   const handleChangePassword = () => {
-    if (validateInputs()) {
-      console.log('Token:', token);
-      console.log('New Password:', password);
-      router.navigate('/login');
-    } else {
-      console.log('Por favor, completa ambos campos');
-    }
+
+    changePassword(token, password)
+
+    console.log('Token:', token);
+    console.log('New Password:', password);
+    router.navigate('/login');
+  
   };
 
-  React.useEffect(() => {
-    setDisabled(!validateInputs());
-  }, [token, password]);
 
   const goBack = () => {
     router.back();
