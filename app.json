@@ -4,21 +4,18 @@
     "slug": "Chapin-AppMovile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/Logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
+      "backgroundColor": "#2A6F97"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/Logo.png",
+        "backgroundColor": "#2A6F97"
       }
     },
     "web": {
@@ -28,6 +25,7 @@
     },
     "plugins": [
       "expo-router"
+      
     ],
     "experiments": {
       "typedRoutes": true

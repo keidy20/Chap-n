@@ -7,36 +7,36 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 const lessons = [
-  {
-    oracion: 'El hombre come ___ revueltos en el desayuno.',
-    oracionCompleta: 'El hombre come huevos revueltos en el desayuno.',
-    opciones: ["Manzanas", "Huevos", "Batatas", "Tomates", "Zapallos"],
-    opcionCorrecta: "Huevos"
-  },
-  {
-    oracion: 'La mujer bebe jugo de ___ en la mañana.',
-    oracionCompleta: 'La mujer bebe jugo de naranja en la mañana.',
-    opciones: ["Naranja", "Leche", "Agua", "Café", "Té"],
-    opcionCorrecta: "Naranja"
-  },
-  {
-    oracion: 'El niño juega con sus amigos en el ___',
-    oracionCompleta: 'El niño juega con sus amigos en el parque.',
-    opciones: ["Perro", "Gato", "Niño", "Amigos", "Parque"],
-    opcionCorrecta: "Parque"
-  },
-  {
-    oracion: 'La familia cena ___ los domingos por la noche.',
-    oracionCompleta: 'La familia cena pasta los domingos por la noche.',
-    opciones: ["Desayuno", "Almuerzo", "Cena", "Merienda", "Pasta"],
-    opcionCorrecta: "Pasta"
-  },
-  {
-    oracion: 'En el verano, la gente va a la ___ para nadar.',
-    oracionCompleta: 'En el verano, la gente va a la piscina para nadar.',
-    opciones: ["Playa", "Montaña", "Piscina", "Ciudad", "Campo"],
-    opcionCorrecta: "Piscina"
-  }
+    {
+        text: 'Ella viaja a ___ para aprender sobre historia antigua.',
+        translation: 'Ella viaja a Roma para aprender sobre historia antigua.',
+        options: ["Roma", "París", "Londres", "Madrid", "Berlín"],
+        correctOption: "Roma"
+      },
+      {
+        text: 'El artista pinta un mural en el ___ de la ciudad.',
+        translation: 'El artista pinta un mural en el centro de la ciudad.',
+        options: ["Centro", "Sur", "Norte", "Este", "Oeste"],
+        correctOption: "Centro"
+      },
+      {
+        text: 'Durante el invierno, me gusta tomar ___ caliente.',
+        translation: 'Durante el invierno, me gusta tomar chocolate caliente.',
+        options: ["Café", "Té", "Chocolate", "Agua", "Jugo"],
+        correctOption: "Chocolate"
+      },
+      {
+        text: 'Los estudiantes estudian para sus ___ en la biblioteca.',
+        translation: 'Los estudiantes estudian para sus exámenes en la biblioteca.',
+        options: ["Tareas", "Proyectos", "Exámenes", "Ensayos", "Clases"],
+        correctOption: "Exámenes"
+      },
+      {
+        text: 'En la fiesta, se sirvieron ___ para todos los invitados.',
+        translation: 'En la fiesta, se sirvieron aperitivos para todos los invitados.',
+        options: ["Bebidas", "Aperitivos", "Platos", "Postres", "Ensaladas"],
+        correctOption: "Aperitivos"
+      }
 ];
 
 const LeccionLectura = () => {
@@ -46,11 +46,11 @@ const LeccionLectura = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   const currentLesson = lessons[currentLessonIndex];
-  const words = currentLesson.oracion.split(' ');
+  const words = currentLesson.text.split(' ');
 
   const handleStartReading = () => {
     setIsSpeaking(true);
-    Speech.speak(currentLesson.oracionCompleta, {
+    Speech.speak(currentLesson.translation, {
       language: 'es',
       onDone: () => setIsSpeaking(false),
       onStopped: () => setIsSpeaking(false),
@@ -62,11 +62,11 @@ const LeccionLectura = () => {
     router.back();
   };
 
-  const handleopcioneselect = (option: string) => {
+  const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
-    setIsCorrect(option === currentLesson.opcionCorrecta);
+    setIsCorrect(option === currentLesson.correctOption);
 
-    if (option === currentLesson.opcionCorrecta) {
+    if (option === currentLesson.correctOption) {
       Speech.speak('¡Correcto! Continúa con la siguiente lección.', { language: 'es' });
     } else {
       Speech.speak('Incorrecto. Vuelve a intentarlo y presta atención a la lectura.', { language: 'es' });
@@ -118,8 +118,8 @@ const LeccionLectura = () => {
             {words.map((word, index) => (
               <Text key={index} style={styles.word}>
                 {word === '___' ? (
-                  selectedOption === currentLesson.opcionCorrecta ? (
-                    <Text style={styles.highlightedWord}>{currentLesson.opcionCorrecta.toLowerCase()} </Text>
+                  selectedOption === currentLesson.correctOption ? (
+                    <Text style={styles.highlightedWord}>{currentLesson.correctOption.toLowerCase()} </Text>
                   ) : (
                     <Text style={styles.placeholderOval}>_____ </Text>
                   )
@@ -133,17 +133,17 @@ const LeccionLectura = () => {
             <FontAwesome name="volume-up" size={24} color={isSpeaking ? '#1e90ff' : 'black'} />
           </TouchableOpacity>
         </View>
-        <View style={styles.opcionesContainer}>
-          {currentLesson.opciones.map((option, index) => (
+        <View style={styles.optionsContainer}>
+          {currentLesson.options.map((option, index) => (
             <TouchableOpacity
               key={index}
               style={[
                 styles.optionButton,
                 selectedOption === option && styles.selectedOptionButton,
               ]}
-              onPress={() => handleopcioneselect(option)}
+              onPress={() => handleOptionSelect(option)}
             >
-              <Text style={styles.optionoracion}>{option}</Text>
+              <Text style={styles.optionText}>{option}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -162,7 +162,7 @@ const LeccionLectura = () => {
       <View style={styles.footer}>
         <Text style={styles.pageIndicator}>{currentLessonIndex + 1} / {lessons.length}</Text>
         <TouchableOpacity style={styles.nextButton} onPress={handleNextLesson}>
-          <Text style={styles.nextButtonoracion}>Siguiente</Text>
+          <Text style={styles.nextButtonText}>Siguiente</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     zIndex: 3,
   },
-  opcionesContainer: {
+  optionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   selectedOptionButton: {
     backgroundColor: '#1e90ff',
   },
-  optionoracion: {
+  optionText: {
     fontSize: 18,
     color: '#000',
   },
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
-  nextButtonoracion: {
+  nextButtonText: {
     color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',

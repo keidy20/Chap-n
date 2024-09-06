@@ -19,6 +19,7 @@ const CrearCuenta: React.FC = () => {
   };
 
   const [disabled, setDisabled] = useState(true);
+  const [showPassword, setShowPassword] = useState(true);
   const [usuario, setUsuario] = useState({
     nombre: '',
     email: '',
@@ -135,14 +136,21 @@ const CrearCuenta: React.FC = () => {
             value={usuario.email}
             onChangeText={text => setUsuario({ ...usuario, email: text })}
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Contraseña"
-            placeholderTextColor="#242424"
-            secureTextEntry={true}
-            value={usuario.password}
-            onChangeText={text => setUsuario({ ...usuario, password: text })}
-          />
+          <View style={styles.passwordContainer}>
+          <Ionicons name="lock-closed-outline" size={20} color="#242424" style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="Contraseña"
+              placeholderTextColor="#242424"
+              secureTextEntry={showPassword}
+              value={usuario.password}
+              onChangeText={text => setUsuario({ ...usuario, password: text })}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#242424" />
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]} onPress={crearCuenta} disabled={disabled}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
@@ -188,6 +196,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  inputIcon: {
+    marginRight: 10,
   },
   card: {
     width: width * 0.9,
@@ -246,6 +257,15 @@ const styles = StyleSheet.create({
   signInLink: {
     color: '#2A6F97',
     fontWeight: 'bold',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    marginBottom: 15,
+    width: '100%',
+    paddingHorizontal: 20,
   },
 });
 

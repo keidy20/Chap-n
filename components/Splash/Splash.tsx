@@ -30,7 +30,7 @@ const Splash: React.FC = () => {
       style={styles.gradient}
     >
       <View style={styles.container}>
-        <Image source={require('../../assets/Logo.png')} style={styles.image} />
+        <Image source={require('../../assets/images/Logo.png')} style={styles.image} />
       </View>
     </LinearGradient>
   );

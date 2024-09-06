@@ -8,7 +8,7 @@ const Bienvenida: React.FC = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
-    const welcomeMessage = 'Bienvenido a Edùcate Chapìn. ¡Vamos a aprender a leer juntos! Empecemos';
+    const welcomeMessage = 'Bienvenido. ¡Vamos a mejorar la fluidez lectora juntos! Empecemos';
     Speech.speak(welcomeMessage, {
       language: 'es',
       onStart: () => setIsSpeaking(true),
@@ -20,12 +20,12 @@ const Bienvenida: React.FC = () => {
 
   const handleContinue = () => {
     console.log('Iniciar sesión presionado');
-    router.navigate('/login');
+    router.navigate('/home');
   };
 
   const handleCreateAccount = () => {
     console.log('Crear cuenta presionado');
-    router.navigate('/crear_cuenta');
+    router.navigate('/sopaDeLetras');
   };
 
   return (
@@ -35,12 +35,12 @@ const Bienvenida: React.FC = () => {
     >
       <View style={styles.container}>
         <Image
-          source={require('../../assets/3.png')}
+          source={require('../../assets/bombilla1.png')}
           style={styles.avatar}
         />
         <View style={styles.card}>
           <Text style={styles.welcomeText}>HOLA!</Text>
-          <Text style={styles.subtitle}>¡Vamos a aprender a leer juntos! Empecemos</Text>
+          <Text style={styles.subtitle}>¡Vamos a mejorar la fluidez lectora juntos! Empecemos</Text>
           <TouchableOpacity style={styles.button} onPress={handleContinue}>
             <Text style={styles.buttonText}>INICIAR SESIÓN</Text>
           </TouchableOpacity>
@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
-    color: '#242424',
   },
   subtitle: {
     fontSize: 18,
