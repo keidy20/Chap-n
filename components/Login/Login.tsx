@@ -15,7 +15,7 @@ const Login: React.FC = () => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [secureTextEntry, setSecureTextEntry] = useState(false);
   const [ token, setToken ] = useState('')
 
   useEffect(() => {
@@ -118,7 +118,7 @@ const Login: React.FC = () => {
               onChangeText={setPassword}
             />
             <TouchableOpacity onPress={() => setSecureTextEntry(!secureTextEntry)}>
-              <Ionicons name={secureTextEntry ? "eye-off-outline" : "eye-outline"} size={20} color="#242424" />
+              <Ionicons name={secureTextEntry ? "eye-outline" : "eye-off-outline"} size={20} color="#242424" />
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.forgotPassword} onPress={redirectRecoveryPassword}>
