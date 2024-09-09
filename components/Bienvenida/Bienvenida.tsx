@@ -20,12 +20,12 @@ const Bienvenida: React.FC = () => {
 
   const handleContinue = () => {
     console.log('Iniciar sesión presionado');
-    router.navigate('/home');
+    router.navigate('/login');
   };
 
   const handleCreateAccount = () => {
     console.log('Crear cuenta presionado');
-    router.navigate('/sopaDeLetras');
+    router.navigate('/crear_cuenta');
   };
 
   return (

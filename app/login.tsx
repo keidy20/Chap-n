@@ -1,3 +1,4 @@
+import GrabarAudio from '@/components/GrabarAudio';
 import Login from '@/components/Login';
 import React from 'react'
 import { View, StyleSheet } from 'react-native';
@@ -6,7 +7,7 @@ export default function LoginRoute() {
     const handleLogin = () => {}
   return (
     <View style={styles.container}>
-      <Login/>
+      <GrabarAudio/>
     </View>
   )
 }
