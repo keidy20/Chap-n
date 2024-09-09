@@ -9,11 +9,12 @@
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
+    "*/.ts",
+    "*/.tsx",
+    ".expo/types/*/.ts",
     "expo-env.d.ts",
-    "components/**/*.js",  // Incluye todos los archivos .js en la carpeta components
-    "components/**/*.jsx"  // Incluye todos los archivos .jsx en la carpeta components
+    "components/*/.js",
+    "components/*/.jsx",
+    ".expo/types/**/*.ts"
   ]
 }
