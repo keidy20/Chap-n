@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import CryptoJS from 'crypto-js';
 import { router } from 'expo-router';
-import { validarCampos } from '@/utils/StringUtils';
+import { validarCampos, validarPassword } from '@/utils/StringUtils';
 import * as Keychain from 'react-native-keychain';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -37,10 +37,7 @@ const CrearCuenta: React.FC = () => {
     }
   }, [usuario]);
 
-  const validarPassword = (password: string) => {
-    const regex = /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
-    return regex.test(password);
-  };
+
 
   const encrypt = (txt: string) => {
     return CryptoJS.AES.encrypt(txt, secretKey).toString();
