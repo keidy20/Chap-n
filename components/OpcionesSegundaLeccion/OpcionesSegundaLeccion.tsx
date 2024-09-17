@@ -12,20 +12,16 @@ const OpcionesSegundaLeccion = () => {
   };
 
   const redirectBasico = () => {
-    router.navigate('/nivelBasico');
+    router.navigate('/completarOracion');
   };
 
   const redirectIntermedio = () => {
-    router.navigate('/nivelIntermedio');
+    router.navigate('/completarFrase');
   };
 
   const redirectAvanzado = () => {
-    router.navigate('/nivelAvanzado');
+    router.navigate('/elegirPalabraCorrecta');
   };
-
-  const redirectQuiz = () => {
-    router.navigate('/quizPrimeraLeccion');
-    };
 
 
   return (
@@ -57,16 +53,6 @@ const OpcionesSegundaLeccion = () => {
             <FontAwesome name="graduation-cap" size={40} color="#fff" />
           </View>
           <Text style={styles.optionText}>Avanzado</Text>
-        </LinearGradient>
-      </TouchableOpacity>
-
-        {/* Opción "Quiz" */}
-        <TouchableOpacity style={styles.optionContainer} onPress={redirectQuiz}>
-        <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.optionBackground}>
-          <View style={styles.iconContainer}>
-            <FontAwesome name="question-circle" size={40} color="#fff" />
-          </View>
-          <Text style={styles.optionText}>Quiz</Text>
         </LinearGradient>
       </TouchableOpacity>
 

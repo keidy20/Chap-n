@@ -13,6 +13,85 @@ const quiz = [
     correctFeedback: '¡Correcto!',
     incorrectFeedback: 'Incorrecto',
   },
+  {
+    question: '¿Cuál es la letra mostrada?',
+    options: ['A', 'B', 'C', 'D'],
+    answer: 'A',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: '¿Qué letra es la siguiente en esta secuencia?',
+    letter: 'C',
+    options: ['A', 'B', 'C', 'D'],
+    answer: 'C',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: '¿Cuál es la letra que sigue en esta secuencia?',
+    letter: 'F',
+    options: ['E', 'F', 'G', 'H'],
+    answer: 'G',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: '¿Qué letra falta aquí?',
+    letter: 'B',
+    options: ['A', 'B', 'C', 'D'],
+    answer: 'B',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: 'Selecciona la letra correcta.',
+    letter: 'D',
+    options: ['C', 'D', 'E', 'F'],
+    answer: 'D',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: '¿Cuál letra es esta?',
+    letter: 'G',
+    options: ['F', 'G', 'H', 'I'],
+    answer: 'G',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: '¿Qué letra sigue después de E?',
+    letter: 'E',
+    options: ['D', 'E', 'F', 'G'],
+    answer: 'F',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: '¿Cuál es la primera letra del alfabeto?',
+    letter: 'A',
+    options: ['A', 'B', 'C', 'D'],
+    answer: 'A',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: '¿Qué letra precede a H?',
+    letter: 'H',
+    options: ['G', 'H', 'I', 'J'],
+    answer: 'G',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
+  {
+    question: 'Selecciona la letra que viene antes de K.',
+    letter: 'K',
+    options: ['J', 'K', 'L', 'M'],
+    answer: 'J',
+    correctFeedback: '¡Correcto!',
+    incorrectFeedback: 'Incorrecto',
+  },
   // (otras preguntas aquí)
 ];
 
@@ -30,25 +109,32 @@ const Quiz: React.FC = () => {
   const currentQuestion = quiz[currentQuestionIndex];
 
   useEffect(() => {
-    if (quizComplete) return; // No hacer nada si el quiz está completo
-
-    // Iniciar temporizador para cada pregunta
-    const id = setInterval(() => {
-      setTimer((prevTimer) => {
-        if (prevTimer <= 1) {
-          clearInterval(id);
-          handleNextQuestion();
-          return 5; // Reiniciar el temporizador
-        }
-        return prevTimer - 1;
+    if (!quizComplete) {
+      // Iniciar temporizador para cada pregunta
+      const id = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(id);
+            handleNextQuestion();
+            return 5; // Reiniciar el temporizador
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+  
+      // Aquí añadimos el texto hablado para la pregunta
+      Speech.speak(currentQuestion.question, {
+        language: 'es',
+        pitch: 1,
+        rate: 1,
       });
-    }, 1000);
-
-    return () => {
-      clearInterval(id);
-    };
+  
+      return () => {
+        clearInterval(id);
+      };
+    }
   }, [currentQuestionIndex, quizComplete]);
-
+  
   useEffect(() => {
     if (selectedOption !== null) {
       const isCorrect = selectedOption === currentQuestion.answer;

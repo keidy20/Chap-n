@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import CryptoJS from 'crypto-js';
 import { router } from 'expo-router';
-import { validarCampos, validarPassword } from '@/utils/StringUtils';
+import { validarCampos, validarPassword } from '../../utils/StringUtils';
 import * as Keychain from 'react-native-keychain';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -65,7 +65,7 @@ const CrearCuenta: React.FC = () => {
       storeToken(data.token)
       const token = await getToken()
       console.log('Token guardado ', token)
-      router.navigate('/home');
+      router.navigate('/grabarAudio');
     } catch (error) {
       console.log('Error ', error);
     }
@@ -113,7 +113,7 @@ const CrearCuenta: React.FC = () => {
           <Text style={styles.title}>Crear Cuenta</Text>
           <TextInput
             style={styles.input}
-            placeholder="Nombre Completo"
+            placeholder="Nombre"
             placeholderTextColor="#242424"
             value={usuario.nombre}
             onChangeText={text => setUsuario({ ...usuario, nombre: text })}

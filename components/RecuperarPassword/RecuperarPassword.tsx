@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { recoveryPassword } from '@/services/Services';
+import { recoveryPassword } from '../../services/Services';
 
 const { width } = Dimensions.get('window');
 
@@ -57,9 +57,11 @@ const RecuperarPassword: React.FC = () => {
           </View>
         </TouchableOpacity>
         <View style={styles.card}>
-          <View style={styles.logoContainer}>
-            <Ionicons name="key-outline" size={80} color="#2A6F97" />
+        <View style={styles.logoContainer}>
+          <View style={styles.iconCircle}>
+            <Ionicons name="key-outline" size={50} color="#fff" />
           </View>
+        </View>
           <Text style={styles.title}>Recuperar Contraseña</Text>
           <TextInput
             style={styles.input}
@@ -132,6 +134,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+  },
+  iconCircle: {
+    width: 70, // Tamaño del círculo
+    height: 70,
+    borderRadius: 50, // Hace que el borde sea circular
+    backgroundColor: '#2A6F97', // Color del fondo (mismo que el borde de la llave)
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,

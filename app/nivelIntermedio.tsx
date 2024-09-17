@@ -1,4 +1,4 @@
-import LeccionLecturaIntermedio from '@/components/LeccionLecturaIntermedio'
+import LeccionLecturaIntermedio from '../components/LeccionLecturaIntermedio'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 

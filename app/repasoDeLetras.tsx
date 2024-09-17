@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import RepasoDeLetras from '@/components/RepasoDeLetras'
+import RepasoDeLetras from '../components/RepasoDeLetras'
 
 export default function VocalesRoute() {
   return (

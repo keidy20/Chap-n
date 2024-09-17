@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import * as Speech from 'expo-speech';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { router } from 'expo-router';
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
 
-interface Lesson {
+interface LessonContent {
   letra: string;
   silabas: string[][];
   palabra: string[];
   sentencia: string[];
 }
 
-const LessonCard: React.FC<{ lesson: Lesson }> = ({ lesson }) => {
+interface LessonCardProps {
+  lesson: LessonContent;
+}
+
+const OpcionesReconocerLetras: React.FC<LessonCardProps> = ({ lesson }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(1));
 
@@ -60,6 +66,10 @@ const LessonCard: React.FC<{ lesson: Lesson }> = ({ lesson }) => {
     scaleAnim.setValue(1); // Restablecer el valor de la animación a 1
     scaleAnim.stopAnimation(); // Detener la animación
   };
+  
+  const goBack = () => {
+    router.navigate('/home');
+  };
 
   const highlightletra = (text: string) => {
     return text.split('').map((char, index) => (
@@ -73,6 +83,9 @@ const LessonCard: React.FC<{ lesson: Lesson }> = ({ lesson }) => {
 
   return (
     <View style={styles.card}>
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Icon name="close" size={40} color="#2A6F97" />
+      </TouchableOpacity>
       <View style={styles.header}>
         <Animated.Text style={[styles.letra, { transform: [{ scale: scaleAnim }] }]}>
           {lesson.letra}
@@ -131,94 +144,28 @@ const LessonCard: React.FC<{ lesson: Lesson }> = ({ lesson }) => {
   );
 };
 
-const LessonScreen: React.FC = () => {
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [currentLesson, setCurrentLesson] = useState<number>(0);
-  const baseUrl: any = process.env.EXPO_PUBLIC_URL;
-
-  useEffect(() => {
-    getLecciones();
-  }, []);
-
-  const getLecciones = async () => {
-    const url = `${baseUrl}/lecciones/all`;
-
-    try {
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!res.ok) {
-        throw new Error('Network response was not ok ' + res.statusText);
-      }
-      const data = await res.json();
-      const contenido = data.map((d: any) => d.contenido);
-      setLessons(contenido);
-    } catch (error) {
-      console.log('Error ', error);
-    }
-  };
-
-  const handleNextLesson = () => {
-    if (currentLesson < lessons.length - 1) {
-      setCurrentLesson(currentLesson + 1);
-    }
-  };
-
-  return (
-    <View style={styles.mainContainer}>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        {lessons.length > 0 ? (
-          <>
-            <LessonCard lesson={lessons[currentLesson]} />
-          </>
-        ) : (
-          <Text style={styles.loadingText}>Cargando lecciones...</Text>
-        )}
-      </ScrollView>
-      
-      {lessons.length > 0 && currentLesson < lessons.length - 1 && (
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextLesson}>
-          <Text style={styles.nextButtonText}>Siguiente</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    backgroundColor: '#E8F5FF',
-  },
-  contentContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
   card: {
     backgroundColor: 'white',
     borderRadius: 20,
     borderWidth: 8,
     borderColor: '#2A6F97',
     padding: 20,
-    width: '100%',
+    width: '90%', // Ajusta el ancho para dejar márgenes laterales
+    marginHorizontal: '5%', // Márgenes laterales automáticos
     marginBottom: 20,
     marginTop: 150,
+    paddingVertical: 20, // Asegura que haya espacio vertical
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'center', // Centra la letra en el contenedor
+    justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     position: 'relative',
   },
   iconContainer: {
-    position: 'absolute', // Posiciona el ícono a la derecha
+    position: 'absolute',
     right: 0,
   },
   letra: {
@@ -248,45 +195,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 5,
   },
+  backButton: {
+    position: 'absolute',
+    top: -110,
+    left: -20,
+    padding: 10,
+  },
   word: {
     fontSize: 25,
     marginHorizontal: 10,
     color: '#000',
   },
   sentenciasContainer: {
-    marginTop: 10,
+    marginTop: 20,
   },
   sentence: {
-    fontSize: 28,
-    marginVertical: 2,
-    color: '#333',
+    fontSize: 20,
+    color: '#000',
+    textAlign: 'center',
+    marginVertical: 5,
   },
   redletra: {
+    fontSize: 30,
     color: '#ce0606',
-    fontWeight: 'bold',
   },
   defaultText: {
-    color: '#000',
-  },
-  nextButton: {
-    backgroundColor: '#2A6F97',
-    paddingVertical: 15,
-    paddingHorizontal: 50,
-    borderRadius: 50,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  nextButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  loadingText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 30,
     color: '#000',
   },
 });
 
-export default LessonScreen;
+export default OpcionesReconocerLetras;

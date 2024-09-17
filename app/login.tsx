@@ -1,13 +1,13 @@
-import GrabarAudio from '@/components/GrabarAudio';
-import Login from '@/components/Login';
 import React from 'react'
 import { View, StyleSheet } from 'react-native';
+import LecturasContenido from '../components/LecturasContenido';
+import Login from '../components/Login/Login';
+import SopaDeLetras from '../components/SopaDeLetras';
 
 export default function LoginRoute() {
-    const handleLogin = () => {}
   return (
     <View style={styles.container}>
-      <GrabarAudio/>
+      <Login/>
     </View>
   )
 }

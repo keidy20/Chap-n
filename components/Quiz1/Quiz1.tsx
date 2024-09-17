@@ -87,7 +87,7 @@ const Quiz = [
   // (otras preguntas aquí)
 ];
 
-const QuizLevel1: React.FC = () => {
+const Quiz1: React.FC = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [timer, setTimer] = useState(60); // Tiempo total en segundos
@@ -305,4 +305,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Quiz;
+export default Quiz1;

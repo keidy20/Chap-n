@@ -1,11 +1,11 @@
-import IntroduccionSeccion from '@/components/IntroduccionSeccion';
 import React from 'react'
 import { View, StyleSheet } from 'react-native';
+import LecturasContenido from '../components/LecturasContenido';
 
 export default function Lecciones() {
   return (
     <View style={styles.container}>
-      <IntroduccionSeccion></IntroduccionSeccion>
+      <LecturasContenido/>
     </View>
   )
 }

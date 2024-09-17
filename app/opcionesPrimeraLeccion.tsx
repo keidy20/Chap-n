@@ -1,11 +1,11 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import OpcionesPrimeraLeccion from '@/components/OpcionesPrimeraLeccion'
+import LeccionCompletada from '../components/LeccionCompletada/LeccionCompletada'
 
 export default function VocalesRoute() {
   return (
     <View style={style.container}>
-      <OpcionesPrimeraLeccion/>
+      <LeccionCompletada/>
     </View>
   )
 }

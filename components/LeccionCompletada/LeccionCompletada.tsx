@@ -1,134 +1,112 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome } from '@expo/vector-icons';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LeccionCompletada: React.FC = () => {
+interface ResultScreenProps {
+  similarityPercentage: number;
+}
+
+export default function ResultScreen({ similarityPercentage }: ResultScreenProps) {
   const router = useRouter();
 
-  const handleHome = () => {
-    router.navigate('/home');
-  };
-
-  const saveLessonProgress = async () => {
-    try {
-      const storedLessons = await AsyncStorage.getItem('completedLessons');
-      const currentLessons = storedLessons ? JSON.parse(storedLessons) : [false, false, false, false, false, false];
-      
-      // Marca la lección como completada
-      currentLessons[0] = true; // Modifica el índice según la lección que deseas marcar como completada
-      
-      // Guarda el progreso actualizado
-      await AsyncStorage.setItem('completedLessons', JSON.stringify(currentLessons));
-    } catch (error) {
-      console.error('Error saving lesson progress', error);
+  const getMessage = () => {
+    if (similarityPercentage >= 90) {
+      return '¡Excelente trabajo!';
+    } else if (similarityPercentage >= 75) {
+      return '¡Buen trabajo! Sigue mejorando.';
+    } else {
+      return '¡Sigue practicando para mejorar tu fluidez!';
     }
   };
 
-  useEffect(() => {
-    saveLessonProgress();
-  }, []);
+  const handleTryAgain = () => {
+    router.push('/home'); // Cambia la ruta a la pantalla que quieras
+  };
 
   return (
-    <LinearGradient
-      colors={['#2A6F97', '#e2dddd', '#2A6F97']}
-      style={styles.container}
-    >
-      <View style={styles.content}>
-        <Text style={styles.levelText}>Módulo 1</Text>
-        <Text style={styles.completedText}>¡COMPLETADO!</Text>
-        <View style={styles.starsContainer}>
-          <FontAwesome name="star" size={60} color="#FFD700" />
-          <FontAwesome name="star" size={80} color="#FFD700" />
-          <FontAwesome name="star" size={60} color="#FFD700" />
-        </View>
-        <View style={styles.scoreContainer}>
-          <Text style={styles.scoreText}>PUNTOS</Text>
-          <Text style={styles.score}>100</Text>
-        </View>
-        <View style={styles.statsContainer}>
-          <Text style={styles.stat}>Tiempo gastado: 00:00:21</Text>
-        </View>
-        <TouchableOpacity style={styles.button} onPress={handleHome}>
-          <Text style={styles.buttonText}>CONTINUAR</Text>
-        </TouchableOpacity>
-      </View>
-    </LinearGradient>
+    <View style={styles.container}>
+      <Text style={styles.headerText}>Resultado</Text>
+
+      <AnimatedCircularProgress
+        size={250}
+        width={15}
+        fill={similarityPercentage}
+        tintColor="#00e0ff"
+        backgroundColor="#3d5875"
+        rotation={0}
+        style={styles.circularProgress}
+      >
+        {() => (
+          <View style={styles.percentageContainer}>
+            <Text style={styles.percentageText}>{similarityPercentage}%</Text>
+          </View>
+        )}
+      </AnimatedCircularProgress>
+
+      <Text style={styles.resultMessage}>{getMessage()}</Text>
+
+      <Image
+        source={require('../../assets/Libros.png')} // Coloca aquí una imagen de celebración, como un trofeo o medalla
+        style={styles.image}
+      />
+
+      <TouchableOpacity style={styles.tryAgainButton} onPress={handleTryAgain}>
+        <Text style={styles.buttonText}>Intentar de nuevo</Text>
+      </TouchableOpacity>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  content: {
-    backgroundColor: 'white',
-    borderRadius: 10,
+    backgroundColor: '#f8f8f8',
     padding: 20,
-    alignItems: 'center',
-    width: '90%',
-    maxWidth: 400,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
   },
-  levelText: {
+  headerText: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#2A6F97',
+    marginBottom: 20,
+  },
+  circularProgress: {
+    marginVertical: 20,
+  },
+  percentageContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  percentageText: {
+    fontSize: 50,
+    fontWeight: 'bold',
+    color: '#539ec9',
+  },
+  resultMessage: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontWeight: '600',
+    color: '#3d5875',
+    textAlign: 'center',
+    marginVertical: 20,
   },
-  completedText: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginBottom: 20,
+  image: {
+    width: 150,
+    height: 150,
+    marginBottom: 30,
   },
-  starsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '60%',
-    marginBottom: 20,
-  },
-  scoreContainer: {
+  tryAgainButton: {
+    backgroundColor: '#2A6F97',
+    padding: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  scoreText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  score: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#05517e',
-  },
-  statsContainer: {
-    alignItems: 'flex-start',
-    width: '100%',
-    marginBottom: 20,
-  },
-  stat: {
-    fontSize: 16,
-    marginVertical: 2,
-  },
-  button: {
-    backgroundColor: '#05517e',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    width: '80%',
   },
   buttonText: {
-    color: 'white',
-    fontSize: 18,
+    fontSize: 22,
+    color: '#fff',
     fontWeight: 'bold',
   },
 });
-
-export default LeccionCompletada;

@@ -1,4 +1,4 @@
-import CrearCuenta from '@/components/CrearCuenta'
+import CrearCuenta from '../components/CrearCuenta'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 

@@ -9,6 +9,7 @@ const Bienvenida: React.FC = () => {
 
   useEffect(() => {
     const welcomeMessage = 'Bienvenido. ¡Vamos a mejorar la fluidez lectora juntos! Empecemos';
+
     Speech.speak(welcomeMessage, {
       language: 'es',
       onStart: () => setIsSpeaking(true),
@@ -16,14 +17,23 @@ const Bienvenida: React.FC = () => {
       onStopped: () => setIsSpeaking(false),
       onError: () => setIsSpeaking(false),
     });
+
+    return () => {
+      // Detener el audio si el componente se desmonta
+      Speech.stop();
+    };
   }, []);
 
   const handleContinue = () => {
+    // Detener el audio antes de navegar
+    Speech.stop();
     console.log('Iniciar sesión presionado');
-    router.navigate('/login');
+    router.navigate('/home');
   };
 
   const handleCreateAccount = () => {
+    // Detener el audio antes de navegar
+    Speech.stop();
     console.log('Crear cuenta presionado');
     router.navigate('/crear_cuenta');
   };

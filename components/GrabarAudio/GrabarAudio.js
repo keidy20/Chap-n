@@ -2,21 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import { router } from 'expo-router';
+import * as Speech from 'expo-speech'; // Importa expo-speech
 
 export default function FluidezLectoraComponent() {
-  
-  const baseUrl = process.env.EXPO_PUBLIC_URL;
-
-  const recordingRef = useRef(null);
+  const [isStarting, setIsStarting] = useState(true); // Estado para controlar la pantalla de inicio
   const [isRecording, setIsRecording] = useState(false);
   const [recordedURI, setRecordedURI] = useState(null);
   const [timeLeft, setTimeLeft] = useState(60); // 1 minuto
   const [phraseIndex, setPhraseIndex] = useState(0);
 
-  const textToRead = "Este es un ejemplo de una frase corta.";
-  
-  // Dividir el texto en frases usando el punto como delimitador
+  const textToRead = "Este es un ejemplo de una frase corta. Otra frase para medir la fluidez lectora";
   const phrasesToRead = textToRead.split('. ').map((phrase) => phrase.trim());
+
+  const recordingRef = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -36,7 +36,6 @@ export default function FluidezLectoraComponent() {
     let phraseInterval = null;
     let timerInterval = null;
 
-    console.log('is recording ', isRecording)
     if (isRecording) {
       phraseInterval = setInterval(() => {
         setPhraseIndex((prevIndex) => {
@@ -70,9 +69,15 @@ export default function FluidezLectoraComponent() {
     };
   }, [isRecording]);
 
+  useEffect(() => {
+    if (isStarting) {
+      const instructions = "Por favor, lee en voz alta la frase que aparece en la pantalla. La grabación durará un minuto.";
+      Speech.speak(instructions); // Reproduce el texto en voz alta cuando la pantalla de inicio se muestra
+    }
+  }, [isStarting]);
+
   async function startRecording() {
     try {
-      console.log("comienza la grabada")
       const recording = new Audio.Recording();
       await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
       await recording.startAsync();
@@ -95,78 +100,107 @@ export default function FluidezLectoraComponent() {
         recordingRef.current = null;
         console.log('Audio grabado guardado en:', uri);
         // Subir el archivo a la API
-        await uploadAudio(uri);
+        const result = await uploadAudio(uri);
+  
+        // Redirigir a LeccionCompletada con el porcentaje
+        router.push('/opcionesPrimeraLeccion', { similitud: result.similitud.toFixed(0) });
       } catch (err) {
         console.error('Error al detener la grabación:', err);
       }
     }
+  }
 
-    async function uploadAudio(uri) {
-      const formData = new FormData();
-      
-      // Obtén el archivo desde la URI
-      const file = {
-        uri: uri,
-        name: 'output.mp3', // Cambia la extensión según el formato de grabación
-        type: 'audio/mp3' // Cambia el tipo MIME según el formato de grabación
-      };
-    
-      formData.append('file', file);
-      formData.append('texto', textToRead)
+  async function uploadAudio(uri) {
+    const formData = new FormData();
+    const file = {
+      uri: uri,
+      name: 'output.mp3',
+      type: 'audio/mp3'
+    };
+    formData.append('file', file);
+    formData.append('texto', textToRead)
 
-      console.log('Formulario ', formData)
-    
-      try {
-        const response = await fetch(`${baseUrl}/speach-to-text/compare-by-audio`, {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-    
-        const result = await response.json();
-        console.log('Upload success:', result);
-      } catch (err) {
-        console.error('Error uploading audio:', err);
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/speach-to-text/compare-by-audio`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const result = await response.json();
+      if (typeof result.similitud === 'number') {
+        return result;
+      } else {
+        Alert.alert('Error', 'No se pudo obtener el porcentaje de similitud.');
       }
+    } catch (err) {
+      console.error('Error uploading audio:', err);
+      Alert.alert('Error', 'Ocurrió un error al subir el audio.');
     }
   }
 
+  const handleStart = () => {
+    setIsStarting(false); // Cambia el estado para mostrar la evaluación
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>Fluidez Lectora</Text>
-
-      <Text style={styles.phraseToRead}>
-        {phrasesToRead[phraseIndex] || "Fin de la prueba"}
-      </Text>
-
-      <AnimatedCircularProgress
-        size={200}
-        width={15}
-        fill={(60 - timeLeft) * (100 / 60)}
-        tintColor="#2A6F97"
-        backgroundColor="#f0f0f0"
-        style={styles.circularProgress}
-      >
-        {() => (
-          <TouchableOpacity
-            style={[styles.micContainer, isRecording && styles.recording]}
-            onPressIn={startRecording}
-            onPressOut={stopRecording}
-          >
-            <Image
-              source={require('../../assets/Microfono.png')}
-              style={styles.micImage}
-            />
+      {isStarting ? (
+        <View style={styles.startContainer}>
+          <Text style={styles.startHeaderText}>Instrucciones</Text>
+          <Text style={styles.startInstructions}>
+            Por favor, lee en voz alta la frase que aparece en la pantalla. La grabación durará un minuto.
+          </Text>
+          <Image
+            source={require('../../assets/Instrucciones.png')} // Cambia la imagen según tus necesidades
+            style={styles.startImage}
+          />
+          <TouchableOpacity style={styles.startButton} onPress={handleStart}>
+            <Text style={styles.startButtonText}>Iniciar Evaluación</Text>
           </TouchableOpacity>
-        )}
-      </AnimatedCircularProgress>
-
-      {isRecording ? (
-        <Text style={styles.recordingText}>Recording...</Text>
+        </View>
       ) : (
-        <Text style={styles.footerText}></Text>
+        <>
+          {/* Botón de regresar */}
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Icon name="close" size={40} color="#2A6F97" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Fluidez Lectora</Text>
+
+          <Text style={styles.phraseToRead}>
+            {phrasesToRead[phraseIndex] || "Fin de la prueba"}
+          </Text>
+
+          <AnimatedCircularProgress
+            size={200}
+            width={15}
+            fill={(60 - timeLeft) * (100 / 60)}
+            tintColor="#2A6F97"
+            backgroundColor="#f0f0f0"
+            style={styles.circularProgress}
+          >
+            {() => (
+              <TouchableOpacity
+                style={[styles.micContainer, isRecording && styles.recording]}
+                onPressIn={startRecording}
+                onPressOut={stopRecording}
+              >
+                <Image
+                  source={require('../../assets/Microfono.png')}
+                  style={styles.micImage}
+                />
+              </TouchableOpacity>
+            )}
+          </AnimatedCircularProgress>
+
+          {isRecording ? (
+            <Text style={styles.recordingText}>Recording...</Text>
+          ) : (
+            <Text style={styles.footerText}></Text>
+          )}
+        </>
       )}
     </View>
   );
@@ -180,15 +214,42 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f8f8',
     padding: 20,
   },
+  startContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  startHeaderText: {
+    fontSize: 35,
+    fontWeight: 'bold',
+    color: '#2A6F97',
+  },
+  startInstructions: {
+    fontSize: 22,
+    marginTop: 10,
+    textAlign: 'center',
+    color: '#000',
+  },
+  startImage: {
+    width: 250,
+    height: 250,
+    marginTop: 20,
+  },
+  startButton: {
+    marginTop: 30,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#2A6F97',
+    borderRadius: 25,
+  },
+  startButtonText: {
+    color: '#fff',
+    fontSize: 22,
+  },
   headerText: {
     fontSize: 30,
     fontWeight: 'bold',
     color: '#2A6F97',
-  },
-  subHeaderText: {
-    fontSize: 18,
-    marginTop: 10,
-    color: '#000',
   },
   phraseToRead: {
     marginTop: 20,
@@ -216,13 +277,19 @@ const styles = StyleSheet.create({
   },
   recordingText: {
     marginTop: 20,
-    fontSize: 16,
+    fontSize: 22,
     color: '#ff3b30',
     fontWeight: 'bold',
   },
   footerText: {
     marginTop: 20,
-    fontSize: 14,
+    fontSize: 22,
     color: '#999',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 6,
+    padding: 10,
   },
 });

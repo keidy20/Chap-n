@@ -1,13 +1,12 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import OpcionesPrimeraLeccion from '@/components/OpcionesPrimeraLeccion'
-import OpcionesSegundaLeccion from '@/components/OpcionesSegundaLeccion'
-import GrabarAudio from '@/components/GrabarAudio'
+import GrabarAudio from '../components/GrabarAudio'
+import OpcionesSegundaLeccion from '../components/OpcionesSegundaLeccion/OpcionesSegundaLeccion'
 
 export default function VocalesRoute() {
   return (
     <View style={style.container}>
-      <GrabarAudio/>
+      <OpcionesSegundaLeccion/>
     </View>
   )
 }

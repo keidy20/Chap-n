@@ -7,11 +7,15 @@ import { router } from 'expo-router';
 const HomeScreen: React.FC = () => {
 
   const redirectReconocerLetra = () => {
-    router.navigate('/opcionesSegundaLeccion');
+    router.navigate('/dislexia');
   };
 
   const redirectLecturas = () => {
-    router.navigate('/opcionesSegundaLeccion');
+    router.navigate('/nivelesDeFluidez');
+  };
+
+  const redirectEjercicios = () => {
+    router.navigate('/menuEjercicios');
   };
 
   return (
@@ -25,7 +29,7 @@ const HomeScreen: React.FC = () => {
             style={styles.welcomeImage} 
           />
           <View>
-            <Text style={styles.welcomeTitle}>Bienvenido!</Text>
+            <Text style={styles.welcomeTitle}>¡Bienvenido!</Text>
           </View>
         </View>
 
@@ -39,34 +43,32 @@ const HomeScreen: React.FC = () => {
           {/* Card 1 */}
           <TouchableOpacity style={styles.cardContainer} onPress={redirectReconocerLetra}>
             <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.projectCard}>
-              <Text style={styles.projectTitle}>Reconocer Letras</Text>
-              <Text style={styles.projectCategory}>2 Lecciones</Text>
+              <View style={styles.cardContent}>
+                <Text style={styles.projectTitle}>Reconocer Letras</Text>
+                <Icon name="chevron-forward" size={30} color="#fff" />
+              </View>
             </LinearGradient>
           </TouchableOpacity>
 
           {/* Card 2 */}
           <TouchableOpacity style={styles.cardContainer} onPress={redirectLecturas}>
             <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.projectCard}>
-              <Text style={styles.projectTitle}>Lecturas</Text>
-              <Text style={styles.projectCategory}>3 Niveles</Text>
+              <View style={styles.cardContent}>
+                <Text style={styles.projectTitle}>Acelerador de Lectura</Text>
+                <Icon name="chevron-forward" size={30} color="#fff" />
+              </View>
             </LinearGradient>
           </TouchableOpacity>
 
           {/* Card 3 */}
-          <View style={styles.cardContainer}>
+          <TouchableOpacity style={styles.cardContainer} onPress={redirectEjercicios}>
             <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.projectCard}>
-              <Text style={styles.projectTitle}>Ejercicios</Text>
-              <Text style={styles.projectCategory}>3 Ejercicios</Text>
+              <View style={styles.cardContent}>
+                <Text style={styles.projectTitle}>Ejercicios</Text>
+                <Icon name="chevron-forward" size={30} color="#fff" />
+              </View>
             </LinearGradient>
-          </View>
-
-          {/* Card 4 */}
-          <View style={styles.cardContainer}>
-            <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.projectCard}>
-              <Text style={styles.projectTitle}>Juegos</Text>
-              <Text style={styles.projectCategory}>3 Juegos</Text>
-            </LinearGradient>
-          </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -123,55 +125,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 30,
+    marginTop: 20,
   },
   projectsTitle: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   projectsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardContainer: {
-    width: '48%',
+    width: '100%',
     marginBottom: 20,
   },
   projectCard: {
     flex: 1,
     borderRadius: 12,
-    padding: 16,
+    padding: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  cardContent: {
+    flexDirection: 'row', // Alinea el contenido en una fila
+    justifyContent: 'space-between', // Coloca el texto a la izquierda y la flecha a la derecha
+    alignItems: 'center', // Centra el contenido verticalmente
+    width: '100%', // Para que el contenido ocupe todo el ancho
+  },
   projectTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#fff',
-  },
-  projectCategory: {
-    fontSize: 18,
-    marginBottom: 8,
-    color: '#fff',
-  },
-  progressBarContainer: {
-    width: '100%',
-    height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 8,
-    marginTop: 25,
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#fff',
-  },
-  progressText: {
-    fontSize: 12,
-    textAlign: 'right',
     color: '#fff',
   },
   bottomNavigation: {

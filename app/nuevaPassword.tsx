@@ -1,4 +1,4 @@
-import NuevaPassword from '@/components/NuevaPassword'
+import NuevaPassword from '../components/NuevaPassword'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 

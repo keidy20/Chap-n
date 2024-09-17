@@ -1,4 +1,4 @@
-import RecuperarPassword from '@/components/RecuperarPassword'
+import RecuperarPassword from '../components/RecuperarPassword'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 

@@ -1,6 +1,4 @@
-import Bienvenida from '@/components/Bienvenida'
-import QuizLevel1 from '@/components/Quiz1/Quiz1'
-import Quiz from '@/components/QuizPrimeraLeccion/QuizPrimeraLeccion'
+import Quiz from '../components/QuizPrimeraLeccion/QuizPrimeraLeccion'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
