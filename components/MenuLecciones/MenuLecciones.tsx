@@ -32,6 +32,7 @@ const LessonMenuRL: React.FC = () => {
 
         const data = await res.json();
         // Filtra las lecciones por tipo 'RL'
+        console.log('Data chetos ', data.filter((d: any) => d.tipoLeccion === 'RL'))
         const filteredLessons = data.filter((d: any) => d.tipoLeccion === 'RL');
         setLessons(filteredLessons);
       } catch (error) {
@@ -42,8 +43,8 @@ const LessonMenuRL: React.FC = () => {
     fetchLessons();
   }, []);
 
-  const goToLessonDetail = (title: string) => {
-    router.push(`/Dislexia=${encodeURIComponent(title)}`); // Pasar título en la URL
+  const goToLessonDetail = (id: string) => {
+    router.push(`/Dislexia/${encodeURIComponent(id)}`); // Pasar título en la URL
   };
 
   const renderLessonList = () => {
@@ -52,7 +53,7 @@ const LessonMenuRL: React.FC = () => {
     }
 
     return lessons.map((lesson, index) => (
-      <TouchableOpacity key={index} style={styles.cardContainer} onPress={() => goToLessonDetail(lesson.titulo)}>
+      <TouchableOpacity key={index} style={styles.cardContainer} onPress={() => goToLessonDetail(lesson.id)}>
         <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.projectCard}>
           <View style={styles.lessonContent}>
             <Text style={styles.lessonTitle}>{lesson.titulo}</Text>

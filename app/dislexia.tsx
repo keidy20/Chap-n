@@ -5,11 +5,12 @@ import QuizLecciones from '../components/QuizLecciones'
 import QuizPrimeraLeccion from '../components/QuizPrimeraLeccion'
 import CompletaLaFrase from '../components/CompletaLaFrase'
 import LecturasContenido from '../components/LecturasContenido'
+import MenuLecciones from '../components/MenuLecciones/MenuLecciones'
 
-export default function CrearCuentaRoute(navigation) {
+export default function CrearCuentaRoute() {
   return (
     <View style={style.container}>
-      <LecturasContenido navigation={navigation} />
+      <MenuLecciones/>
     </View>
   )
 }
