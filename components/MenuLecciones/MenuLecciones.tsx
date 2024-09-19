@@ -1,15 +1,13 @@
-// LessonMenuRL.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import Dislexia from '../Dislexia/Dislexia';
 
 const LessonMenuRL: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
-  const router = useRouter(); // Cambiado a useRouter
+  const router = useRouter();
 
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
@@ -31,8 +29,6 @@ const LessonMenuRL: React.FC = () => {
         }
 
         const data = await res.json();
-        // Filtra las lecciones por tipo 'RL'
-        console.log('Data chetos ', data.filter((d: any) => d.tipoLeccion === 'RL'))
         const filteredLessons = data.filter((d: any) => d.tipoLeccion === 'RL');
         setLessons(filteredLessons);
       } catch (error) {
@@ -44,73 +40,94 @@ const LessonMenuRL: React.FC = () => {
   }, []);
 
   const goToLessonDetail = (id: string) => {
-    router.push(`/Dislexia/${encodeURIComponent(id)}`); // Pasar título en la URL
-  };
-
-  const renderLessonList = () => {
-    if (lessons.length === 0) {
-      return <Text style={styles.emptyText}>Cargando lecciones...</Text>;
-    }
-
-    return lessons.map((lesson, index) => (
-      <TouchableOpacity key={index} style={styles.cardContainer} onPress={() => goToLessonDetail(lesson.id)}>
-        <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.projectCard}>
-          <View style={styles.lessonContent}>
-            <Text style={styles.lessonTitle}>{lesson.titulo}</Text>
-            <Ionicons name="chevron-forward" size={24} color="#007bff" />
-          </View>
-        </LinearGradient>
-      </TouchableOpacity>
-    ));
+    router.push(`/Dislexia/${encodeURIComponent(id)}`);
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.goBackButton}>
-          <Icon name="arrow-back" size={30} color="#2A6F97" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Lecciones RL</Text>
-      </View>
+      <ImageBackground
+        source={require('../../assets/Ejercicios.png')} // Imagen de encabezado
+        style={styles.header}
+        resizeMode="cover"
+      >
+        {/* Aquí está la imagen de fondo */}
+      </ImageBackground>
+
+      {/* Título debajo de la imagen */}
+      <Text style={styles.headerTitle}>Lecciones RL</Text>
+
       <ScrollView style={styles.lessonList}>
-        {renderLessonList()}
+        {lessons.length === 0 ? (
+          <Text style={styles.emptyText}></Text>
+        ) : (
+          lessons.map((lesson, index) => (
+            <TouchableOpacity key={index} style={styles.cardContainer} onPress={() => goToLessonDetail(lesson.id)}>
+              <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.projectCard}>
+                <View style={styles.lessonContent}>
+                  <Text style={styles.lessonTitle}>{lesson.titulo}</Text>
+                  <Ionicons name="chevron-forward" size={24} color="#fff" />
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
+
+      {/* Botón de regresar */}
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Icon name="arrow-back" size={30} color="#2A6F97" />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 16,
-    backgroundColor: '#F5F5F5',
-    marginTop: 100,
+    flex: 1,
+    backgroundColor: '#f0f4f7',
   },
   header: {
-    flexDirection: 'row',
+    width: '80%',
+    height: 250, // Ajusta la altura si es necesario
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  goBackButton: {
-    marginRight: 16,
+    marginLeft: 70,
+    marginTop: 90,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 35,
     fontWeight: 'bold',
-    color: '#2A6F97',
+    color: '#1c506e',
+    textAlign: 'center',
+    marginTop: 30,  // Margen para separarlo de la imagen
   },
   lessonList: {
-    marginTop: 10,
+    padding: 20,
+    marginTop: 20, // Espacio entre el título y las tarjetas
+  },
+  cardContainer: {
+    width: '100%',
+    marginBottom: 10,
+  },
+  projectCard: {
+    flex: 1,
+    borderRadius: 12,
+    padding: 20, 
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 90,
+    marginBottom: 10, 
   },
   lessonContent: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    height: '100%',
   },
   lessonTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginRight: 10,
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#e6eefc',
   },
   emptyText: {
     textAlign: 'center',
@@ -118,18 +135,12 @@ const styles = StyleSheet.create({
     color: '#888',
     marginTop: 20,
   },
-  cardContainer: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  projectCard: {
-    flex: 1,
-    borderRadius: 12,
-    padding: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 6,
+    padding: 10,
   },
 });
-
 
 export default LessonMenuRL;

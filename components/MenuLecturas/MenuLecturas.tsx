@@ -6,9 +6,9 @@ import { router } from 'expo-router';
 
 const App = () => {
   const lecturas = [
-    { name: 'Completa la oración', lecturaes: 'Ejercicios 10', route: '/completarOracion' },
-    { name: 'Completa la palabra', lecturaes: 'Ejercicios 10', route: '/completarFrase' },
-    { name: 'Quiz', lecturaes: '', route: '/completarQuiz' },
+    { name: 'Nivel Básico', lecturaes: 'Lecturas 5', route: '/completarOracion' },
+    { name: 'Nivel Intermedio', lecturaes: 'Lecturas 5', route: '/completarFrase' },
+    { name: 'Nivel Avanzado', lecturaes: 'Lecturas 5', route: '/completarQuiz' },
   ];
 
   // Función para regresar y detener todos los audios
@@ -24,7 +24,7 @@ const App = () => {
     <View style={styles.container}>
       {/* Encabezado con imagen de fondo */}
       <ImageBackground
-        source={require('../../assets/Ejercicios.png')} // Ruta de la imagen
+        source={require('../../assets/Libros1.png')} // Ruta de la imagen
         style={styles.header}
         resizeMode="cover"
       >
@@ -70,23 +70,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f4f7',
   },
   header: {
-    width: '80%',
-    height: 250, // Ajusta la altura si es necesario
+    width: '90%',
+    height: '70%', // Ajusta la altura si es necesario
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 72,
-    marginTop: 120,
-  },
-  headerTop: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginLeft: 30,
+    marginTop: -15,
   },
   title: {
     fontSize: 35,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 20, // Ajusta el margen para separar el título de la imagen
+    marginTop: -220, // Ajusta el margen para separar el título de la imagen
     color: '#1c506e',
   },
   lecturaList: {
@@ -94,16 +89,16 @@ const styles = StyleSheet.create({
     marginTop: 10, // Separación entre el título y las tarjetas
   },
   lecturaCard: {
-    padding: 22,
+    padding: 15, // Ajusta el padding si es necesario
     borderRadius: 10,
-    marginBottom: 20,
-    height: 90,
+    marginBottom: 20, // Mayor espacio entre tarjetas
+    height: 90, // Ajusta la altura de las tarjetas
   },
   cardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: '100%',
+    height: '100%', // Asegura que el contenido de la tarjeta ocupe el 100% de la altura
   },
   lecturaName: {
     fontSize: 25,

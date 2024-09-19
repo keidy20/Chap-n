@@ -8,7 +8,6 @@ import { useRouter } from 'expo-router';
 
 interface Lesson {
   id: number;
-  audioPregunta: string;
   opciones: string[];
   respuestaCorrecta: string;
 }
@@ -24,6 +23,7 @@ interface LessonData {
 
 const QuizComponent: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [audios, setAudios] = useState<string[]>([]);  // Estado para los audios
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -39,12 +39,13 @@ const QuizComponent: React.FC = () => {
   useEffect(() => {
     const fetchLessonById = async () => {
       try {
-        const response = await fetch(`${baseUrl}/lecciones/${20}`);
+        const response = await fetch(`${baseUrl}/lecciones/${id}`);
         const data: LessonData = await response.json();
-        console.log("Marquiña ", data);
-
-        if (data && data.contenido && data.contenido.quiz) {
-          setLessons(data.contenido.quiz);  
+        console.log("PAPA ", data);
+  
+        if (data && data.contenido && data.contenido.quiz && data.contenido.audios) {
+          setLessons(data.contenido.quiz);
+          setAudios(data.contenido.audios.map((elemento: any) => elemento.url));  // Guardamos las URLs de los audios
         } else {
           Alert.alert('Error', 'No se encontraron lecciones para este ID.');
         }
@@ -54,11 +55,12 @@ const QuizComponent: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     if (id) {
       fetchLessonById();
     }
   }, [id]);
+  
 
   const goBack = () => {
     router.back();
@@ -67,36 +69,39 @@ const QuizComponent: React.FC = () => {
   useEffect(() => {
     const speakAndStartTimer = async () => {
       if (lessons.length === 0) return; // No hacer nada si no hay preguntas
-
+  
       setIsSpeaking(true); // Indica que el audio está en reproducción
       const currentQuestion = lessons[currentQuestionIndex];
-
+  
       // Reproduce el audio de la pregunta
-      Speech.speak(currentQuestion.audioPregunta, {
-        language: 'es-ES', // Cambia esto a español
-        voice: 'es-ES',
-        pitch: 1.0,
-        rate: 1.0,
-        onDone: () => {
-          setIsSpeaking(false); // Termina de reproducir el audio
-          setTimeLeft(5); // Inicia el temporizador de inmediato
-        },
-        onError: (error) => {
-          console.error('Error al reproducir el audio:', error);
-          setIsSpeaking(false); // Termina de reproducir el audio en caso de error
-          setTimeLeft(5); // Inicia el temporizador de inmediato
-        },
-      });
+      // Reproduce el audio desde el array audios usando el índice de la pregunta actual
+    Speech.speak(audios[currentQuestionIndex], {
+      language: 'es-ES', // Cambia esto a español
+      voice: 'es-ES',
+      pitch: 1.0,
+      rate: 1.0,
+      onDone: () => {
+        setIsSpeaking(false); // Termina de reproducir el audio
+        setTimeLeft(5); // Inicia el temporizador de inmediato
+      },
+      onError: (error) => {
+        console.error('Error al reproducir el audio:', error);
+        setIsSpeaking(false); // Termina de reproducir el audio en caso de error
+        setTimeLeft(5); // Inicia el temporizador de inmediato
+      },
+    });
+
     };
-
+  
     speakAndStartTimer();
-
+  
     // Limpiar el temporizador y estado cuando cambie la pregunta
     return () => {
       setTimeLeft(5); // Reiniciar el tiempo cuando cambie la pregunta
       setSelectedOption(null); // Limpiar la opción seleccionada
     };
   }, [currentQuestionIndex, lessons]);
+  
 
   useEffect(() => {
     let timer: NodeJS.Timeout;

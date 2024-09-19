@@ -11,7 +11,7 @@ const HomeScreen: React.FC = () => {
   };
 
   const redirectLecturas = () => {
-    router.navigate('/nivelesDeFluidez');
+    router.navigate('/menuLecturas');
   };
 
   const redirectEjercicios = () => {
