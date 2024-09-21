@@ -12,7 +12,6 @@ interface Lesson {
   texto: string;
   highlights: string[];
   sounds: string[];
-  quiz: number;  // ID del quiz
 }
 
 interface LessonData {
@@ -20,20 +19,22 @@ interface LessonData {
   titulo: string;
   contenido: {
     lecciones: Lesson[];
-    audios: string[];  // Array de URLs de los audios
+    audios: string[];
+    quiz: string; // ID del quiz
   };
 }
 
 const CKLessonComponent: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [audios, setAudios] = useState<string[]>([]);  // Estado para los audios
+  const [audios, setAudios] = useState<string[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [currentLesson, setCurrentLesson] = useState(0); 
+  const [currentLesson, setCurrentLesson] = useState(0);
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [quizId, setQuizId] = useState<string | null>(null); // Estado para el quiz ID
 
   useEffect(() => {
     const fetchLessonById = async () => {
@@ -41,16 +42,15 @@ const CKLessonComponent: React.FC = () => {
         const response = await fetch(`${baseUrl}/lecciones/${id}`);
         const data: LessonData = await response.json();
 
-        if (data && data.contenido && data.contenido.lecciones && data.contenido.audios) {
+        if (data && data.contenido) {
           setLessons(data.contenido.lecciones);
-          setAudios(data.contenido.audios.map((elemento: any) => elemento.url)); 
-          console.log("JODIDA LA QUE ME DI ", data.contenido.lecciones) // Guardamos las URLs de los audios
+          setAudios(data.contenido.audios.map((elemento: any) => elemento.url));
+          setQuizId(data.contenido.quiz); // Guardar el quiz ID
+          console.log("quizID ",data.contenido.quiz)
         } else {
-          Alert.alert('Error', 'No se encontraron lecciones o audios para este ID.');
         }
         setLoading(false);
       } catch (error) {
-        Alert.alert('Error', 'No se pudo cargar la lección.');
         setLoading(false);
       }
     };
@@ -58,48 +58,76 @@ const CKLessonComponent: React.FC = () => {
     if (id) {
       fetchLessonById();
     }
-  }, [id]);
+  }, [id, baseUrl]);
 
   useEffect(() => {
     if (audios.length > 0) {
       const currentAudio = audios[currentLesson];
-      console.log('Audios disponibles:', audios); // Verifica las URLs de los audios
-      console.log('Reproduciendo audio de lección:', currentAudio); // Verifica la URL de la lección actual
       if (typeof currentAudio === 'string') {
-        playAudio(currentAudio);  // Reproducir el audio de la URL actual
+        playAudio(currentAudio);
       }
     }
 
     return () => {
-      stopAudio();  // Detener la reproducción de audio al desmontar el componente o cambiar de lección
+      stopAudio();
     };
   }, [currentLesson, audios]);
 
-  const playAudio = async (audioUrl: string) => {
-    try {
-      console.log('Reproduciendo audio desde URL:', audioUrl); // Verifica la URL del audio
+    
+  const executeAfterPlayback = () => {
+    console.log("El audio ha terminado y se ha ejecutado esta función.");
+    // Aquí puedes añadir cualquier otra lógica que necesites
+  };
 
+  const playAudio = async (audioUrl: string) => {
+    console.log("Intentando reproducir audio:", audioUrl); // Verifica la URL
+  
+    try {
       if (sound) {
         await sound.stopAsync();
         await sound.unloadAsync();
       }
+  
       const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioUrl });
       setSound(newSound);
+  
+      newSound.setOnPlaybackStatusUpdate((playbackStatus) => {
+        console.log("Estado del audio:", playbackStatus); // Verifica el estado
+  
+        if (playbackStatus.isLoaded) {
+          console.log("Posición actual:", playbackStatus.positionMillis); // Verifica la posición
+  
+          if (playbackStatus.didJustFinish) {
+            Alert.alert("Audio Finalizado", "El audio ha terminado de reproducirse.");
+            nextLesson();
+          }
+        } else {
+          console.log("El audio no está cargado.");
+        }
+      });
+  
       setIsPlaying(true);
       await newSound.playAsync();
     } catch (error) {
-      console.error('Error al reproducir el audio:', error); // Muestra el error en la consola
+      console.error("Error al reproducir el audio:", error);
       Alert.alert('Error', 'No se pudo reproducir el audio.');
     }
   };
-
+  
+  
   const stopAudio = async () => {
-    if (sound) {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-      setIsPlaying(false);
+    try {
+      if (sound) {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+        setIsPlaying(false);
+        setSound(null); // Limpia el estado del sonido
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo detener el audio.');
     }
   };
+  
 
   const goBack = () => {
     router.back();
@@ -109,7 +137,6 @@ const CKLessonComponent: React.FC = () => {
     if (currentLesson < lessons.length - 1) {
       setCurrentLesson(currentLesson + 1);
     } else {
-      const quizId = lessons[currentLesson]?.quiz;  // Obtener el ID del quiz de la lección actual
       if (quizId) {
         goToQuiz(quizId);
       } else {
@@ -117,13 +144,11 @@ const CKLessonComponent: React.FC = () => {
       }
     }
   };
-  
-  const goToQuiz = (quiz: any) => {
+
+  const goToQuiz = (quiz: string) => {
     router.push(`/Quiz/${encodeURIComponent(quiz)}`);
-    console.log("SHUCA ", quiz)
-    console.log("YA ESTOY CANSADA ", id)
+    console.log("IDQUIZ ", quiz);
   };
-  
 
   const prevLesson = () => {
     if (currentLesson > 0) {
@@ -260,16 +285,19 @@ const styles = StyleSheet.create({
   navigation: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   navigationButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#2A6F97',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 25,
+    flex: 1,
+    marginHorizontal: 5,
   },
   navigationButtonText: {
     color: '#fff',
-    fontSize: 16,
+    textAlign: 'center',
+    fontSize: 22,
   },
   loadingContainer: {
     flex: 1,

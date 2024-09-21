@@ -8,7 +8,7 @@ const App = () => {
   const lecturas = [
     { name: 'Completa la oración', lecturaes: 'Ejercicios 10', route: '/completarOracion' },
     { name: 'Completa la palabra', lecturaes: 'Ejercicios 10', route: '/completarFrase' },
-    { name: 'Quiz', lecturaes: '', route: '/completarQuiz' },
+    { name: 'Cuestionario', lecturaes: '', route: '/completarQuiz' },
   ];
 
   // Función para regresar y detener todos los audios
@@ -70,11 +70,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f4f7',
   },
   header: {
-    width: '80%',
-    height: 250, // Ajusta la altura si es necesario
+    width: '90%',
+    height: 300, // Ajusta la altura si es necesario
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 72,
+    marginLeft: 40,
     marginTop: 120,
   },
   headerTop: {

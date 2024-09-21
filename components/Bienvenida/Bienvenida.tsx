@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 15,
+    fontSize: 10,
     color: '#fff',
     fontWeight: 'bold',
   },

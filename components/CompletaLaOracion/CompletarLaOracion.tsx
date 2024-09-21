@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Speech from 'expo-speech';
 import { FontAwesome } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Audio } from 'expo-av';
 import { router } from 'expo-router';
+import { Vibration } from 'react-native';
 
 interface Lesson {
   id: number;
   oracion: string;
-  audio: string;
   opciones: string[];
   opcionCorrecta: string;
 }
@@ -19,35 +19,41 @@ interface LessonData {
   titulo: string;
   contenido: {
     Ejercicios: Lesson[];
+    audios: { url: string }[];
   };
 }
 
 const CompletaLaOracion = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [audios, setAudios] = useState<string[]>([]);
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isNextButtonEnabled, setIsNextButtonEnabled] = useState(false);
-  const baseUrl: any = process.env.EXPO_PUBLIC_URL;
+  const baseUrl: string = process.env.EXPO_PUBLIC_URL || '';
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isOptionDisabled, setIsOptionDisabled] = useState(false); 
 
-  // Fetch de datos desde la API
+  const correctSound = require('../../assets/Correct.mp3');
+  const incorrectSound = require('../../assets/Incorrect.mp3');
+
   useEffect(() => {
     const fetchLessons = async () => {
       try {
         const response = await fetch(`${baseUrl}/ejercicios/all`);
         const data: LessonData[] = await response.json();
-        console.log("OJO", data)
 
-        // Filtra solo las lecciones con tipoLeccion "RL"
         const filteredLessons = data
           .filter(lesson => lesson.tipoEjercicio === 'CO')
-          .flatMap(lesson => lesson.contenido.Ejercicios); // Accede a las lecciones dentro de 'contenido'
+          .flatMap(lesson => {
+            const lessonAudios = lesson.contenido.audios.map(audio => audio.url);
+            setAudios(lessonAudios);
+            return lesson.contenido.Ejercicios;
+          });
 
         if (filteredLessons.length > 0) {
-          setLessons(filteredLessons); // Guardamos las lecciones filtradas
+          setLessons(filteredLessons);
         } else {
           Alert.alert('Error', 'No se encontraron lecciones con el tipo "CO".');
         }
@@ -59,64 +65,106 @@ const CompletaLaOracion = () => {
     };
 
     fetchLessons();
-  }, []);
+  }, [baseUrl]);
 
   const currentLessonData = lessons[currentLessonIndex];
-  console.log("KEIDY", currentLessonIndex)
+  const currentAudioUrl = audios[currentLessonIndex];
 
-  const handleStartReading = (text: string) => {
-    if (!lessons.length) return;
-    setIsSpeaking(true);
-    Speech.speak(text, {
-      language: 'es',
-      onDone: () => setIsSpeaking(false),
-      onStopped: () => setIsSpeaking(false),
-      onError: () => setIsSpeaking(false),
-    });
-  };
-
-  useEffect(() => {
+   // Reproducir el audio al iniciar una lección
+   useEffect(() => {
     if (currentLessonData) {
-      handleStartReading(currentLessonData.audio);
+      handleStartReading();
     }
-
     return () => {
-      stopSpeech();
+      stopAudio();
     };
   }, [currentLessonIndex, lessons]);
 
-  const stopSpeech = () => {
-    setIsSpeaking(false);
-    Speech.stop();
+  const handleStartReading = async () => {
+    if (!currentAudioUrl) return;
+  
+    setIsSpeaking(true);
+    const { sound } = await Audio.Sound.createAsync({ uri: currentAudioUrl });
+    setSound(sound);
+    await sound.playAsync();
+  
+    sound.setOnPlaybackStatusUpdate(status => {
+      if (status.isLoaded) {
+        if (status.didJustFinish) {
+          sound.unloadAsync();
+          setIsSpeaking(false);
+        }
+      }
+    });
   };
+
+  
 
   const goBack = () => {
     router.back();
   };
 
-  const handleOptionSelect = (option: string) => {
-    setSelectedOption(option);
-    const correct = option === currentLesson.opcionCorrecta;
-    setIsCorrect(correct);
-
-    if (correct) {
-      Speech.speak('¡Correcto! Continúa con la siguiente lección.', { language: 'es' });
-      setIsNextButtonEnabled(true); // Habilita el botón "Siguiente"
-    } else {
-      Speech.speak('Incorrecto. Vuelve a intentarlo y presta atención a la lectura.', { language: 'es' });
-      handleStartReading(currentLesson.audio);
-      setIsNextButtonEnabled(false); // Mantén el botón "Siguiente" deshabilitado
+  // Detener audio manualmente
+  const stopAudio = async () => {
+    if (sound) {
+      await sound.stopAsync();
+      await sound.unloadAsync();
+      setSound(null);
+      setIsSpeaking(false);
     }
   };
+  
 
-  const handleNextLesson = () => {
-    if (currentLessonIndex < lessons.length - 1) {
-      setCurrentLessonIndex(currentLessonIndex + 1);
-      setSelectedOption(null);
-      setIsCorrect(null);
-      setIsNextButtonEnabled(false); // Deshabilita el botón "Siguiente" al pasar a la siguiente lección
-    }
-  };
+// Reproducir sonido de retroalimentación
+const playFeedbackSound = async (isCorrect: boolean) => {
+  const soundToPlay = isCorrect ? correctSound : incorrectSound;
+  const { sound } = await Audio.Sound.createAsync(soundToPlay);
+  await sound.playAsync();
+};
+
+
+const handleOptionSelect = async (option: string) => {
+  setSelectedOption(option);
+  const correct = option === currentLessonData.opcionCorrecta;
+  setIsCorrect(correct);
+
+  setSelectedOption(option);
+  option === currentLessonData.opcionCorrecta;
+  setIsCorrect(correct);
+
+  // Deshabilitar las opciones mientras se reproduce el audio de feedback
+  setIsOptionDisabled(true);
+
+  // Reproducir el sonido de feedback (correcto o incorrecto)
+  await playFeedbackSound(correct);
+
+  // Una vez que termine el audio, habilitamos las opciones nuevamente
+  setIsOptionDisabled(false);
+
+  // Vibrar si es incorrecto
+  if (!correct) {
+    Vibration.vibrate(200);
+  }
+
+  // Reproducir sonido de retroalimentación
+  await playFeedbackSound(correct);
+
+  if (!correct) {
+    setTimeout(async () => {
+      await handleStartReading();
+    }, 500);
+  }
+};
+
+
+
+const handleNextLesson = () => {
+  if (currentLessonIndex < lessons.length - 1) {
+    setCurrentLessonIndex(currentLessonIndex + 1);
+    setSelectedOption(null);
+    setIsCorrect(null);
+  }
+};
 
   if (loading) {
     return (
@@ -126,21 +174,7 @@ const CompletaLaOracion = () => {
     );
   }
 
-  if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={() => setLoading(true)}>
-          <Text style={styles.retryText}>Reintentar</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  // Verifica que currentLesson esté definido
-  const currentLesson = lessons[currentLessonIndex];
-
-  if (!currentLesson) {
+  if (!currentLessonData) {
     return (
       <View style={styles.loadingContainer}>
         <Text>Cargando lección...</Text>
@@ -148,14 +182,15 @@ const CompletaLaOracion = () => {
     );
   }
 
-  const words = currentLesson.oracion.split(' ');
+  const words = currentLessonData.oracion.split(' ');
+
+  const isNextButtonDisabled = !selectedOption || selectedOption !== currentLessonData.opcionCorrecta;
 
   return (
     <LinearGradient colors={['#e0eafc', '#f5f5f5']} style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.lessonNumber}>Ejercicio {currentLessonIndex + 1}</Text>
       </View>
-      {/* Botón de regresar */}
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
         <Icon name="arrow-back" size={30} color="#2A6F97" />
       </TouchableOpacity>
@@ -166,9 +201,9 @@ const CompletaLaOracion = () => {
             {words.map((word, index) => (
               <Text key={index} style={styles.word}>
                 {word === '___' ? (
-                  selectedOption === currentLesson.opcionCorrecta ? (
+                  selectedOption === currentLessonData.opcionCorrecta ? (
                     <Text style={styles.highlightedWord}>
-                      {currentLesson.opcionCorrecta.toLowerCase()}{' '}
+                      {currentLessonData.opcionCorrecta.toLowerCase()}{' '}
                     </Text>
                   ) : (
                     <Text style={styles.placeholderOval}>_____ </Text>
@@ -179,25 +214,16 @@ const CompletaLaOracion = () => {
               </Text>
             ))}
           </Text>
-          <TouchableOpacity
-            onPress={() => handleStartReading(currentLesson.audio)}
-            style={styles.speakerButton}
-          >
-            <FontAwesome
-              name="volume-up"
-              size={24}
-              color={isSpeaking ? '#1e90ff' : 'black'}
-            />
+          <TouchableOpacity onPress={handleStartReading} style={styles.speakerButton}>
+            <FontAwesome name="volume-up" size={24} color={isSpeaking ? '#1e90ff' : 'black'} />
           </TouchableOpacity>
+
         </View>
         <View style={styles.opcionesContainer}>
-          {currentLesson.opciones.map((option: string, index: number) => (
+          {currentLessonData.opciones.map((option, index) => (
             <TouchableOpacity
               key={index}
-              style={[
-                styles.optionButton,
-                selectedOption === option && styles.selectedOptionButton,
-              ]}
+              style={[styles.optionButton, selectedOption === option && styles.selectedOptionButton]}
               onPress={() => handleOptionSelect(option)}
             >
               <Text style={styles.optionoracion}>{option}</Text>
@@ -206,22 +232,19 @@ const CompletaLaOracion = () => {
         </View>
       </View>
       <View style={styles.progressContainer}>
-        {lessons.map((_: any, index: number) => (
+        {lessons.map((_, index) => (
           <View
             key={index}
-            style={[
-              styles.progressDot,
-              currentLessonIndex === index && styles.currentProgressDot,
-            ]}
+            style={[styles.progressDot, currentLessonIndex === index && styles.currentProgressDot]}
           />
         ))}
       </View>
       <View style={styles.footer}>
         <Text style={styles.pageIndicator}>{currentLessonIndex + 1} / {lessons.length}</Text>
-        <TouchableOpacity
-          style={[styles.nextButton, !isNextButtonEnabled && { backgroundColor: '#d3d3d3' }]} // Deshabilita el color del botón cuando está deshabilitado
-          onPress={handleNextLesson}
-          disabled={!isNextButtonEnabled} // Deshabilita el botón si isNextButtonEnabled es false
+        <TouchableOpacity 
+          style={[styles.nextButton, isNextButtonDisabled && { opacity: 0.5 }]} 
+          onPress={handleNextLesson} 
+          disabled={isNextButtonDisabled}
         >
           <Text style={styles.nextButtonoracion}>Siguiente</Text>
         </TouchableOpacity>
@@ -247,7 +270,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 120,
+    marginTop: 110,
     marginBottom: 45,
     zIndex: 2,
   },

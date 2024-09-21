@@ -46,7 +46,7 @@ const LessonMenuRL: React.FC = () => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('../../assets/Ejercicios.png')} // Imagen de encabezado
+        source={require('../../assets/Leciones.png')} // Imagen de encabezado
         style={styles.header}
         resizeMode="cover"
       >
@@ -87,19 +87,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f4f7',
   },
   header: {
-    width: '80%',
-    height: 250, // Ajusta la altura si es necesario
+    width: '90%',
+    height: 300, // Ajusta la altura si es necesario
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 70,
-    marginTop: 90,
+    marginLeft: 40,
+    marginTop: 60,
   },
   headerTitle: {
     fontSize: 35,
     fontWeight: 'bold',
     color: '#1c506e',
     textAlign: 'center',
-    marginTop: 30,  // Margen para separarlo de la imagen
+    marginTop: 5,  // Margen para separarlo de la imagen
   },
   lessonList: {
     padding: 20,
