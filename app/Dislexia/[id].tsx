@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { Audio } from 'expo-av';
 import { useLocalSearchParams } from 'expo-router';
-import { useRouter } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import React from 'react';
+import { Text } from 'react-native';
 
 interface Lesson {
   id: number;
@@ -35,11 +34,25 @@ const CKLessonComponent: React.FC = () => {
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [quizId, setQuizId] = useState<string | null>(null); // Estado para el quiz ID
+  const [ finished, setFinished ] = useState(false)
 
   useEffect(() => {
     const fetchLessonById = async () => {
+      let token = null;
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en dislexia ', token)
+      } else {
+        router.navigate('/home')
+      }
       try {
-        const response = await fetch(`${baseUrl}/lecciones/${id}`);
+        const response = await fetch(`${baseUrl}/lecciones/${id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json', 
+          }
+        });
         const data: LessonData = await response.json();
 
         if (data && data.contenido) {
@@ -82,24 +95,27 @@ const CKLessonComponent: React.FC = () => {
   const playAudio = async (audioUrl: string) => {
     console.log("Intentando reproducir audio:", audioUrl); // Verifica la URL
   
+    console.log('Sonido ', sound?._loaded)
     try {
       if (sound) {
+        console.log('Entro aqui jejeje')
         await sound.stopAsync();
         await sound.unloadAsync();
       }
   
       const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioUrl });
       setSound(newSound);
-  
+      setFinished(false)
       newSound.setOnPlaybackStatusUpdate((playbackStatus) => {
-        console.log("Estado del audio:", playbackStatus); // Verifica el estado
+        //console.log("Estado del audio:", playbackStatus); // Verifica el estado
   
         if (playbackStatus.isLoaded) {
-          console.log("Posición actual:", playbackStatus.positionMillis); // Verifica la posición
+          //console.log("Posición actual:", playbackStatus.positionMillis); // Verifica la posición
   
           if (playbackStatus.didJustFinish) {
-            Alert.alert("Audio Finalizado", "El audio ha terminado de reproducirse.");
-            nextLesson();
+            /* Alert.alert("Audio Finalizado", "El audio ha terminado de reproducirse."); */
+            setFinished(true)
+            //nextLesson();
           }
         } else {
           console.log("El audio no está cargado.");
@@ -151,10 +167,14 @@ const CKLessonComponent: React.FC = () => {
   };
 
   const prevLesson = () => {
+    console.log('Current lesson ', currentLesson)
     if (currentLesson > 0) {
       setCurrentLesson(currentLesson - 1);
+      stopAudio()
     } else {
-      Alert.alert('No hay lección anterior', 'Ya estás en la primera lección.');
+      stopAudio()
+      goBack()
+      //Alert.alert('No hay lección anterior', 'Ya estás en la primera lección.');
     }
   };
 
@@ -216,9 +236,9 @@ const CKLessonComponent: React.FC = () => {
 
       <View style={styles.navigation}>
         <TouchableOpacity onPress={prevLesson} style={styles.navigationButton}>
-          <Text style={styles.navigationButtonText}>Anterior</Text>
+          <Text style={styles.navigationButtonText}>{currentLesson == 0 ? 'Regresar' : 'Anterior' }</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={nextLesson} style={styles.navigationButton}>
+        <TouchableOpacity disabled={!finished} onPress={nextLesson} style={[styles.navigationButton, !finished && styles.navigationButtonDisabled]}>
           <Text style={styles.navigationButtonText}>Siguiente</Text>
         </TouchableOpacity>
       </View>
@@ -286,6 +306,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+  },
+  navigationButtonDisabled: {
+    backgroundColor: '#A9A9A9', // Color para el botón deshabilitado
   },
   navigationButton: {
     backgroundColor: '#2A6F97',

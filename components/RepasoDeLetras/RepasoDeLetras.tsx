@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import * as Speech from 'expo-speech';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { existToken, getToken } from '@/utils/TokenUtils';
+import { router } from 'expo-router';
 
 interface Lesson {
   letra: string;
@@ -142,13 +144,19 @@ const LessonScreen: React.FC = () => {
 
   const getLecciones = async () => {
     const url = `${baseUrl}/lecciones/all`;
-
+    let token = null;
+    if (await existToken()) {
+      token = await getToken()
+      console.log('Token en lecciones ', token)
+    } else {
+      router.navigate('/home')
+    }
     try {
       const res = await fetch(url, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json', 
         }
       });
 

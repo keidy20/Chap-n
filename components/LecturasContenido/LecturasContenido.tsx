@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-na
 import { Audio } from 'expo-av';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import { router } from 'expo-router';
+import { existToken, getToken } from '@/utils/TokenUtils';
 
 interface Lesson {
   id: number;
@@ -63,8 +64,21 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
   const startEvaluation = async () => {
     stopAndUnloadSound(); // Detener el audio de instrucciones al iniciar la evaluación
 
+    let token = null;
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+      } else {
+        router.navigate('/home')
+      }
     try {
-      const response = await fetch(`${baseUrl}/ejercicios/all`);
+      const response = await fetch(`${baseUrl}/ejercicios/all`,{
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json', 
+        }
+      });
       const data: LessonData[] = await response.json();
 
       const filteredLessons = data

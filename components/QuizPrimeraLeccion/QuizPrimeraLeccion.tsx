@@ -5,6 +5,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import * as Speech from 'expo-speech';
 import { useLocalSearchParams } from 'expo-router';
 import { useRouter } from 'expo-router';  
+import { existToken, getToken } from '@/utils/TokenUtils';
 
 interface Lesson {
   id: number;
@@ -38,8 +39,21 @@ const QuizComponent: React.FC = () => {
 
   useEffect(() => {
     const fetchLessonById = async () => {
+      let token = null;
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+      } else {
+        router.navigate('/home')
+      }
       try {
-        const response = await fetch(`${baseUrl}/lecciones/${20}`);
+        const response = await fetch(`${baseUrl}/lecciones/${20}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json', 
+          }
+        });
         const data: LessonData = await response.json();
         console.log("Marquiña ", data);
 
@@ -65,8 +79,9 @@ const QuizComponent: React.FC = () => {
   };
 
   useEffect(() => {
-    const speakAndStartTimer = async () => {
-      if (lessons.length === 0) return; // No hacer nada si no hay preguntas
+    if (selectedOption !== null) {
+      const isCorrect = selectedOption === currentQuestion.answer;
+      speakFeedback(isCorrect);
 
       setIsSpeaking(true); // Indica que el audio está en reproducción
       const currentQuestion = lessons[currentQuestionIndex];

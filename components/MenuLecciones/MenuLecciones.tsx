@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { existToken, getToken } from '@/utils/TokenUtils';
 
 const LessonMenuRL: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
@@ -14,13 +15,19 @@ const LessonMenuRL: React.FC = () => {
   useEffect(() => {
     const fetchLessons = async () => {
       const url = `${baseUrl}/lecciones/all`;
-
+      let token = null;
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+      } else {
+        router.navigate('/home')
+      }
       try {
         const res = await fetch(url, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json', 
           }
         });
 
