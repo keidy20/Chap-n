@@ -4,12 +4,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { router } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';;
+import { Audio } from 'expo-av';
 
 interface Lesson {
   id: number;
   oracion: string;
-  audio: string;
   letrasDisponibles: string[];
   letrasCorrectas: string[];
 }
@@ -19,11 +19,14 @@ interface LessonData {
   titulo: string;
   contenido: {
     Ejercicios: Lesson[];
+    audios: { url: string }[];
   };
 }
 
+
 const LeccionLectura = () => {
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+  const [audios, setAudios] = useState<string[]>([]);
   const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
   const [availableLetters, setAvailableLetters] = useState<string[]>([]);
   const [letterFrequency, setLetterFrequency] = useState<{ [letter: string]: number }>({});
@@ -31,6 +34,7 @@ const LeccionLectura = () => {
   const [lessons, setLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
   const placeholder = '_';
@@ -51,21 +55,22 @@ const LeccionLectura = () => {
     };
   }, [currentLessonIndex, lessons]);
 
-  // Fetch de datos desde la API
   useEffect(() => {
     const fetchLessons = async () => {
       try {
         const response = await fetch(`${baseUrl}/ejercicios/all`);
         const data: LessonData[] = await response.json();
-        console.log("OJO", data)
 
-        // Filtra solo las lecciones con tipoLeccion "RL"
         const filteredLessons = data
           .filter(lesson => lesson.tipoEjercicio === 'CP')
-          .flatMap(lesson => lesson.contenido.Ejercicios); // Accede a las lecciones dentro de 'contenido'
+          .flatMap(lesson => {
+            const lessonAudios = lesson.contenido.audios.map(audio => audio.url);
+            setAudios(lessonAudios);
+            return lesson.contenido.Ejercicios;
+          });
 
         if (filteredLessons.length > 0) {
-          setLessons(filteredLessons); // Guardamos las lecciones filtradas
+          setLessons(filteredLessons);
         } else {
           Alert.alert('Error', 'No se encontraron lecciones con el tipo "CO".');
         }
@@ -77,7 +82,9 @@ const LeccionLectura = () => {
     };
 
     fetchLessons();
-  }, []);
+  }, [baseUrl]);
+
+  const currentAudioUrl = audios[currentLessonIndex];
 
   const calculateLetterFrequency = (letters: string[]) => {
     const letterMap: Record<string, number> = {};
@@ -161,13 +168,21 @@ const LeccionLectura = () => {
     return sentence.join('');
   };
 
-  const handleStartReading = () => {
+  const handleStartReading = async () => {
+    if (!currentAudioUrl) return;
+
     setIsSpeaking(true);
-    Speech.speak(lessons[currentLessonIndex].audio, {
-      language: 'es',
-      onDone: () => setIsSpeaking(false),
-      onStopped: () => setIsSpeaking(false),
-      onError: () => setIsSpeaking(false),
+    const { sound } = await Audio.Sound.createAsync({ uri: currentAudioUrl });
+    setSound(sound);
+    await sound.playAsync();
+
+    sound.setOnPlaybackStatusUpdate(status => {
+      if (status.isLoaded) {
+        if (status.didJustFinish) {
+          sound.unloadAsync();
+          setIsSpeaking(false);
+        }
+      }
     });
   };
 
@@ -246,7 +261,7 @@ const LeccionLectura = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    padding: 25,
   },
   topGradient: {
     position: 'absolute',
@@ -270,20 +285,20 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 100,
+    marginTop: 80,
     marginBottom: 45,
     zIndex: 2,
   },
   lessonNumber: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
   },
   subtitle: {
     fontSize: 25,
     textAlign: 'center',
-    marginBottom: 100,
+    marginBottom: 90,
     zIndex: 2,
   },
   lessonContainer: {

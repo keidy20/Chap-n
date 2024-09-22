@@ -1,53 +1,69 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { existToken, removeToken } from '../../utils/TokenUtils';
+import { Audio } from 'expo-av';
 
 const Bienvenida: React.FC = () => {
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+
+  const redirect = async () => {
+    if (await existToken()) {
+      router.navigate('/home');
+    } else {
+      console.log("NO EXISTE TOKEN");
+      setIsLoading(false);
+    }
+  };
+
+  const playWelcomeAudio = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../assets/Bienvenida.mp3') // Ruta de tu archivo de audio
+    );
+    setSound(sound);
+    await sound.playAsync();
+  };
 
   useEffect(() => {
-    const welcomeMessage = 'Bienvenido. ¡Vamos a mejorar la fluidez lectora juntos! Empecemos';
-
-    Speech.speak(welcomeMessage, {
-      language: 'es',
-      onStart: () => setIsSpeaking(true),
-      onDone: () => setIsSpeaking(false),
-      onStopped: () => setIsSpeaking(false),
-      onError: () => setIsSpeaking(false),
-    });
+    redirect();
+    playWelcomeAudio();
 
     return () => {
-      // Detener el audio si el componente se desmonta
-      Speech.stop();
+      // Liberar recursos cuando se desmonte el componente
+      if (sound) {
+        sound.unloadAsync();
+      }
     };
   }, []);
 
-  const handleContinue = () => {
-    // Detener el audio antes de navegar
-    Speech.stop();
-    console.log('Iniciar sesión presionado');
-    router.navigate('/home');
+  const stopAudio = async () => {
+    if (sound) {
+      await sound.stopAsync();
+      console.log('Audio detenido');
+    }
   };
 
-  const handleCreateAccount = () => {
+  const handleContinue = async () => {
     // Detener el audio antes de navegar
-    Speech.stop();
+    await stopAudio();
+    console.log('Iniciar sesión presionado');
+    router.navigate('/login');
+  };
+
+  const handleCreateAccount = async () => {
+    // Detener el audio antes de navegar
+    await stopAudio();
     console.log('Crear cuenta presionado');
     router.navigate('/crear_cuenta');
   };
 
   return (
-    <LinearGradient
-      colors={['#2A6F97', '#FFFFFF']}
-      style={styles.gradient}
-    >
+    <LinearGradient colors={['#2A6F97', '#FFFFFF']} style={styles.gradient}>
       <View style={styles.container}>
-        <Image
-          source={require('../../assets/bombilla1.png')}
-          style={styles.avatar}
-        />
+        <Image source={require('../../assets/bombilla1.png')} style={styles.avatar} />
         <View style={styles.card}>
           <Text style={styles.welcomeText}>HOLA!</Text>
           <Text style={styles.subtitle}>¡Vamos a mejorar la fluidez lectora juntos! Empecemos</Text>
@@ -117,7 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 15,
+    fontSize: 10,
     color: '#fff',
     fontWeight: 'bold',
   },

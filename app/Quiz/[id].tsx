@@ -4,11 +4,10 @@ import { Audio } from 'expo-av';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import * as Speech from 'expo-speech';
 import { useLocalSearchParams } from 'expo-router';
-import { useRouter } from 'expo-router';  
+import { useRouter } from 'expo-router';
 
 interface Lesson {
-  id: number;
-  audioPregunta: string;
+  id: string;
   opciones: string[];
   respuestaCorrecta: string;
 }
@@ -17,21 +16,22 @@ interface LessonData {
   id: number;
   titulo: string;
   contenido: {
-    quiz: Lesson[];
-    audios: any[];
+    quizData: Lesson[];
+    audios: { id: string; url: string }[];
   };
 }
 
 const QuizComponent: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [audios, setAudios] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(5); // 5 segundos por pregunta
-  const [isSpeaking, setIsSpeaking] = useState(false); // Controla si el audio está en reproducción
-  const [loading, setLoading] = useState(true); // Estado de carga
-  const { id } = useLocalSearchParams();  
+  const [timeLeft, setTimeLeft] = useState(5);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { id } = useLocalSearchParams();
   const router = useRouter();
 
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
@@ -39,18 +39,17 @@ const QuizComponent: React.FC = () => {
   useEffect(() => {
     const fetchLessonById = async () => {
       try {
-        const response = await fetch(`${baseUrl}/lecciones/${20}`);
+        const response = await fetch(`${baseUrl}/lecciones/${id}`);
         const data: LessonData = await response.json();
-        console.log("Marquiña ", data);
+        console.log("PAPA ", data);
 
-        if (data && data.contenido && data.contenido.quiz) {
-          setLessons(data.contenido.quiz);  
+        if (data && data.contenido) {
+          setLessons(data.contenido.quizData);
+          setAudios(data.contenido.audios.map((elemento) => elemento.url));
         } else {
-          Alert.alert('Error', 'No se encontraron lecciones para este ID.');
         }
         setLoading(false);
       } catch (error) {
-        Alert.alert('Error', 'No se pudo cargar la lección.');
         setLoading(false);
       }
     };
@@ -66,50 +65,52 @@ const QuizComponent: React.FC = () => {
 
   useEffect(() => {
     const speakAndStartTimer = async () => {
-      if (lessons.length === 0) return; // No hacer nada si no hay preguntas
-
-      setIsSpeaking(true); // Indica que el audio está en reproducción
-      const currentQuestion = lessons[currentQuestionIndex];
-
-      // Reproduce el audio de la pregunta
-      Speech.speak(currentQuestion.audioPregunta, {
-        language: 'es-ES', // Cambia esto a español
-        voice: 'es-ES',
-        pitch: 1.0,
-        rate: 1.0,
-        onDone: () => {
-          setIsSpeaking(false); // Termina de reproducir el audio
-          setTimeLeft(5); // Inicia el temporizador de inmediato
-        },
-        onError: (error) => {
-          console.error('Error al reproducir el audio:', error);
-          setIsSpeaking(false); // Termina de reproducir el audio en caso de error
-          setTimeLeft(5); // Inicia el temporizador de inmediato
-        },
-      });
+      if (lessons.length === 0 || audios.length === 0) return;
+  
+      setIsSpeaking(true);
+      const currentAudioUrl = audios[currentQuestionIndex];
+  
+      try {
+        const { sound } = await Audio.Sound.createAsync({ uri: currentAudioUrl });
+        await sound.playAsync();
+  
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+            sound.unloadAsync(); // Libera el sonido cuando termine de reproducirse
+            setIsSpeaking(false);
+            setTimeLeft(5);
+          }
+        });
+      } catch (error) {
+        console.error('Error al reproducir el audio:', error);
+        setIsSpeaking(false);
+        setTimeLeft(5);
+      }
     };
-
+  
     speakAndStartTimer();
-
-    // Limpiar el temporizador y estado cuando cambie la pregunta
+  
     return () => {
-      setTimeLeft(5); // Reiniciar el tiempo cuando cambie la pregunta
-      setSelectedOption(null); // Limpiar la opción seleccionada
+      setTimeLeft(5);
+      setSelectedOption(null);
     };
-  }, [currentQuestionIndex, lessons]);
+  }, [currentQuestionIndex, audios]);
+  
+  
+  
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
     if (timeLeft > 0 && !isSpeaking) {
       timer = setInterval(() => {
-        setTimeLeft(prevTime => prevTime - 1);
+        setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
     } else if (timeLeft === 0 && !isSpeaking) {
-      handleNextQuestion(); // Pasar a la siguiente pregunta cuando se agote el tiempo
+      handleNextQuestion();
     }
 
-    return () => clearInterval(timer); // Limpiar el cronómetro cuando cambie la pregunta o se agote el tiempo
+    return () => clearInterval(timer);
   }, [timeLeft, isSpeaking]);
 
   const playSound = async (type: 'correct' | 'incorrect') => {
@@ -122,28 +123,27 @@ const QuizComponent: React.FC = () => {
   };
 
   const handleOptionPress = async (option: string) => {
-    if (selectedOption) return; // Evitar cambiar la respuesta si ya se ha respondido
+    if (selectedOption) return;
 
     setSelectedOption(option);
     const currentQuestion = lessons[currentQuestionIndex];
     const isCorrect = option === currentQuestion.respuestaCorrecta;
 
     if (isCorrect) {
-      setScore(score + 1); // Aumentar el puntaje si la respuesta es correcta
-      await playSound('correct'); // Reproducir sonido correcto
+      setScore(score + 1);
+      await playSound('correct');
     } else {
-      await playSound('incorrect'); // Reproducir sonido incorrecto
+      await playSound('incorrect');
     }
 
-    // Iniciar el cambio de pregunta inmediatamente
     setTimeLeft(0);
   };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < lessons.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedOption(null); // Limpiar la opción seleccionada
-      setTimeLeft(5); // Reiniciar el temporizador para la siguiente pregunta
+      setSelectedOption(null);
+      setTimeLeft(5);
     } else {
       setShowResult(true);
     }
@@ -153,7 +153,7 @@ const QuizComponent: React.FC = () => {
     setCurrentQuestionIndex(0);
     setSelectedOption(null);
     setScore(0);
-    setTimeLeft(5); // Reiniciar el cronómetro
+    setTimeLeft(5);
     setShowResult(false);
   };
 
@@ -185,7 +185,7 @@ const QuizComponent: React.FC = () => {
       <AnimatedCircularProgress
         size={180}
         width={12}
-        fill={(timeLeft / 5) * 100} // Porcentaje de progreso
+        fill={(timeLeft / 5) * 100}
         tintColor="#2A6F97"
         backgroundColor="#e0e0e0"
       >
@@ -204,7 +204,7 @@ const QuizComponent: React.FC = () => {
               : styles.optionButton
           ]}
           onPress={() => handleOptionPress(option)}
-          disabled={!!selectedOption || isSpeaking} // Deshabilitar opciones mientras se reproduce el audio o si ya se seleccionó una opción
+          disabled={!!selectedOption || isSpeaking}
         >
           <Text style={styles.optionText}>{option}</Text>
         </TouchableOpacity>
