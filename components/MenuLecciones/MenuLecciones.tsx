@@ -4,7 +4,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { existToken, getToken } from '@/utils/TokenUtils';
+import { existToken, getToken, removeToken } from '@/utils/TokenUtils';
+import { getUsuario } from '@/utils/UsuarioUtils';
 
 const LessonMenuRL: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
@@ -13,8 +14,10 @@ const LessonMenuRL: React.FC = () => {
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
   useEffect(() => {
+    console.log('Entrando a dislexia')
     const fetchLessons = async () => {
-      const url = `${baseUrl}/lecciones/all`;
+      const username = await getUsuario()
+      const url = `${baseUrl}/lecciones/all/${username}`;
       let token = null;
       if (await existToken()) {
         token = await getToken()
@@ -32,10 +35,16 @@ const LessonMenuRL: React.FC = () => {
         });
 
         if (!res.ok) {
+          console.log('Error al consumir ', res.status)
+          if (res.status == 403) {
+            removeToken()
+            router.navigate('/login')
+          }
           throw new Error('Network response was not ok ' + res.statusText);
         }
 
         const data = await res.json();
+        console.log('Resultado de lecciones por usuario ', data)
         const filteredLessons = data.filter((d: any) => d.tipoLeccion === 'RL');
         setLessons(filteredLessons);
       } catch (error) {
@@ -68,7 +77,7 @@ const LessonMenuRL: React.FC = () => {
           <Text style={styles.emptyText}></Text>
         ) : (
           lessons.map((lesson, index) => (
-            <TouchableOpacity key={index} style={styles.cardContainer} onPress={() => goToLessonDetail(lesson.id)}>
+            <TouchableOpacity key={index}  style={[styles.cardContainer, lesson.completado ? styles.completedCard : null]} onPress={() => goToLessonDetail(lesson.id)}>
               <LinearGradient colors={['#2A6F97', '#539ec9']} style={styles.projectCard}>
                 <View style={styles.lessonContent}>
                   <Text style={styles.lessonTitle}>{lesson.titulo}</Text>
@@ -81,7 +90,7 @@ const LessonMenuRL: React.FC = () => {
       </ScrollView>
 
       {/* Botón de regresar */}
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+      <TouchableOpacity onPress={() => router.push('/home')} style={styles.backButton}>
         <Icon name="arrow-back" size={30} color="#2A6F97" />
       </TouchableOpacity>
     </View>
@@ -115,6 +124,9 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: '100%',
     marginBottom: 10,
+  },
+  completedCard: {
+    opacity: 0.6, // Cambia la opacidad o aplica algún estilo para las lecciones completadas
   },
   projectCard: {
     flex: 1,

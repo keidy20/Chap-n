@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { existToken, getToken } from '@/utils/TokenUtils';
+import { getUsuario } from '@/utils/UsuarioUtils';
 
 interface Lesson {
   id: number;
@@ -37,6 +38,7 @@ const CKLessonComponent: React.FC = () => {
       if (await existToken()) {
         token = await getToken()
         console.log('Token en lecciones ', token)
+        console.log('Usuario ', await getUsuario())
       } else {
         router.navigate('/home')
       }

@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { storeToken, getToken } from "../../utils/TokenUtils";
 import { styles } from "./Styles";
+import { storeUsuario } from "@/utils/UsuarioUtils";
 
 const Login: React.FC = () => {
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
@@ -65,6 +66,7 @@ const Login: React.FC = () => {
       const data = await res.json();
       console.log("Respuesta del servidor ", data.token);
       storeToken(data.token);
+      storeUsuario(username)
       const token = await getToken();
       console.log("Token guardado ", token);
       router.navigate("/home");
