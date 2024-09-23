@@ -10,7 +10,7 @@ import MenuLecturasNuevo from '../components/MenuLecturasNuevo'
 export default function CrearCuentaRoute() {
   return (
     <View style={style.container}>
-      <MenuLecturasNuevo/>
+      <MenuLecciones/>
     </View>
   )
 }

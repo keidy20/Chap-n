@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Audio } from 'expo-av';
 import { router } from 'expo-router';
 
+
 interface Lesson {
   id: number;
   opciones: string[];
@@ -20,16 +21,19 @@ interface LessonData {
   };
 }
 
+
 const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [audios, setAudios] = useState<string[]>([]);
-  const [words, setWords] = useState<{ audio: string; opciones: string[] }[]>([]);
+  const [words, setWords] = useState<{ audio: string, opciones: string[] }[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [correctAnswers, setCorrectAnswers] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [correctOption, setCorrectOption] = useState<string | null>(null);
+  const [highlightButton, setHighlightButton] = useState(false);
+  const [instructionsGiven, setInstructionsGiven] = useState(false);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
@@ -43,16 +47,15 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
           .filter(lesson => lesson.tipoEjercicio === 'QZ')
           .flatMap(lesson => {
             const lessonAudios = lesson.contenido.audios.map(audio => audio.url);
-            return lesson.contenido.Ejercicios.map((ejercicio, index) => ({
-              audio: lessonAudios[index], // Asegúrate de que el índice coincida
-              opciones: ejercicio.opciones,
-            }));
+            console.log("PRUEBAAAA", lesson.contenido.audios)
+            setAudios(lessonAudios);
+            return lesson.contenido.Ejercicios;
           });
 
         if (filteredLessons.length > 0) {
-          setWords(filteredLessons);
+          setLessons(filteredLessons);
         } else {
-          Alert.alert('Error', 'No se encontraron lecciones con el tipo "QZ".');
+          Alert.alert('Error', 'No se encontraron lecciones con el tipo "CO".');
         }
       } catch (error) {
         Alert.alert('Error', 'No se pudieron cargar las lecciones');
@@ -62,23 +65,73 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
     fetchLessons();
   }, [baseUrl]);
 
-  const playAudio = async (soundFile: string) => {
-    if (sound) {
-      await sound.stopAsync(); // Detener el sonido actual
-      await sound.unloadAsync(); // Descargar el sonido actual
+
+
+  // Función para reproducir sonidos (correcto, incorrecto, cronómetro)
+  const playSound = async (soundFile: any) => {
+    await stopAndUnloadSound(); // Asegúrate de detener cualquier sonido anterior
+    try {
+      const { sound: newSound } = await Audio.Sound.createAsync(soundFile);
+      setSound(newSound);
+      await newSound.playAsync();
+    } catch (error) {
+      console.error('Error al reproducir el sonido:', error);
     }
-    const { sound: newSound } = await Audio.Sound.createAsync({ uri: soundFile });
-    setSound(newSound);
-    await newSound.playAsync(); // Reproducir el nuevo audio
   };
 
+  // Funciones específicas para sonidos correctos, incorrectos y cronómetro
+  const playCorrectSound = () => playSound(require('../../assets/Correcto.mp3'));
+  const playIncorrectSound = () => playSound(require('../../assets/incorrecto.mp3'));
+  const playCronometroSound = () => playSound(require('../../assets/cronometro.mp3'));
+
+  // Función para detener y descargar el sonido
+  const stopAndUnloadSound = async () => {
+    if (sound) {
+      const status = await sound.getStatusAsync();
+      if (status.isLoaded) {
+        try {
+          await sound.stopAsync();
+          await sound.unloadAsync();
+        } catch (error) {
+          console.error('Error al detener o descargar el sonido:', error);
+        }
+      }
+    }
+    setSound(null); // Resetear el estado del sonido
+  };
+
+  // Detener todos los sonidos
+  const stopAllAudio = async () => {
+    stopAndUnloadSound(); // Detener cualquier sonido de expo-av
+    Speech.stop(); // Detener cualquier texto hablado en curso
+  };
+
+  // Función para regresar y detener todos los audios
+  const goBack = () => {
+    stopAllAudio(); // Detener todos los sonidos antes de salir
+    router.back();
+  };
+
+// Función para iniciar la evaluación
+const startEvaluation = () => {
+  stopAndUnloadSound(); // Asegúrate de detener cualquier sonido activo antes de comenzar
+  setIsEvaluating(true);
+  setTimeLeft(60);
+  setCorrectAnswers(0);
+  setCurrentWordIndex(0);
+  setSelectedOption(null);
+  setCorrectOption(null);
+  setHighlightButton(false);
+};
+
+  // Función para manejar la selección de opción
   const handleOptionSelect = async (option: string) => {
     if (option === words[currentWordIndex].audio) {
-      await playAudio(require('../../assets/Correcto.mp3'));
+      await playCorrectSound(); // Reproduce el sonido si la opción es correcta
       setCorrectAnswers(correctAnswers + 1);
       setCorrectOption(option);
     } else {
-      await playAudio(require('../../assets/incorrecto.mp3'));
+      await playIncorrectSound();
       setCorrectOption(words[currentWordIndex].audio);
     }
     setSelectedOption(option);
@@ -95,40 +148,64 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
     }, 1000);
   };
 
-  const startEvaluation = () => {
-    setIsEvaluating(true);
-    setTimeLeft(60);
-    setCorrectAnswers(0);
-    setCurrentWordIndex(0);
-    setSelectedOption(null);
-    setCorrectOption(null);
-    // Reproduce el audio de instrucciones aquí
-    playAudio(require('../../assets/Instrucciones.mp3')); // Asegúrate de que este archivo esté disponible
+  // Función para reproducir el audio de la palabra
+  const playAudio = () => {
+    Speech.speak(words[currentWordIndex].audio, { language: 'es-ES', rate: 1.0 });
   };
 
-  const stopAndUnloadSound = async () => {
-    if (sound) {
-      const status = await sound.getStatusAsync();
-      if (status.isLoaded) {
-        try {
-          await sound.stopAsync();
-          await sound.unloadAsync();
-        } catch (error) {
-          console.error('Error al detener o descargar el sonido:', error);
+  // Cargar los datos de la API y filtrar lecciones
+  useEffect(() => {
+    const fetchLessons = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/ejercicios/all`);
+        const data: any[] = await response.json();
+        console.log("OJO", data);
+
+        // Filtra solo las lecciones con tipoEjercicio "CP"
+        const filteredLessons = data
+          .filter(lesson => lesson.tipoEjercicio === 'QZ')
+          .flatMap(lesson => lesson.contenido.Ejercicios); // Accede a las lecciones dentro de 'contenido'
+
+        if (filteredLessons.length > 0) {
+          const wordsData = filteredLessons.map((lesson: any) => ({
+            audio: lesson.audio,
+            opciones: lesson.opciones,
+          }));
+          setWords(wordsData);
+        } else {
+          Alert.alert('Error', 'No se encontraron lecciones con el tipo "CP".');
         }
+      } catch (error) {
+        Alert.alert('Error', 'No se pudieron cargar las lecciones');
       }
-    }
-    setSound(null); // Resetear el estado del sonido
-  };
-  const stopAllAudio = async () => {
-    stopAndUnloadSound(); // Detener cualquier sonido de expo-av
-    Speech.stop(); // Detener cualquier texto hablado en curso
-  };
+    };
 
-  const goBack = () => {
-    stopAllAudio(); // Detener todos los sonidos antes de salir
-    router.back();
-  };
+    fetchLessons();
+  }, []);
+
+  useEffect(() => {
+    if (isEvaluating) {
+      playAudio();
+    }
+  }, [currentWordIndex, isEvaluating]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isEvaluating && timeLeft > 0) {
+      playCronometroSound();
+      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    } else if (timeLeft === 0) {
+      setIsEvaluating(false);
+      alert(`Tiempo terminado. Respuestas correctas: ${correctAnswers}`);
+      stopAndUnloadSound();
+    }
+    return () => {
+      if (isEvaluating || sound) { // Solo detener el sonido si la evaluación está activa o el sonido existe
+        stopAndUnloadSound();
+      }
+      clearTimeout(timer); 
+    };
+  }, [timeLeft, isEvaluating]);
 
   return (
     <View style={styles.container}>
@@ -139,24 +216,47 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
       <Text style={styles.title}>Quiz de Evaluación</Text>
 
       {!isEvaluating && (
-        <Image source={require('../../assets/evaluacion3.png')} style={styles.image} />
+        <Image 
+          source={require('../../assets/evaluacion3.png')}
+          style={styles.image}
+        />
       )}
 
       {!isEvaluating ? (
-        <TouchableOpacity style={styles.button} onPress={startEvaluation}>
+        <TouchableOpacity
+          style={[styles.button, highlightButton && styles.highlightButton]}
+          onPress={startEvaluation}
+        >
           <View style={styles.buttonContent}>
             <Text style={styles.buttonText}>Iniciar Evaluación</Text>
           </View>
         </TouchableOpacity>
       ) : (
         <>
+          <AnimatedCircularProgress
+            size={200}
+            width={10}
+            fill={100 - (timeLeft / 60) * 100}
+            tintColor="#2A6F97"
+            backgroundColor="#e0e0e0"
+          >
+            {() => <Text style={styles.timerText}>{timeLeft}</Text>}
+          </AnimatedCircularProgress>
           <Text style={styles.word}>¿Qué audio escuchaste?</Text>
           <View style={styles.optionsContainer}>
             {words[currentWordIndex]?.opciones.map((opcion, index) => (
               <TouchableOpacity
                 key={index}
-                style={styles.option}
+                style={[
+                  styles.option,
+                  selectedOption === opcion && {
+                    borderColor: opcion === words[currentWordIndex]?.audio ? '#4CAF50' : '#F44336',
+                    borderWidth: 3,
+                    backgroundColor: opcion === words[currentWordIndex]?.audio ? '#e8f5e9' : '#ffebee',
+                  },
+                ]}
                 onPress={() => handleOptionSelect(opcion)}
+                disabled={selectedOption !== null}
               >
                 <Text style={styles.optionText}>{opcion}</Text>
               </TouchableOpacity>
@@ -211,16 +311,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   highlightButton: {
-    backgroundColor: '#4CAF50',
-  },
-  timerText: {
-    fontSize: 32,
-    color: '#2A6F97',
+    backgroundColor: '#1E90FF',
   },
   word: {
-    fontSize: 20,
+    fontSize: 24,
+    color: '#666',
+    textAlign: 'center',
     marginVertical: 20,
-    color: '#2A6F97',
   },
   optionsContainer: {
     width: '100%',
@@ -233,9 +330,31 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     backgroundColor: '#fff',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  option: {
+    backgroundColor: '#FFF',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    marginVertical: 10,
+    width: '80%',
+    alignItems: 'center',
+    borderColor: '#DDD',
+    borderWidth: 2,
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 24,
+  },
+  correctOptionText: {
+    fontSize: 18,
+    marginVertical: 10,
+    color: '#4CAF50',
+  },
+  timerText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#2A6F97',
   },
 });
 

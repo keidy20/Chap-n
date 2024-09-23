@@ -16,7 +16,7 @@ const App = () => {
     router.back();
   };
 
-  const redirectTo = (route: string) => {
+  const redirectTo = (route: any) => {
     router.navigate(route);
   };
 

@@ -1,10 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { Audio } from 'expo-av';
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import * as Speech from 'expo-speech';
-import { useLocalSearchParams } from 'expo-router';
-import { useRouter } from 'expo-router';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { Audio } from "expo-av";
+import { AnimatedCircularProgress } from "react-native-circular-progress";
+import * as Speech from "expo-speech";
+import { useLocalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
+import { existToken, getToken } from "@/utils/TokenUtils";
+import { getUsuario } from "@/utils/UsuarioUtils";
 
 interface Lesson {
   id: string;
@@ -33,14 +42,27 @@ const QuizComponent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const [ completed, setCompleted ] = useState(false)
 
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
   // Obtener lección por id
   useEffect(() => {
     const fetchLessonById = async () => {
+      let token = null;
+      if (await existToken()) {
+        token = await getToken();
+      } else {
+        router.navigate("/home");
+      }
       try {
-        const response = await fetch(`${baseUrl}/lecciones/${id}`);
+        const response = await fetch(`${baseUrl}/lecciones/${id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         const data: LessonData = await response.json();
         if (data && data.contenido) {
           setLessons(data.contenido.quizData);
@@ -66,7 +88,9 @@ const QuizComponent: React.FC = () => {
       const currentAudioUrl = audios[currentQuestionIndex];
 
       try {
-        const { sound } = await Audio.Sound.createAsync({ uri: currentAudioUrl });
+        const { sound } = await Audio.Sound.createAsync({
+          uri: currentAudioUrl,
+        });
         await sound.playAsync();
 
         sound.setOnPlaybackStatusUpdate((status) => {
@@ -77,7 +101,7 @@ const QuizComponent: React.FC = () => {
           }
         });
       } catch (error) {
-        console.error('Error al reproducir el audio:', error);
+        console.error("Error al reproducir el audio:", error);
         setIsSpeaking(false);
         setTimeLeft(5);
       }
@@ -96,9 +120,16 @@ const QuizComponent: React.FC = () => {
     let timer: NodeJS.Timeout;
 
     if (timeLeft > 0 && !isSpeaking) {
-      timer = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
+      if (timeLeft == 5) {
+        timer = setTimeout(() => {
+          setTimeLeft((prevTime) => prevTime - 1);
+        }, 50);
+      } else {
+
+        timer = setTimeout(() => {
+          setTimeLeft((prevTime) => prevTime - 1);
+        }, 1000);
+      }
     } else if (timeLeft === 0 && !isSpeaking) {
       handleNextQuestion();
     }
@@ -106,11 +137,11 @@ const QuizComponent: React.FC = () => {
     return () => clearInterval(timer);
   }, [timeLeft, isSpeaking]);
 
-  // Reproducir sonido correcto o incorrecto
-  const playSound = async (type: 'correct' | 'incorrect') => {
-    const soundPath = type === 'correct'
-      ? require('../../assets/Correcto.mp3')
-      : require('../../assets/incorrecto.mp3');
+  const playSound = async (type: "correct" | "incorrect") => {
+    const soundPath =
+      type === "correct"
+        ? require("../../assets/Correcto.mp3")
+        : require("../../assets/incorrecto.mp3");
 
     const { sound } = await Audio.Sound.createAsync(soundPath);
     await sound.playAsync();
@@ -126,32 +157,65 @@ const QuizComponent: React.FC = () => {
 
     if (isCorrect) {
       setScore(score + 1);
-      await playSound('correct');
+      await playSound("correct");
     } else {
-      await playSound('incorrect');
+      await playSound("incorrect");
     }
 
     setTimeLeft(0); // Detener el cronómetro al seleccionar opción
   };
 
-  // Avanzar a la siguiente pregunta
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (currentQuestionIndex < lessons.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedOption(null);
       setTimeLeft(5);
     } else {
+      await completarQuiz();
+      setCompleted(!completed)
       setShowResult(true);
     }
   };
 
-  // Reiniciar quiz
+  const completarQuiz = async () => {
+    let token = null;
+    let usuario = await getUsuario()
+    if (await existToken()) {
+      token = await getToken();
+    } else {
+      router.navigate("/home");
+    }
+    try {
+      const response = await fetch(
+        `${baseUrl}/usuarios_lecciones/registrar_leccion_by_username`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: usuario,
+            idLeccion: id,
+            completado: true,
+            puntuacion: (score/lessons.length)
+          })
+        }
+      );
+      const data: LessonData = await response.json();
+    } catch (error) {}
+  };
+
   const restartQuiz = () => {
-    setCurrentQuestionIndex(0);
-    setSelectedOption(null);
-    setScore(0);
-    setTimeLeft(5);
-    setShowResult(false);
+    if (score < 4) {
+      setCurrentQuestionIndex(0);
+      setSelectedOption(null);
+      setScore(0);
+      setTimeLeft(5);
+      setShowResult(false);
+    } else {
+      router.push('/dislexia')
+    }
   };
 
   if (loading) {
@@ -166,10 +230,12 @@ const QuizComponent: React.FC = () => {
   if (showResult) {
     return (
       <View style={styles.container}>
-        <Text style={styles.resultText}>¡Has completado el quiz!</Text>
-        <Text style={styles.scoreText}>Tu puntuación: {score}/{lessons.length}</Text>
-        <TouchableOpacity style={styles.restartButton} onPress={restartQuiz}>
-          <Text style={styles.restartButtonText}>Reiniciar Quiz</Text>
+        <Text style={styles.resultText}>{ score < 4 ? 'Parece que no lo has logrado' : '¡Has completado el quiz!'}</Text>
+        <Text style={styles.scoreText}>
+          Tu puntuación: {score}/{lessons.length}
+        </Text>
+        <TouchableOpacity  style={styles.restartButton} onPress={restartQuiz}>
+          <Text style={styles.restartButtonText}>{ score < 4  ? 'Volver a intentar' : 'Regresar'}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -194,11 +260,13 @@ const QuizComponent: React.FC = () => {
           key={index}
           style={[
             styles.optionButton,
-            selectedOption === option && option === currentQuestion.respuestaCorrecta
+            selectedOption === option &&
+            option === currentQuestion.respuestaCorrecta
               ? styles.correctOption
-              : selectedOption === option && option !== currentQuestion.respuestaCorrecta
+              : selectedOption === option &&
+                option !== currentQuestion.respuestaCorrecta
               ? styles.incorrectOption
-              : styles.optionButton
+              : styles.optionButton,
           ]}
           onPress={() => handleOptionPress(option)}
           disabled={!!selectedOption || isSpeaking} // Deshabilitar si ya se seleccionó una opción o si el audio aún se está reproduciendo
@@ -213,63 +281,63 @@ const QuizComponent: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   optionButton: {
     borderWidth: 3,
-    borderColor: '#d0d0d0',
+    borderColor: "#d0d0d0",
     padding: 15,
     borderRadius: 25,
     marginVertical: 10,
     marginHorizontal: 10,
-    width: '90%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "90%",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 15,
   },
   correctOption: {
-    borderColor: '#28a745',
+    borderColor: "#28a745",
   },
   incorrectOption: {
-    borderColor: '#dc3545',
+    borderColor: "#dc3545",
   },
   optionText: {
     fontSize: 22,
-    color: '#333',
+    color: "#333",
   },
   resultText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   scoreText: {
     fontSize: 20,
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   restartButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
   },
   restartButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
   },
   timeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 30,
+    color: "#2A6F97",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

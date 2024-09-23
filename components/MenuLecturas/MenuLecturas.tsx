@@ -1,14 +1,33 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'; 
-import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ImageBackground,
+  TouchableOpacity,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Href, router } from "expo-router";
 
 const App = () => {
   const lecturas = [
-    { name: 'Nivel Básico', lecturaes: 'Lecturas 5', route: '/completarOracion' },
-    { name: 'Nivel Intermedio', lecturaes: 'Lecturas 5', route: '/completarFrase' },
-    { name: 'Nivel Avanzado', lecturaes: 'Lecturas 5', route: '/completarQuiz' },
+    {
+      name: "Nivel Básico",
+      lecturas: "Lecturas 5",
+      route: "/completarOracion",
+    },
+    {
+      name: "Nivel Intermedio",
+      lecturas: "Lecturas 5",
+      route: "/completarFrase",
+    },
+    {
+      name: "Nivel Avanzado",
+      lecturas: "Lecturas 5",
+      route: "/completarQuiz",
+    },
   ];
 
   // Función para regresar y detener todos los audios
@@ -16,7 +35,7 @@ const App = () => {
     router.back();
   };
 
-  const redirectTo = (route: string) => {
+  const redirectTo = (route: any) => {
     router.navigate(route);
   };
 
@@ -24,11 +43,10 @@ const App = () => {
     <View style={styles.container}>
       {/* Encabezado con imagen de fondo */}
       <ImageBackground
-        source={require('../../assets/Libros1.png')} // Ruta de la imagen
+        source={require("../../assets/Libros1.png")} // Ruta de la imagen
         style={styles.header}
         resizeMode="cover"
-      >
-      </ImageBackground>
+      ></ImageBackground>
 
       {/* Título debajo de la imagen */}
       <Text style={styles.title}>Ejercicios</Text>
@@ -41,13 +59,13 @@ const App = () => {
             onPress={() => redirectTo(lectura.route)} // Asocia la redirección a la opción
           >
             <LinearGradient
-              colors={['#2A6F97', '#539ec9']} // Aplicar gradiente aquí
+              colors={["#2A6F97", "#539ec9"]} // Aplicar gradiente aquí
               style={styles.lecturaCard}
             >
               <View style={styles.cardContent}>
                 <View>
                   <Text style={styles.lecturaName}>{lectura.name}</Text>
-                  <Text style={styles.lecturaAddress}>{lectura.lecturaes}</Text>
+                  <Text style={styles.lecturaAddress}>{lectura.lecturas}</Text>
                 </View>
                 <Icon name="chevron-forward" size={30} color="#fff" />
               </View>
@@ -67,22 +85,22 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f7',
+    backgroundColor: "#f0f4f7",
   },
   header: {
-    width: '90%',
-    height: '70%', // Ajusta la altura si es necesario
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "90%",
+    height: "70%", // Ajusta la altura si es necesario
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: 30,
     marginTop: -15,
   },
   title: {
     fontSize: 35,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginTop: -220, // Ajusta el margen para separar el título de la imagen
-    color: '#1c506e',
+    color: "#1c506e",
   },
   lecturaList: {
     padding: 20,
@@ -95,22 +113,22 @@ const styles = StyleSheet.create({
     height: 90, // Ajusta la altura de las tarjetas
   },
   cardContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: '100%', // Asegura que el contenido de la tarjeta ocupe el 100% de la altura
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: "100%", // Asegura que el contenido de la tarjeta ocupe el 100% de la altura
   },
   lecturaName: {
     fontSize: 25,
-    fontWeight: 'bold',
-    color: '#e6eefc',
+    fontWeight: "bold",
+    color: "#e6eefc",
   },
   lecturaAddress: {
     fontSize: 20,
-    color: '#e6eefc',
+    color: "#e6eefc",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 40,
     left: 6,
     padding: 10,

@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Audio } from 'expo-av';
 import { router } from 'expo-router';
 import { Vibration } from 'react-native';
+import { existToken, getToken } from '@/utils/TokenUtils';
 
 interface Lesson {
   id: number;
@@ -40,8 +41,21 @@ const CompletaLaOracion = () => {
 
   useEffect(() => {
     const fetchLessons = async () => {
+      let token = null;
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+      } else {
+        router.navigate('/home')
+      }
       try {
-        const response = await fetch(`${baseUrl}/ejercicios/all`);
+        const response = await fetch(`${baseUrl}/ejercicios/all`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json', 
+          }
+        });
         const data: LessonData[] = await response.json();
 
         const filteredLessons = data

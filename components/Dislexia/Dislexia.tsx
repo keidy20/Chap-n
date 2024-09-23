@@ -4,6 +4,8 @@ import * as Speech from 'expo-speech';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { existToken, getToken } from '@/utils/TokenUtils';
+import { getUsuario } from '@/utils/UsuarioUtils';
 
 interface Lesson {
   id: number;
@@ -32,8 +34,22 @@ const CKLessonComponent: React.FC = () => {
   // Fetch de datos desde la API
   useEffect(() => {
     const fetchLessons = async () => {
+      let token = null;
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+        console.log('Usuario ', await getUsuario())
+      } else {
+        router.navigate('/home')
+      }
       try {
-        const response = await fetch(`${baseUrl}/lecciones/all`);
+        const response = await fetch(`${baseUrl}/lecciones/all`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json', 
+          }
+        });
         const data: LessonData[] = await response.json();
 
         // Filtra solo las lecciones con tipoLeccion "RL"
