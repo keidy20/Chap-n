@@ -24,7 +24,7 @@ const books: Book[] = [
     id: '2',
     title: 'La Importancia Del Autocuidado',
     nivel: 'Básico',
-    image: require('../../assets/Cuidado.jpeg'),
+    image: require('../../assets/Cuidad.jpeg'),
   },
   {
     id: '3',
