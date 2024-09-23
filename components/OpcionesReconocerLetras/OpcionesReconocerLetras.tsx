@@ -84,7 +84,7 @@ const OpcionesReconocerLetras: React.FC<LessonCardProps> = ({ lesson }) => {
   return (
     <View style={styles.card}>
       <TouchableOpacity style={styles.backButton} onPress={goBack}>
-        <Icon name="close" size={40} color="#2A6F97" />
+        <Icon name="close" size={24} color="#2A6F97" />
       </TouchableOpacity>
       <View style={styles.header}>
         <Animated.Text style={[styles.letra, { transform: [{ scale: scaleAnim }] }]}>

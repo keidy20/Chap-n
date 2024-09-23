@@ -58,7 +58,7 @@ const App = () => {
 
       {/* Botón de regresar */}
       <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Icon name="arrow-back" size={30} color="#2A6F97" />
+        <Icon name="arrow-back" size={24} color="#2A6F97" />
       </TouchableOpacity>
     </View>
   );

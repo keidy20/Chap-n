@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Audio } from 'expo-av';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import * as Speech from 'expo-speech';
@@ -36,17 +36,15 @@ const QuizComponent: React.FC = () => {
 
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
+  // Obtener lección por id
   useEffect(() => {
     const fetchLessonById = async () => {
       try {
         const response = await fetch(`${baseUrl}/lecciones/${id}`);
         const data: LessonData = await response.json();
-        console.log("PAPA ", data);
-
         if (data && data.contenido) {
           setLessons(data.contenido.quizData);
           setAudios(data.contenido.audios.map((elemento) => elemento.url));
-        } else {
         }
         setLoading(false);
       } catch (error) {
@@ -59,26 +57,23 @@ const QuizComponent: React.FC = () => {
     }
   }, [id]);
 
-  const goBack = () => {
-    router.back();
-  };
-
+  // Control del cronómetro y reproducción de audios
   useEffect(() => {
     const speakAndStartTimer = async () => {
       if (lessons.length === 0 || audios.length === 0) return;
-  
+
       setIsSpeaking(true);
       const currentAudioUrl = audios[currentQuestionIndex];
-  
+
       try {
         const { sound } = await Audio.Sound.createAsync({ uri: currentAudioUrl });
         await sound.playAsync();
-  
+
         sound.setOnPlaybackStatusUpdate((status) => {
           if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-            sound.unloadAsync(); // Libera el sonido cuando termine de reproducirse
+            sound.unloadAsync();
             setIsSpeaking(false);
-            setTimeLeft(5);
+            setTimeLeft(5); // Reiniciar el tiempo
           }
         });
       } catch (error) {
@@ -87,18 +82,16 @@ const QuizComponent: React.FC = () => {
         setTimeLeft(5);
       }
     };
-  
+
     speakAndStartTimer();
-  
+
     return () => {
       setTimeLeft(5);
       setSelectedOption(null);
     };
   }, [currentQuestionIndex, audios]);
-  
-  
-  
 
+  // Cronómetro
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
@@ -113,6 +106,7 @@ const QuizComponent: React.FC = () => {
     return () => clearInterval(timer);
   }, [timeLeft, isSpeaking]);
 
+  // Reproducir sonido correcto o incorrecto
   const playSound = async (type: 'correct' | 'incorrect') => {
     const soundPath = type === 'correct'
       ? require('../../assets/Correcto.mp3')
@@ -122,6 +116,7 @@ const QuizComponent: React.FC = () => {
     await sound.playAsync();
   };
 
+  // Manejo de opciones
   const handleOptionPress = async (option: string) => {
     if (selectedOption) return;
 
@@ -136,9 +131,10 @@ const QuizComponent: React.FC = () => {
       await playSound('incorrect');
     }
 
-    setTimeLeft(0);
+    setTimeLeft(0); // Detener el cronómetro al seleccionar opción
   };
 
+  // Avanzar a la siguiente pregunta
   const handleNextQuestion = () => {
     if (currentQuestionIndex < lessons.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -149,6 +145,7 @@ const QuizComponent: React.FC = () => {
     }
   };
 
+  // Reiniciar quiz
   const restartQuiz = () => {
     setCurrentQuestionIndex(0);
     setSelectedOption(null);
@@ -204,7 +201,7 @@ const QuizComponent: React.FC = () => {
               : styles.optionButton
           ]}
           onPress={() => handleOptionPress(option)}
-          disabled={!!selectedOption || isSpeaking}
+          disabled={!!selectedOption || isSpeaking} // Deshabilitar si ya se seleccionó una opción o si el audio aún se está reproduciendo
         >
           <Text style={styles.optionText}>{option}</Text>
         </TouchableOpacity>
@@ -266,8 +263,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   timeText: {
-    fontSize: 30,
-    color: '#2A6F97',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   loadingContainer: {
     flex: 1,

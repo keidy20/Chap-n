@@ -192,7 +192,7 @@ const handleNextLesson = () => {
         <Text style={styles.lessonNumber}>Ejercicio {currentLessonIndex + 1}</Text>
       </View>
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={30} color="#2A6F97" />
+        <Icon name="arrow-back" size={24} color="#2A6F97" />
       </TouchableOpacity>
       <Text style={styles.subtitle}>Elije la palabra correcta que hace falta para completar la oración</Text>
       <View style={styles.lessonContainer}>

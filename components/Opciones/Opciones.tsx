@@ -18,6 +18,10 @@ const HomeScreen: React.FC = () => {
     router.navigate('/menuEjercicios');
   };
 
+  const cerrarSesion = () => {
+    router.navigate('/cerrarSesion');
+  };
+
   return (
     <>
       <ScrollView contentContainerStyle={styles.container}>
@@ -78,7 +82,7 @@ const HomeScreen: React.FC = () => {
           <Icon name="home" size={30} color="#2A6F97" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton}>
-          <Icon name="settings" size={30} color="#2A6F97" />
+          <Icon name="settings" size={30} color="#2A6F97"  onPress={cerrarSesion}/>
         </TouchableOpacity>
       </View>
     </>

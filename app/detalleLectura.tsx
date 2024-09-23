@@ -1,16 +1,12 @@
+import CompletaLaFrase from '../components/CompletaLaFrase'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import Dislexia from '../components/Dislexia'
-import QuizLecciones from '../components/QuizLecciones'
-import QuizPrimeraLeccion from '../components/QuizPrimeraLeccion'
-import CompletaLaFrase from '../components/CompletaLaFrase'
 import DetalleLecturas from '../components/DetalleLecturas'
-import MenuLecturasNuevo from '../components/MenuLecturasNuevo'
 
 export default function CrearCuentaRoute() {
   return (
     <View style={style.container}>
-      <MenuLecturasNuevo/>
+      <DetalleLecturas></DetalleLecturas>
     </View>
   )
 }
