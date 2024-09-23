@@ -10,7 +10,7 @@ import MenuLecciones from '../components/MenuLecciones/MenuLecciones'
 export default function CrearCuentaRoute() {
   return (
     <View style={style.container}>
-      <ProbarAudios/>
+      <MenuLecciones/>
     </View>
   )
 }
