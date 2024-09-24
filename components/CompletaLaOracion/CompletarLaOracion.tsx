@@ -7,6 +7,7 @@ import { Audio } from 'expo-av';
 import { router } from 'expo-router';
 import { Vibration } from 'react-native';
 import { existToken, getToken } from '@/utils/TokenUtils';
+import { getUsuario } from '@/utils/UsuarioUtils';
 
 interface Lesson {
   id: number;
@@ -16,6 +17,7 @@ interface Lesson {
 }
 
 interface LessonData {
+  id: number;
   tipoEjercicio: string;
   titulo: string;
   contenido: {
@@ -35,11 +37,13 @@ const CompletaLaOracion = () => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isOptionDisabled, setIsOptionDisabled] = useState(false); 
+  const [ idEjercicio, setIdEjercicio ] = useState<any>(null)
 
   const correctSound = require('../../assets/Correct.mp3');
   const incorrectSound = require('../../assets/Incorrect.mp3');
 
   useEffect(() => {
+    
     const fetchLessons = async () => {
       let token = null;
       if (await existToken()) {
@@ -63,6 +67,7 @@ const CompletaLaOracion = () => {
           .flatMap(lesson => {
             const lessonAudios = lesson.contenido.audios.map(audio => audio.url);
             setAudios(lessonAudios);
+            setIdEjercicio(lesson.id)
             return lesson.contenido.Ejercicios;
           });
 
@@ -76,6 +81,7 @@ const CompletaLaOracion = () => {
         Alert.alert('Error', 'No se pudieron cargar las lecciones');
         setLoading(false);
       }
+      
     };
 
     fetchLessons();
@@ -160,9 +166,6 @@ const handleOptionSelect = async (option: string) => {
     Vibration.vibrate(200);
   }
 
-  // Reproducir sonido de retroalimentación
-  await playFeedbackSound(correct);
-
   if (!correct) {
     setTimeout(async () => {
       await handleStartReading();
@@ -172,13 +175,50 @@ const handleOptionSelect = async (option: string) => {
 
 
 
-const handleNextLesson = () => {
+const handleNextLesson = async () => {
   if (currentLessonIndex < lessons.length - 1) {
+    //await completarEjercicio()
     setCurrentLessonIndex(currentLessonIndex + 1);
     setSelectedOption(null);
     setIsCorrect(null);
+  } else {
+    console.log('Leccion terminada ', idEjercicio)
+    await completarEjercicio()
+    router.push("/menuEjercicios")
   }
 };
+
+const completarEjercicio = async () => {
+  let token = null;
+  if (await existToken()) {
+    token = await getToken()
+    console.log('Token en lecciones ', token)
+  } else {
+    router.navigate('/home')
+  }
+  try {
+    let usuario = await getUsuario()
+    const response = await fetch(`${baseUrl}/usuarios_ejercicios/registrar_ejercicio_by_username`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`, 
+        'Content-Type': 'application/json', 
+      },
+      body: JSON.stringify({
+        username: usuario,
+        idEjercicio: idEjercicio,
+        completado: true,
+        puntuacion: 10
+      })
+    });
+    const data: LessonData[] = await response.json();
+
+
+  } catch (error) {
+    Alert.alert('Error', 'No se pudieron cargar las lecciones');
+    
+  }
+}
 
   if (loading) {
     return (

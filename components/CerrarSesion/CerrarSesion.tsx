@@ -9,8 +9,9 @@ const { width } = Dimensions.get('window');
 
 const LogoutCard: React.FC = () => {
 
-    removeToken();
-  const handleLogout = () => {
+  
+  const handleLogout = async () => {
+    await  removeToken();
     // Lógica para cerrar sesión
     console.log("Sesión cerrada");
     router.navigate('/login'); // Cambia a la ruta que corresponda

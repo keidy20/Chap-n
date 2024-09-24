@@ -4,8 +4,10 @@ import Dislexia from '../components/Dislexia'
 import QuizLecciones from '../components/QuizLecciones'
 import QuizPrimeraLeccion from '../components/QuizPrimeraLeccion'
 import CompletaLaFrase from '../components/CompletaLaFrase'
+
 import DetalleLecturas from '../components/DetalleLecturasBasico'
 import MenuLecturasNuevo from '../components/MenuLecturasBasico'
+
 
 export default function CrearCuentaRoute() {
   return (

@@ -5,6 +5,8 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import { Audio } from 'expo-av';
 import { router } from 'expo-router';
+import { existToken, getToken } from '@/utils/TokenUtils';
+import { getUsuario } from '@/utils/UsuarioUtils';
 
 
 interface Lesson {
@@ -13,6 +15,7 @@ interface Lesson {
 }
 
 interface LessonData {
+  id: number;
   tipoEjercicio: string;
   titulo: string;
   contenido: {
@@ -34,8 +37,14 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [correctOption, setCorrectOption] = useState<string | null>(null);
   const [highlightButton, setHighlightButton] = useState(false);
   const [instructionsGiven, setInstructionsGiven] = useState(false);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [finished, setFinished] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [ idEjercicio, setIdEjercicio ] = useState<any>(null)
+
+
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
+
+  let sound: any = null;
 
   useEffect(() => {
     const fetchLessons = async () => {
@@ -47,8 +56,9 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
           .filter(lesson => lesson.tipoEjercicio === 'QZ')
           .flatMap(lesson => {
             const lessonAudios = lesson.contenido.audios.map(audio => audio.url);
-            console.log("PRUEBAAAA", lesson.contenido.audios)
+            //console.log("PRUEBAAAA", lesson.contenido.audios)
             setAudios(lessonAudios);
+            setIdEjercicio(lesson.id)
             return lesson.contenido.Ejercicios;
           });
 
@@ -65,24 +75,66 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
     fetchLessons();
   }, [baseUrl]);
 
+  const playAudio = async (audioUrl: string) => {
+    console.log("Intentando reproducir audio:", audioUrl); // Verifica la URL
 
-
-  // Función para reproducir sonidos (correcto, incorrecto, cronómetro)
-  const playSound = async (soundFile: any) => {
-    await stopAndUnloadSound(); // Asegúrate de detener cualquier sonido anterior
     try {
-      const { sound: newSound } = await Audio.Sound.createAsync(soundFile);
-      setSound(newSound);
+      if (sound) {
+        console.log("Entro aqui jejeje");
+        await sound.stopAsync();
+        await sound.unloadAsync();
+      }
+
+      const { sound: newSound } = await Audio.Sound.createAsync({
+        uri: audioUrl,
+      });
+      sound = newSound
+      setFinished(false);
+      newSound.setOnPlaybackStatusUpdate((playbackStatus) => {
+
+
+        if (playbackStatus.isLoaded) {
+
+          if (playbackStatus.didJustFinish) {
+
+            setFinished(true);
+          }
+        } else {
+          console.log("El audio no está cargado.");
+        }
+      });
+
+      setIsPlaying(true);
       await newSound.playAsync();
     } catch (error) {
-      console.error('Error al reproducir el sonido:', error);
+      console.error("Error al reproducir el audio:", error);
+      Alert.alert("Error", "No se pudo reproducir el audio.");
     }
   };
 
+  const stopAudio = async () => {
+    try {
+      if (sound) {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+        setIsPlaying(false);
+      }
+    } catch (error) {
+      Alert.alert("Error", "No se pudo detener el audio.");
+    }
+  };
+
+
   // Funciones específicas para sonidos correctos, incorrectos y cronómetro
-  const playCorrectSound = () => playSound(require('../../assets/Correcto.mp3'));
-  const playIncorrectSound = () => playSound(require('../../assets/incorrecto.mp3'));
-  const playCronometroSound = () => playSound(require('../../assets/cronometro.mp3'));
+  const playCorrectSound = async () => {
+    await stopAudio()
+    await playAudio(require('../../assets/Correcto.mp3'));
+  }
+  const playIncorrectSound = () => playAudio(require('../../assets/incorrecto.mp3'));
+  const playCronometroSound = async () => {
+    await stopAudio()
+    await playAudio(require('../../assets/cronometro.mp3'));
+  }
 
   // Función para detener y descargar el sonido
   const stopAndUnloadSound = async () => {
@@ -97,18 +149,13 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
         }
       }
     }
-    setSound(null); // Resetear el estado del sonido
+    sound = null;
   };
 
-  // Detener todos los sonidos
-  const stopAllAudio = async () => {
-    stopAndUnloadSound(); // Detener cualquier sonido de expo-av
-    Speech.stop(); // Detener cualquier texto hablado en curso
-  };
+
 
   // Función para regresar y detener todos los audios
   const goBack = () => {
-    stopAllAudio(); // Detener todos los sonidos antes de salir
     router.back();
   };
 
@@ -116,7 +163,7 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
 const startEvaluation = () => {
   stopAndUnloadSound(); // Asegúrate de detener cualquier sonido activo antes de comenzar
   setIsEvaluating(true);
-  setTimeLeft(60);
+  setTimeLeft(10);
   setCorrectAnswers(0);
   setCurrentWordIndex(0);
   setSelectedOption(null);
@@ -126,12 +173,13 @@ const startEvaluation = () => {
 
   // Función para manejar la selección de opción
   const handleOptionSelect = async (option: string) => {
+    await stopAudio()
     if (option === words[currentWordIndex].audio) {
-      await playCorrectSound(); // Reproduce el sonido si la opción es correcta
+      //await playCorrectSound(); // Reproduce el sonido si la opción es correcta
       setCorrectAnswers(correctAnswers + 1);
       setCorrectOption(option);
     } else {
-      await playIncorrectSound();
+      //await playIncorrectSound();
       setCorrectOption(words[currentWordIndex].audio);
     }
     setSelectedOption(option);
@@ -143,14 +191,48 @@ const startEvaluation = () => {
         setCorrectOption(null);
       } else {
         setIsEvaluating(false);
-        alert(`Evaluación finalizada. Respuestas correctas: ${correctAnswers}`);
+        //alert(`Evaluación finalizada. Respuestas correctas: ${correctAnswers}`);
       }
     }, 1000);
   };
 
+  const completarEjercicio = async () => {
+    let token = null;
+    if (await existToken()) {
+      token = await getToken()
+      console.log('Token en lecciones ', token)
+    } else {
+      router.navigate('/home')
+    }
+    try {
+      let usuario = await getUsuario()
+      const response = await fetch(`${baseUrl}/usuarios_ejercicios/registrar_ejercicio_by_username`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({
+          username: usuario,
+          idEjercicio: idEjercicio,
+          completado: true,
+          puntuacion: correctAnswers
+        })
+      });
+      const data: LessonData[] = await response.json();
+      router.push("/menuEjercicios")
+  
+    } catch (error) {
+      Alert.alert('Error', 'No se pudieron cargar las lecciones');
+      
+    }
+  }
+
   // Función para reproducir el audio de la palabra
-  const playAudio = () => {
-    Speech.speak(words[currentWordIndex].audio, { language: 'es-ES', rate: 1.0 });
+  const playAudioSound = async () => {
+    await stopAudio()
+    await playAudio(audios[currentWordIndex])
+
   };
 
   // Cargar los datos de la API y filtrar lecciones
@@ -184,24 +266,30 @@ const startEvaluation = () => {
   }, []);
 
   useEffect(() => {
+    //sound2 = null
     if (isEvaluating) {
-      playAudio();
+      playAudioSound();
+    }
+    else {
+      console.log('Se ejecuta guardado')
+      completarEjercicio()
     }
   }, [currentWordIndex, isEvaluating]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isEvaluating && timeLeft > 0) {
-      playCronometroSound();
+      //playCronometroSound();
       timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     } else if (timeLeft === 0) {
       setIsEvaluating(false);
-      alert(`Tiempo terminado. Respuestas correctas: ${correctAnswers}`);
-      stopAndUnloadSound();
+      //alert(`Tiempo terminado. Respuestas correctas: ${correctAnswers}`);
+      //stopAndUnloadSound(); 
+      stopAudio()
     }
     return () => {
       if (isEvaluating || sound) { // Solo detener el sonido si la evaluación está activa o el sonido existe
-        stopAndUnloadSound();
+        //stopAndUnloadSound();
       }
       clearTimeout(timer); 
     };
@@ -305,10 +393,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 22
   },
   highlightButton: {
     backgroundColor: '#1E90FF',
@@ -325,23 +414,12 @@ const styles = StyleSheet.create({
   option: {
     borderWidth: 2,
     borderColor: '#ccc',
-    borderRadius: 8,
+    borderRadius: 25,
     padding: 10,
     marginVertical: 5,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  option: {
-    backgroundColor: '#FFF',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    marginVertical: 10,
-    width: '80%',
-    alignItems: 'center',
-    borderColor: '#DDD',
-    borderWidth: 2,
   },
   optionText: {
     fontSize: 24,
