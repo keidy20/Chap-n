@@ -16,19 +16,19 @@ const App = () => {
     {
       name: "Nivel Básico",
       lecturas: "Lecturas 3",
-      route: "/detalleLecturasBasico",
+      route: "/menuLecturaBasico",
       image: require("../../assets/Basico.jpeg"), // Imagen para Nivel Básico
     },
     {
       name: "Nivel Intermedio",
       lecturas: "Lecturas 3",
-      route: "/completarFrase",
+      route: "/menuLecturaIntermedio",
       image: require("../../assets/Intermedio.jpeg"), // Imagen para Nivel Intermedio
     },
     {
       name: "Nivel Avanzado",
       lecturas: "Lecturas 3",
-      route: "/completarQuiz",
+      route: "/menuLecturaAvanzado",
       image: require("../../assets/Avanzado.jpeg"), // Imagen para Nivel Avanzado
     },
   ];
