@@ -217,8 +217,9 @@ const startEvaluation = () => {
     } else {
       router.navigate('/home')
     }
+    let usuario = await getUsuario()
     try {
-      let usuario = await getUsuario()
+      
       const response = await fetch(`${baseUrl}/usuarios_ejercicios/registrar_ejercicio_by_username`, {
         method: 'POST',
         headers: {
@@ -236,7 +237,7 @@ const startEvaluation = () => {
       router.push("/menuEjercicios")
   
     } catch (error) {
-      Alert.alert('Error', 'No se pudieron cargar las lecciones');
+      //Alert.alert('Error', 'No se pudieroqqqn cargar las lecciones');
       
     }
   }
@@ -268,10 +269,10 @@ const startEvaluation = () => {
           }));
           setWords(wordsData);
         } else {
-          Alert.alert('Error', 'No se encontraron lecciones con el tipo "CP".');
+          Alert.alert('Error', 'No se encontraronww lecciones con el tipo "CP".');
         }
       } catch (error) {
-        Alert.alert('Error', 'No se pudieron cargar las lecciones');
+        Alert.alert('Error', 'No se pudieronx cargar las lecciones');
       }
     };
 
