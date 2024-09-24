@@ -32,7 +32,13 @@ const App = () => {
         router.navigate('/home')
       }
       try {
-        const response = await fetch(`${baseUrl}/ejercicios/menu-ejercicios/${usuario}`);
+        const response = await fetch(`${baseUrl}/ejercicios/menu-ejercicios/${usuario}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         const data: any[] = await response.json();
         console.log('Menu ', data)
         setEjercicios(data)
