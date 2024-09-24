@@ -1,112 +1,75 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 
-interface ResultScreenProps {
-  similarityPercentage: number;
-}
-
-export default function ResultScreen({ similarityPercentage }: ResultScreenProps) {
+const CongratulationsScreen: React.FC = () => {
   const router = useRouter();
 
-  const getMessage = () => {
-    if (similarityPercentage >= 90) {
-      return '¡Excelente trabajo!';
-    } else if (similarityPercentage >= 75) {
-      return '¡Buen trabajo! Sigue mejorando.';
-    } else {
-      return '¡Sigue practicando para mejorar tu fluidez!';
-    }
-  };
-
-  const handleTryAgain = () => {
-    router.push('/home'); // Cambia la ruta a la pantalla que quieras
+  const handleContinue = () => {
+    router.push('/menuEjercicios'); // Cambia por la ruta que desees para continuar
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>Resultado</Text>
-
-      <AnimatedCircularProgress
-        size={250}
-        width={15}
-        fill={similarityPercentage}
-        tintColor="#00e0ff"
-        backgroundColor="#3d5875"
-        rotation={0}
-        style={styles.circularProgress}
-      >
-        {() => (
-          <View style={styles.percentageContainer}>
-            <Text style={styles.percentageText}>{similarityPercentage}%</Text>
-          </View>
-        )}
-      </AnimatedCircularProgress>
-
-      <Text style={styles.resultMessage}>{getMessage()}</Text>
-
-      <Image
-        source={require('../../assets/Libros.png')} // Coloca aquí una imagen de celebración, como un trofeo o medalla
-        style={styles.image}
-      />
-
-      <TouchableOpacity style={styles.tryAgainButton} onPress={handleTryAgain}>
-        <Text style={styles.buttonText}>Intentar de nuevo</Text>
-      </TouchableOpacity>
+      <Icon name="celebration" size={90} color="#FFD700" style={styles.celebrationIcon} />
+      <Text style={styles.congratulationsText}>¡Felicidades!</Text>
+      <Text style={styles.messageText}>Has completado este ejercicio con éxito. Continúa asi para poder seguir avanzando con tu aprendizaje</Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.goBackButton} onPress={handleContinue}>
+          <Text style={styles.buttonText}>Continuar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#f0f4f7',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
+    justifyContent: 'center',
     padding: 20,
   },
-  headerText: {
+  celebrationIcon: {
+    marginBottom: 20,
+  },
+  congratulationsText: {
     fontSize: 40,
     fontWeight: 'bold',
     color: '#2A6F97',
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  circularProgress: {
-    marginVertical: 20,
-  },
-  percentageContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  percentageText: {
-    fontSize: 50,
-    fontWeight: 'bold',
-    color: '#539ec9',
-  },
-  resultMessage: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#3d5875',
+  messageText: {
+    fontSize: 20,
     textAlign: 'center',
-    marginVertical: 20,
-  },
-  image: {
-    width: 150,
-    height: 150,
+    color: '#555',
     marginBottom: 30,
   },
-  tryAgainButton: {
+  buttonContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  continueButton: {
     backgroundColor: '#2A6F97',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '80%',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+  },
+  goBackButton: {
+    backgroundColor: '#2A6F97',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 30,
   },
   buttonText: {
-    fontSize: 22,
-    color: '#fff',
+    fontSize: 25,
+    color: '#FFF',
     fontWeight: 'bold',
   },
 });
+
+export default CongratulationsScreen;

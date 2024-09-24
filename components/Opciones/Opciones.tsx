@@ -1,19 +1,12 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView,TouchableOpacity,Image} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 
 const HomeScreen: React.FC = () => {
   const redirectReconocerLetra = () => {
-    router.navigate("/dislexia");
+    router.navigate("/reconocerLetras");
   };
 
   const redirectLecturas = () => {

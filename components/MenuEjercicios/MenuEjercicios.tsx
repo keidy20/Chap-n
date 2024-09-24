@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  ImageBackground,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -17,19 +9,16 @@ import { getUsuario } from "@/utils/UsuarioUtils";
 const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
 const App = () => {
-
-  const [ ejercicios, setEjercicios ] = useState<any[]>([])
+  const [ejercicios, setEjercicios] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchMenuEjercicios = async () => {
       let token = null;
-      let usuario = await getUsuario()
+      let usuario = await getUsuario();
       if (await existToken()) {
-        token = await getToken()
-        console.log('Token en lecciones ', token)
-        console.log('Usuario ', usuario)
+        token = await getToken();
       } else {
-        router.navigate('/home')
+        router.navigate("/home");
       }
       try {
         const response = await fetch(`${baseUrl}/ejercicios/menu-ejercicios/${usuario}`, {
@@ -40,18 +29,16 @@ const App = () => {
           },
         });
         const data: any[] = await response.json();
-        console.log('Menu ', data)
-        setEjercicios(data)
-        
+        setEjercicios(data);
+        console.log("CONTENIDO", data)
       } catch (error) {
-        Alert.alert('Error', 'No se pudo obtener el menu de lecciones');
+        Alert.alert("Error", "No se pudo obtener el menu de lecciones");
       }
     };
 
     fetchMenuEjercicios();
-  }, [])
+  }, []);
 
-  // Función para regresar y detener todos los audios
   const goBack = () => {
     router.back();
   };
@@ -62,46 +49,36 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      {/* Encabezado con imagen de fondo */}
-      <ImageBackground
-        source={require("../../assets/Ejercicios.png")} // Ruta de la imagen
-        style={styles.header}
-        resizeMode="cover"
-      ></ImageBackground>
+      <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
+        <Icon name="arrow-back" size={24} color="#FAF3EF" />
+      </TouchableOpacity>
+      <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
+        <Text style={styles.headerText}>Ejercicios</Text>
+      </LinearGradient>
 
-      {/* Título debajo de la imagen */}
-      <Text style={styles.title}>Ejercicios</Text>
-
-      {/* Tarjetas */}
-      <ScrollView contentContainerStyle={styles.lecturaList}>
-        {ejercicios.map((ejercicio, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => redirectTo(ejercicio.route)} // Asocia la redirección a la opción
-          >
-            <LinearGradient
-              colors={ejercicio.completado ? ["#4CAF50", "#81C784"] : ["#2A6F97", "#539ec9"]}
-              style={[
-                styles.lecturaCard,
-                ejercicio.completado && styles.completadoCard // Aplicar estilo extra si está completado
-              ]}
+      <View style={styles.card}>
+        <Text style={styles.tituloCard}>Ejercicios Para Ti</Text>
+        <ScrollView contentContainerStyle={styles.lecturaList}>
+          {ejercicios.map((ejercicio, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => redirectTo(ejercicio.route)}
+              style={[styles.lecturaCard, ejercicio.completado && styles.completadoCard]}
             >
               <View style={styles.cardContent}>
+                <Image
+                  source={{ uri: "https://firebasestorage.googleapis.com/v0/b/indigo-cider-432618-r6.appspot.com/o/lecciones%2FLI_32%2Fimagenes%2FMiedo.jpeg?alt=media"}} // Suponiendo que cada ejercicio tenga una URL de imagen asociada
+                  style={styles.cardImage}
+                />
                 <View>
                   <Text style={styles.lecturaName}>{ejercicio.nombre}</Text>
                   <Text style={styles.lecturaAddress}>{ejercicio.titulo}</Text>
                 </View>
-                <Icon name="chevron-forward" size={30} color="#fff" />
               </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Botón de regresar */}
-      <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Icon name="arrow-back" size={24} color="#2A6F97" />
-      </TouchableOpacity>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
     </View>
   );
 };
@@ -109,61 +86,78 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f4f7",
+    backgroundColor: "#FAF3EF",
   },
   header: {
-    width: "90%",
-    height: 300, // Ajusta la altura si es necesario
-    justifyContent: "center",
+    height: 280,
+    paddingHorizontal: 16,
     alignItems: "center",
-    marginLeft: 40,
-    marginTop: 120,
-  },
-  headerTop: {
-    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
   },
-  title: {
-    fontSize: 35,
+  headerText: {
+    fontSize: 28,
     fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 20, // Ajusta el margen para separar el título de la imagen
-    color: "#1c506e",
+    color: "#FFF",
+  },
+  tituloCard: {
+    paddingHorizontal: 16,
+    fontSize: 25,
+    fontWeight: "bold",
+    color: "#000",
+    marginTop: 15,
+    marginBottom: 16,
+  },
+  goBackButton: {
+    position: "absolute",
+    top: 50,
+    left: 10,
+    padding: 10,
+    zIndex: 10,
+  },
+  card: {
+    flex: 1,
+    backgroundColor: "#FFF",
+    marginTop: -40,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
   },
   lecturaList: {
     padding: 20,
-    marginTop: 10, // Separación entre el título y las tarjetas
+    marginTop: 10,
   },
   lecturaCard: {
     padding: 22,
     borderRadius: 10,
     marginBottom: 20,
-    height: 90,
+    height: 130,
+    backgroundColor: "#FFF", // Fondo blanco sin degradado
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   completadoCard: {
-    opacity: 0.7, // Disminuye la opacidad si está completado
+    opacity: 0.7,
   },
   cardContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    height: "100%",
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardImage: {
+    width: 80,
+    height: 120,
+    marginRight: 16,
+    marginLeft: -28,
+    borderRadius: 8,
   },
   lecturaName: {
-    fontSize: 25,
-    fontWeight: "bold",
-    color: "#e6eefc",
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: "#1c506e",
   },
   lecturaAddress: {
     fontSize: 20,
-    color: "#e6eefc",
-  },
-  backButton: {
-    position: "absolute",
-    top: 40,
-    left: 6,
-    padding: 10,
+    color: "#999",
   },
 });
 

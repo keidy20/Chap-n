@@ -4,33 +4,35 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ImageBackground,
+  Image,
   TouchableOpacity,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Href, router } from "expo-router";
+import { router } from "expo-router";
 
 const App = () => {
   const lecturas = [
     {
       name: "Nivel Básico",
-      lecturas: "Lecturas 5",
-      route: "/completarOracion",
+      lecturas: "Lecturas 3",
+      route: "/detalleLecturasBasico",
+      image: require("../../assets/Basico.jpeg"), // Imagen para Nivel Básico
     },
     {
       name: "Nivel Intermedio",
-      lecturas: "Lecturas 5",
+      lecturas: "Lecturas 3",
       route: "/completarFrase",
+      image: require("../../assets/Intermedio.jpeg"), // Imagen para Nivel Intermedio
     },
     {
       name: "Nivel Avanzado",
-      lecturas: "Lecturas 5",
+      lecturas: "Lecturas 3",
       route: "/completarQuiz",
+      image: require("../../assets/Avanzado.jpeg"), // Imagen para Nivel Avanzado
     },
   ];
 
-  // Función para regresar y detener todos los audios
   const goBack = () => {
     router.back();
   };
@@ -41,43 +43,37 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      {/* Encabezado con imagen de fondo */}
-      <ImageBackground
-        source={require("../../assets/Libros1.png")} // Ruta de la imagen
-        style={styles.header}
-        resizeMode="cover"
-      ></ImageBackground>
-
-      {/* Título debajo de la imagen */}
-      <Text style={styles.title}>Ejercicios</Text>
-
-      {/* Tarjetas */}
-      <ScrollView contentContainerStyle={styles.lecturaList}>
-        {lecturas.map((lectura, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => redirectTo(lectura.route)} // Asocia la redirección a la opción
-          >
-            <LinearGradient
-              colors={["#2A6F97", "#539ec9"]} // Aplicar gradiente aquí
-              style={styles.lecturaCard}
-            >
-              <View style={styles.cardContent}>
-                <View>
-                  <Text style={styles.lecturaName}>{lectura.name}</Text>
-                  <Text style={styles.lecturaAddress}>{lectura.lecturas}</Text>
-                </View>
-                <Icon name="chevron-forward" size={30} color="#fff" />
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Botón de regresar */}
-      <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Icon name="arrow-back" size={24} color="#2A6F97" />
+      <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
+        <Icon name="arrow-back" size={24} color="#FAF3EF" />
       </TouchableOpacity>
+      <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
+        <Text style={styles.headerText}>Lecturas</Text>
+      </LinearGradient>
+
+      <View style={styles.card}>
+        <Text style={styles.tituloCard}>Lecturas Para Ti</Text>
+        <ScrollView contentContainerStyle={styles.lecturaList}>
+          {lecturas.map((lectura, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => redirectTo(lectura.route)} // Asocia la redirección a la opción
+            >
+              <View style={styles.lecturaCard}>
+                <View style={styles.cardContent}>
+                  <Image
+                    source={lectura.image} // Muestra la imagen de cada nivel
+                    style={styles.lecturaImage}
+                  />
+                  <View style={styles.textContainer}>
+                    <Text style={styles.lecturaName}>{lectura.name}</Text>
+                    <Text style={styles.lecturaAddress}>{lectura.lecturas}</Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
     </View>
   );
 };
@@ -88,50 +84,80 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f4f7",
   },
   header: {
-    width: "90%",
-    height: "70%", // Ajusta la altura si es necesario
-    justifyContent: "center",
+    height: 280,
+    paddingHorizontal: 16,
     alignItems: "center",
-    marginLeft: 30,
-    marginTop: -15,
+    justifyContent: "center",
   },
-  title: {
-    fontSize: 35,
+  goBackButton: {
+    position: "absolute",
+    top: 50,
+    left: 10,
+    padding: 10,
+    zIndex: 10,
+  },
+  headerText: {
+    fontSize: 28,
     fontWeight: "bold",
-    textAlign: "center",
-    marginTop: -220, // Ajusta el margen para separar el título de la imagen
-    color: "#1c506e",
+    color: "#FFF",
+  },
+  tituloCard: {
+    paddingHorizontal: 16,
+    fontSize: 25,
+    fontWeight: "bold",
+    color: "#000",
+    marginTop: 15,
+    marginBottom: 16,
+  },
+  card: {
+    flex: 1,
+    backgroundColor: "#FFF",
+    marginTop: -40,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
   },
   lecturaList: {
     padding: 20,
-    marginTop: 10, // Separación entre el título y las tarjetas
+    marginTop: 10,
   },
   lecturaCard: {
-    padding: 15, // Ajusta el padding si es necesario
+    padding: 22,
     borderRadius: 10,
-    marginBottom: 20, // Mayor espacio entre tarjetas
-    height: 90, // Ajusta la altura de las tarjetas
+    marginBottom: 20,
+    height: 130,
+    backgroundColor: "#FFF", // Fondo blanco sin degradado
+    flexDirection: "row-reverse", // Texto a la derecha de la imagen
+    alignItems: "center",
+    marginLeft: -25
   },
   cardContent: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    height: "100%", // Asegura que el contenido de la tarjeta ocupe el 100% de la altura
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  lecturaImage: {
+    width: 80,
+    height: 120,
+    marginRight: 16,
+    borderRadius: 8,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
   lecturaName: {
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#e6eefc",
+    color: "#1c506e",
+    textAlign: "left", // Alineación del texto a la izquierda dentro del contenedor
   },
   lecturaAddress: {
-    fontSize: 20,
-    color: "#e6eefc",
-  },
-  backButton: {
-    position: "absolute",
-    top: 40,
-    left: 6,
-    padding: 10,
+    fontSize: 18,
+    color: "#777",
+    textAlign: "left", // Alineación del texto a la izquierda
   },
 });
 

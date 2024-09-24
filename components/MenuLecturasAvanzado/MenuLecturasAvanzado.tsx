@@ -121,7 +121,7 @@ const BooksMenu = () => {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => {
-                router.push({ pathname: '/detalleLectura', params: { titulo: JSON.stringify(item.contenido.title), sections: JSON.stringify(item.contenido.Secciones), imageUri: item.contenido.imagenes[0]?.url } });
+                router.push({ pathname: '/detalleLecturaAvanzado', params: { titulo: JSON.stringify(item.contenido.title), sections: JSON.stringify(item.contenido.Secciones), imageUri: item.contenido.imagenes[0]?.url } });
                 item.contenido.audios.forEach(audio => {
                   playSound(audio.url); // Reproduce el audio de la primera sección al seleccionar un libro
                 });

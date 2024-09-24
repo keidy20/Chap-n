@@ -1,11 +1,11 @@
-import LeccionCompletada from '@/components/LeccionCompletada'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
+import DetalleLecturasIntermedio from '@/components/DetalleLecturasIntermedio'
 
-export default function BienvenidaRoute() {
+export default function CrearCuentaRoute() {
   return (
     <View style={style.container}>
-      <LeccionCompletada/>
+      <DetalleLecturasIntermedio></DetalleLecturasIntermedio>
     </View>
   )
 }

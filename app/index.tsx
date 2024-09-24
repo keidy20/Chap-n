@@ -1,18 +1,22 @@
+import Splash from '@/components/Splash'
 import Bienvenida from '../components/Bienvenida'
-import React from 'react'
+import { router } from 'expo-router';
+import { existToken, removeToken } from '@/utils/TokenUtils';
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet } from 'react-native'
 
 export default function Index() {
-  return (
-    <View style={style.container}>
-        <Bienvenida/>
-    </View>
-  )
-}
-
-const style = StyleSheet.create({
-    container: {
-      flex: 1
+    useEffect(() => {
+        redirect()
+      });
+  
+  
+    const redirect = async () => {
+      if (await existToken()) {
+        router.navigate('/home')
+      } else {
+        router.navigate('/bienvenida')
+      }
     }
-  })
+}
   

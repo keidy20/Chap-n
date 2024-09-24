@@ -1,112 +1,53 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useRouter } from 'expo-router';
+import { View, Image, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import { existToken, removeToken } from '@/utils/TokenUtils';
+import React, { useEffect, useState } from "react";
 
-interface ResultScreenProps {
-  similarityPercentage: number;
-}
+const Splash: React.FC = () => {
 
-export default function ResultScreen({ similarityPercentage }: ResultScreenProps) {
-  const router = useRouter();
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      redirect()
+      
+    }, 1500); // Duración del splash screen
 
-  const getMessage = () => {
-    if (similarityPercentage >= 90) {
-      return '¡Excelente trabajo!';
-    } else if (similarityPercentage >= 75) {
-      return '¡Buen trabajo! Sigue mejorando.';
+    return () => clearTimeout(timeout);
+  }, []);
+
+  const redirect = async () => {
+    if (await existToken()) {
+      router.navigate('/home')
     } else {
-      return '¡Sigue practicando para mejorar tu fluidez!';
+      router.navigate('/bienvenida')
     }
-  };
-
-  const handleTryAgain = () => {
-    router.push('/fluidez-lectora'); // Cambia la ruta a la pantalla que quieras
-  };
-
+  }
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerText}>Resultado</Text>
-
-      <AnimatedCircularProgress
-        size={250}
-        width={15}
-        fill={similarityPercentage}
-        tintColor="#00e0ff"
-        backgroundColor="#3d5875"
-        rotation={0}
-        style={styles.circularProgress}
-      >
-        {() => (
-          <View style={styles.percentageContainer}>
-            <Text style={styles.percentageText}>{similarityPercentage.toFixed(2)}%</Text>
-          </View>
-        )}
-      </AnimatedCircularProgress>
-
-      <Text style={styles.resultMessage}>{getMessage()}</Text>
-
-      <Image
-        source={require('../../assets/celebration.png')} // Coloca aquí una imagen de celebración, como un trofeo o medalla
-        style={styles.image}
-      />
-
-      <TouchableOpacity style={styles.tryAgainButton} onPress={handleTryAgain}>
-        <Text style={styles.buttonText}>Intentar de nuevo</Text>
-      </TouchableOpacity>
-    </View>
+    <LinearGradient
+      colors={["#2A6F97", "#539ec9"]}
+      style={styles.gradient}
+    >
+      <View style={styles.container}>
+        <Image source={require('../../assets/images/Logo.png')} style={styles.image} />
+      </View>
+    </LinearGradient>
   );
-}
+};
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    padding: 20,
-  },
-  headerText: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#2A6F97',
-    marginBottom: 20,
-  },
-  circularProgress: {
-    marginVertical: 20,
-  },
-  percentageContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  percentageText: {
-    fontSize: 50,
-    fontWeight: 'bold',
-    color: '#00e0ff',
-  },
-  resultMessage: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#3d5875',
-    textAlign: 'center',
-    marginVertical: 20,
   },
   image: {
-    width: 150,
-    height: 150,
-    marginBottom: 30,
-  },
-  tryAgainButton: {
-    backgroundColor: '#00e0ff',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '80%',
-  },
-  buttonText: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
+    width: '50%',
+    height: '50%',
+    resizeMode: 'contain',
   },
 });
+
+export default Splash;

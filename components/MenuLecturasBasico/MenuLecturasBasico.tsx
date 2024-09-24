@@ -115,7 +115,7 @@ const BooksMenu = () => {
             <TouchableOpacity
               onPress={() => {
                 router.push({
-                  pathname: "/detalleLectura",
+                  pathname: "/detalleLecturaBasico",
                   params: {
                     id: item.id,
                     titulo: JSON.stringify(item.contenido.title),

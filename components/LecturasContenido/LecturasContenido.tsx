@@ -48,8 +48,21 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   useEffect(() => {
     const fetchLessons = async () => {
+      let token = null;
+      let usuario = await getUsuario();
+      if (await existToken()) {
+        token = await getToken();
+      } else {
+        router.navigate("/home");
+      }
       try {
-        const response = await fetch(`${baseUrl}/ejercicios/all`);
+        const response = await fetch(`${baseUrl}/ejercicios/all`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         const data: LessonData[] = await response.json();
 
         const filteredLessons = data
@@ -163,7 +176,7 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
 const startEvaluation = () => {
   stopAndUnloadSound(); // Asegúrate de detener cualquier sonido activo antes de comenzar
   setIsEvaluating(true);
-  setTimeLeft(10);
+  setTimeLeft(60);
   setCorrectAnswers(0);
   setCurrentWordIndex(0);
   setSelectedOption(null);
@@ -365,7 +378,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#2A6F97',
@@ -383,21 +396,20 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#2A6F97',
-    borderRadius: 10,
+    borderRadius: 25,
     padding: 15,
     alignItems: 'center',
-    width: '100%',
+    width: '80%',
     marginVertical: 20,
   },
   buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 22
+    fontSize: 24
   },
   highlightButton: {
     backgroundColor: '#1E90FF',
