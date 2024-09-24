@@ -1,15 +1,49 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'; 
-import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ImageBackground,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import { existToken, getToken } from "@/utils/TokenUtils";
+import { getUsuario } from "@/utils/UsuarioUtils";
+
+const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
 const App = () => {
-  const lecturas = [
-    { name: 'Completa la oración', lecturaes: 'Ejercicios 10', route: '/completarOracion' },
-    { name: 'Completa la palabra', lecturaes: 'Ejercicios 10', route: '/completarFrase' },
-    { name: 'Cuestionario', lecturaes: '', route: '/completarQuiz' },
-  ];
+
+  const [ ejercicios, setEjercicios ] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetchMenuEjercicios = async () => {
+      let token = null;
+      let usuario = await getUsuario()
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+        console.log('Usuario ', usuario)
+      } else {
+        router.navigate('/home')
+      }
+      try {
+        const response = await fetch(`${baseUrl}/ejercicios/menu-ejercicios/${usuario}`);
+        const data: any[] = await response.json();
+        console.log('Menu ', data)
+        setEjercicios(data)
+        
+      } catch (error) {
+        Alert.alert('Error', 'No se pudo obtener el menu de lecciones');
+      }
+    };
+
+    fetchMenuEjercicios();
+  }, [])
 
   // Función para regresar y detener todos los audios
   const goBack = () => {
@@ -24,30 +58,32 @@ const App = () => {
     <View style={styles.container}>
       {/* Encabezado con imagen de fondo */}
       <ImageBackground
-        source={require('../../assets/Ejercicios.png')} // Ruta de la imagen
+        source={require("../../assets/Ejercicios.png")} // Ruta de la imagen
         style={styles.header}
         resizeMode="cover"
-      >
-      </ImageBackground>
+      ></ImageBackground>
 
       {/* Título debajo de la imagen */}
       <Text style={styles.title}>Ejercicios</Text>
 
       {/* Tarjetas */}
       <ScrollView contentContainerStyle={styles.lecturaList}>
-        {lecturas.map((lectura, index) => (
+        {ejercicios.map((ejercicio, index) => (
           <TouchableOpacity
             key={index}
-            onPress={() => redirectTo(lectura.route)} // Asocia la redirección a la opción
+            onPress={() => redirectTo(ejercicio.route)} // Asocia la redirección a la opción
           >
             <LinearGradient
-              colors={['#2A6F97', '#539ec9']} // Aplicar gradiente aquí
-              style={styles.lecturaCard}
+              colors={ejercicio.completado ? ["#4CAF50", "#81C784"] : ["#2A6F97", "#539ec9"]}
+              style={[
+                styles.lecturaCard,
+                ejercicio.completado && styles.completadoCard // Aplicar estilo extra si está completado
+              ]}
             >
               <View style={styles.cardContent}>
                 <View>
-                  <Text style={styles.lecturaName}>{lectura.name}</Text>
-                  <Text style={styles.lecturaAddress}>{lectura.lecturaes}</Text>
+                  <Text style={styles.lecturaName}>{ejercicio.nombre}</Text>
+                  <Text style={styles.lecturaAddress}>{ejercicio.titulo}</Text>
                 </View>
                 <Icon name="chevron-forward" size={30} color="#fff" />
               </View>
@@ -67,27 +103,27 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f7',
+    backgroundColor: "#f0f4f7",
   },
   header: {
-    width: '90%',
+    width: "90%",
     height: 300, // Ajusta la altura si es necesario
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: 40,
     marginTop: 120,
   },
   headerTop: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: 35,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginTop: 20, // Ajusta el margen para separar el título de la imagen
-    color: '#1c506e',
+    color: "#1c506e",
   },
   lecturaList: {
     padding: 20,
@@ -99,23 +135,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     height: 90,
   },
+  completadoCard: {
+    opacity: 0.7, // Disminuye la opacidad si está completado
+  },
   cardContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: "100%",
   },
   lecturaName: {
     fontSize: 25,
-    fontWeight: 'bold',
-    color: '#e6eefc',
+    fontWeight: "bold",
+    color: "#e6eefc",
   },
   lecturaAddress: {
     fontSize: 20,
-    color: '#e6eefc',
+    color: "#e6eefc",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 40,
     left: 6,
     padding: 10,

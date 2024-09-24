@@ -6,6 +6,7 @@ import QuizPrimeraLeccion from '../components/QuizPrimeraLeccion'
 import CompletaLaFrase from '../components/CompletaLaFrase'
 import DetalleLecturas from '../components/DetalleLecturas'
 import MenuLecturasNuevo from '../components/MenuLecturasNuevo'
+import MenuLecciones from '@/components/MenuLecciones'
 
 export default function CrearCuentaRoute() {
   return (
