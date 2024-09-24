@@ -268,7 +268,7 @@ const CKLessonComponent: React.FC = () => {
         <TouchableOpacity
           onPress={nextLesson}
           style={[styles.navigationButton, !finished && styles.navigationButtonDisabled]}
-          disabled={false}
+          disabled={!finished}
         >
           <Text style={styles.navigationButtonText}>Siguiente</Text>
         </TouchableOpacity>
