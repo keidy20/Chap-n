@@ -71,7 +71,7 @@ export default function FluidezLectoraComponent() {
 
   useEffect(() => {
     if (isStarting) {
-      const instructions = "Por favor, lee en voz alta la frase que aparece en la pantalla. La grabación durará un minuto.";
+      const instructions = "Por favor, lee en voz alta las palabras que aparecen en la pantalla. Se te evaluará para saber cuántas palabras lograr decir correctamente en un minuto. Inicia la Evaluación";
       Speech.speak(instructions); // Reproduce el texto en voz alta cuando la pantalla de inicio se muestra
     }
   }, [isStarting]);

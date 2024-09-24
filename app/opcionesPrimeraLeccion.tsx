@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import LeccionCompletada from '../components/LeccionCompletada/LeccionCompletada'
+import LeccionCompletada from '../components/LecturaCompletada/LecturaCompletada'
 
 export default function VocalesRoute() {
   return (

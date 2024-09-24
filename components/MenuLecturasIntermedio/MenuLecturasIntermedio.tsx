@@ -97,11 +97,11 @@ const BooksMenu = () => {
         <Text style={styles.tituloCard}>Lecturas Básicas Para Ti</Text>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Básico</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.disabledButton}>
-            <Text style={styles.disabledButtonText}>Intermedio</Text>
+            <Text style={styles.disabledButtonText}>Básico</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Intermedio</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.disabledButton}>
             <Text style={styles.disabledButtonText}>Avanzado</Text>

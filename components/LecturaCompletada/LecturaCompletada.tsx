@@ -7,14 +7,14 @@ const CongratulationsScreen: React.FC = () => {
   const router = useRouter();
 
   const handleContinue = () => {
-    router.push('/menuEjercicios'); // Cambia por la ruta que desees para continuar
+    router.push('/menuLecturasBasico'); // Cambia por la ruta que desees para continuar
   };
 
   return (
     <View style={styles.container}>
       <Icon name="celebration" size={90} color="#FFD700" style={styles.celebrationIcon} />
       <Text style={styles.congratulationsText}>¡Felicidades!</Text>
-      <Text style={styles.messageText}>Has completado este ejercicio con éxito. Continúa asi para poder seguir avanzando con tu aprendizaje</Text>
+      <Text style={styles.messageText}>Has completado la lectura con éxito. Continúa asi para poder seguir avanzando con tu aprendizaje</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.goBackButton} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continuar</Text>

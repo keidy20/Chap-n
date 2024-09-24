@@ -1,4 +1,4 @@
-import LeccionCompletada from '@/components/LeccionCompletada'
+import LeccionCompletada from '@/components/LecturaCompletada'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 

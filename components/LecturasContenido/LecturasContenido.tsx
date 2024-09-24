@@ -237,7 +237,6 @@ const startEvaluation = () => {
       router.push("/menuEjercicios")
   
     } catch (error) {
-      //Alert.alert('Error', 'No se pudieroqqqn cargar las lecciones');
       
     }
   }
@@ -269,10 +268,8 @@ const startEvaluation = () => {
           }));
           setWords(wordsData);
         } else {
-          Alert.alert('Error', 'No se encontraronww lecciones con el tipo "CP".');
         }
       } catch (error) {
-        Alert.alert('Error', 'No se pudieronx cargar las lecciones');
       }
     };
 
