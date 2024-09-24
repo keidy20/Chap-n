@@ -1,7 +1,7 @@
 import CompletaLaFrase from '../components/CompletaLaFrase'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import DetalleLecturas from '../components/DetalleLecturas'
+import DetalleLecturas from '../components/DetalleLecturasBasico'
 
 export default function CrearCuentaRoute() {
   return (
