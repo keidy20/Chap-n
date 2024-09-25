@@ -1,8 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView,TouchableOpacity,Image} from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+
+// Obtener dimensiones de la pantalla
+const { width, height } = Dimensions.get("window");
 
 const HomeScreen: React.FC = () => {
   const redirectReconocerLetra = () => {
@@ -24,33 +27,28 @@ const HomeScreen: React.FC = () => {
   return (
     <>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Welcome Section */}
+        {/* Sección de bienvenida */}
         <View style={styles.welcomeSection}>
           <Image
             source={require("../../assets/Letras.png")}
             style={styles.welcomeImage}
+            resizeMode="contain" // Ajusta la imagen para que se vea bien en diferentes tamaños
           />
           <View>
             <Text style={styles.welcomeTitle}>¡Bienvenido!</Text>
           </View>
         </View>
 
-        {/* Ongoing Projects */}
+        {/* Header de Proyectos */}
         <View style={styles.projectsHeader}>
           <Text style={styles.projectsTitle}>Lecciones</Text>
         </View>
 
-        {/* Project Cards Container */}
+        {/* Contenedor de tarjetas */}
         <View style={styles.projectsContainer}>
-          {/* Card 1 */}
-          <TouchableOpacity
-            style={styles.cardContainer}
-            onPress={redirectReconocerLetra}
-          >
-            <LinearGradient
-              colors={["#2A6F97", "#539ec9"]}
-              style={styles.projectCard}
-            >
+          {/* Tarjeta 1 */}
+          <TouchableOpacity style={styles.cardContainer} onPress={redirectReconocerLetra}>
+            <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
               <View style={styles.cardContent}>
                 <Text style={styles.projectTitle}>Reconocer Letras</Text>
                 <Icon name="chevron-forward" size={30} color="#fff" />
@@ -58,15 +56,9 @@ const HomeScreen: React.FC = () => {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Card 2 */}
-          <TouchableOpacity
-            style={styles.cardContainer}
-            onPress={redirectLecturas}
-          >
-            <LinearGradient
-              colors={["#2A6F97", "#539ec9"]}
-              style={styles.projectCard}
-            >
+          {/* Tarjeta 2 */}
+          <TouchableOpacity style={styles.cardContainer} onPress={redirectLecturas}>
+            <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
               <View style={styles.cardContent}>
                 <Text style={styles.projectTitle}>Acelerador de Lectura</Text>
                 <Icon name="chevron-forward" size={30} color="#fff" />
@@ -74,15 +66,9 @@ const HomeScreen: React.FC = () => {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Card 3 */}
-          <TouchableOpacity
-            style={styles.cardContainer}
-            onPress={redirectEjercicios}
-          >
-            <LinearGradient
-              colors={["#2A6F97", "#539ec9"]}
-              style={styles.projectCard}
-            >
+          {/* Tarjeta 3 */}
+          <TouchableOpacity style={styles.cardContainer} onPress={redirectEjercicios}>
+            <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
               <View style={styles.cardContent}>
                 <Text style={styles.projectTitle}>Ejercicios</Text>
                 <Icon name="chevron-forward" size={30} color="#fff" />
@@ -97,8 +83,8 @@ const HomeScreen: React.FC = () => {
         <TouchableOpacity style={styles.navButton}>
           <Icon name="home" size={30} color="#2A6F97" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Icon name="settings" size={30} color="#2A6F97"  onPress={cerrarSesion}/>
+        <TouchableOpacity style={styles.navButton} onPress={cerrarSesion}>
+          <Icon name="settings" size={30} color="#2A6F97" />
         </TouchableOpacity>
       </View>
     </>
@@ -110,21 +96,17 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 16,
     backgroundColor: "#F5F5F5",
-    marginTop: 100,
+    paddingTop: height * 0.1, // Ajuste relativo al tamaño de la pantalla
   },
   screenTitleContainer: {
     alignItems: "center",
-    marginBottom: 20,
-  },
-  screenTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
+    marginBottom: height * 0.03,
   },
   welcomeSection: {
     backgroundColor: "#FFF",
     borderRadius: 12,
-    padding: 2,
-    marginBottom: 20,
+    padding: 10,
+    marginBottom: height * 0.02,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -132,12 +114,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   welcomeImage: {
-    width: 250,
-    height: 250,
+    width: width * 0.6, // Ajuste en base al ancho de la pantalla
+    height: height * 0.25, // Ajuste en base a la altura de la pantalla
     marginRight: 5,
   },
   welcomeTitle: {
-    fontSize: 22,
+    fontSize: width * 0.06, // Ajuste relativo al ancho
     fontWeight: "bold",
     marginEnd: 50,
   },
@@ -145,11 +127,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 30,
-    marginTop: 20,
+    marginBottom: height * 0.04,
+    marginTop: height * 0.02,
   },
   projectsTitle: {
-    fontSize: 18,
+    fontSize: width * 0.05, // Ajuste relativo al ancho
     fontWeight: "bold",
   },
   projectsContainer: {
@@ -159,23 +141,24 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: height * 0.03,
   },
   projectCard: {
     flex: 1,
     borderRadius: 12,
-    padding: 30,
+    paddingVertical: height * 0.03, // Ajuste en base a la altura de la pantalla
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 12
   },
   cardContent: {
-    flexDirection: "row", // Alinea el contenido en una fila
-    justifyContent: "space-between", // Coloca el texto a la izquierda y la flecha a la derecha
-    alignItems: "center", // Centra el contenido verticalmente
-    width: "100%", // Para que el contenido ocupe todo el ancho
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
   },
   projectTitle: {
-    fontSize: 22,
+    fontSize: width * 0.06, // Ajuste relativo al ancho
     fontWeight: "bold",
     color: "#fff",
   },
@@ -184,7 +167,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "#FFF",
-    height: 60,
+    height: height * 0.08, // Ajuste en base a la altura de la pantalla
     borderTopWidth: 1,
     borderTopColor: "#E0E0E0",
   },

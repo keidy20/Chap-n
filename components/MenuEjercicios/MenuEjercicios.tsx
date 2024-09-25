@@ -32,7 +32,7 @@ const App = () => {
         setEjercicios(data);
         console.log("CONTENIDO", data)
       } catch (error) {
-        Alert.alert("Error", "No se pudo obtener el menu de lecciones");
+        console.log("Error", "No se pudo obtener el menu de lecciones");
       }
     };
 

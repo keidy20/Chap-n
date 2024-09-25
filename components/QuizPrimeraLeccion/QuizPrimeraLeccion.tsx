@@ -60,11 +60,11 @@ const QuizComponent: React.FC = () => {
         if (data && data.contenido && data.contenido.quiz) {
           setLessons(data.contenido.quiz);  
         } else {
-          Alert.alert('Error', 'No se encontraron lecciones para este ID.');
+          console.log('Error', 'No se encontraron lecciones para este ID.');
         }
         setLoading(false);
       } catch (error) {
-        Alert.alert('Error', 'No se pudo cargar la lección.');
+        console.log('Error', 'No se pudo cargar la lección.');
         setLoading(false);
       }
     };

@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions, PixelRatio } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { existToken, removeToken } from '../../utils/TokenUtils';
+import { existToken } from '../../utils/TokenUtils';
 import { Audio } from 'expo-av';
+
+const { width, height } = Dimensions.get('window');
+const scale = width / 375;  // Basado en un ancho de referencia de iPhone 8 (375px)
+
+function normalize(size: number) {
+  const newSize = size * scale;
+  return Math.round(PixelRatio.roundToNearestPixel(newSize));
+}
 
 const Bienvenida: React.FC = () => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
 
   const redirect = async () => {
     if (await existToken()) {
@@ -32,7 +39,6 @@ const Bienvenida: React.FC = () => {
     playWelcomeAudio();
 
     return () => {
-      // Liberar recursos cuando se desmonte el componente
       if (sound) {
         sound.unloadAsync();
       }
@@ -47,16 +53,12 @@ const Bienvenida: React.FC = () => {
   };
 
   const handleContinue = async () => {
-    // Detener el audio antes de navegar
     await stopAudio();
-    console.log('Iniciar sesión presionado');
     router.navigate('/login');
   };
 
   const handleCreateAccount = async () => {
-    // Detener el audio antes de navegar
     await stopAudio();
-    console.log('Crear cuenta presionado');
     router.navigate('/crear_cuenta');
   };
 
@@ -65,7 +67,7 @@ const Bienvenida: React.FC = () => {
       <View style={styles.container}>
         <Image source={require('../../assets/bombilla1.png')} style={styles.avatar} />
         <View style={styles.card}>
-          <Text style={styles.welcomeText}>HOLA!</Text>
+          <Text style={styles.welcomeText}>HOLA!!!!</Text>
           <Text style={styles.subtitle}>¡Vamos a mejorar la fluidez lectora juntos! Empecemos</Text>
           <TouchableOpacity style={styles.button} onPress={handleContinue}>
             <Text style={styles.buttonText}>INICIAR SESIÓN</Text>
@@ -87,18 +89,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    padding: 20,
+    padding: normalize(20),
   },
   avatar: {
-    width: 250,
-    height: 250,
-    marginTop: 110,
+    width: width * 0.6,  // 60% del ancho de la pantalla
+    height: height * 0.3,  // 30% del alto de la pantalla
+    marginTop: normalize(40),
+    resizeMode: 'contain',
   },
   card: {
     width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 30,
+    borderRadius: normalize(20),
+    padding: normalize(20),
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -106,34 +109,28 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   welcomeText: {
-    fontSize: 30,
+    fontSize: normalize(30),
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: normalize(8),
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: normalize(18),
     textAlign: 'center',
     color: '#242424',
-    marginBottom: 10,
-  },
-  smallText: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#242424',
-    marginBottom: 20,
+    marginBottom: normalize(10),
   },
   button: {
     backgroundColor: '#2A6F97',
-    paddingVertical: 15,
-    paddingHorizontal: 50,
-    borderRadius: 30,
-    marginTop: 10,
+    paddingVertical: normalize(15),
+    paddingHorizontal: normalize(50),
+    borderRadius: normalize(30),
+    marginTop: normalize(10),
     width: '80%',
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 15,
+    fontSize: normalize(12),
     color: '#fff',
     fontWeight: 'bold',
   },
