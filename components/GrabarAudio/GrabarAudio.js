@@ -19,10 +19,11 @@ export default function FluidezLectoraComponent() {
   const recordingRef = useRef(null);
 
   useEffect(() => {
+    setTimeLeft(60);
     (async () => {
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permiso denegado', 'Necesitas otorgar permisos para grabar audio.');
+        console.log('Permiso denegado', 'Necesitas otorgar permisos para grabar audio.');
         return;
       }
       await Audio.setAudioModeAsync({
@@ -91,22 +92,33 @@ export default function FluidezLectoraComponent() {
   }
 
   async function stopRecording() {
+    
     if (recordingRef.current) {
+      console.log('Se esta deteniendo la grabacion ', recordingRef.current)
       setIsRecording(false);
       try {
         await recordingRef.current.stopAndUnloadAsync();
         const uri = recordingRef.current.getURI();
         setRecordedURI(uri);
-        recordingRef.current = null;
+        recordingRef.current = null
         console.log('Audio grabado guardado en:', uri);
         // Subir el archivo a la API
         const result = await uploadAudio(uri);
   
         // Redirigir a LeccionCompletada con el porcentaje
-        router.push('/opcionesPrimeraLeccion', { similitud: result.similitud.toFixed(0) });
+
+        router.push({
+          pathname: '/leccionCompleta',
+          params: {
+            similitud: result.similitud.toFixed(0),
+            cantidadPalabras:  result.cantidadPalabras
+          }
+        })
       } catch (err) {
         console.error('Error al detener la grabación:', err);
       }
+    } else {
+      console.log('Intendando detener ', recordingRef.current)
     }
   }
 
@@ -130,18 +142,20 @@ export default function FluidezLectoraComponent() {
       });
 
       const result = await response.json();
+      console.log('Resultado del servicio ', result)
       if (typeof result.similitud === 'number') {
         return result;
       } else {
-        Alert.alert('Error', 'No se pudo obtener el porcentaje de similitud.');
+        console.log('Error', 'No se pudo obtener el porcentaje de similitud.');
       }
     } catch (err) {
       console.error('Error uploading audio:', err);
-      Alert.alert('Error', 'Ocurrió un error al subir el audio.');
+      console.log('Error', 'Ocurrió un error al subir el audio.');
     }
   }
 
   const handleStart = () => {
+    Speech.stop()
     setIsStarting(false); // Cambia el estado para mostrar la evaluación
   };
 

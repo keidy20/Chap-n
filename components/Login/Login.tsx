@@ -60,7 +60,7 @@ const Login: React.FC = () => {
 
       if (!res.ok) {
         console.log('Error ', res.status)
-        Alert.alert('Credenciales invalidas', 'El usuario o la contraseña no son correctos')
+        console.log('Credenciales invalidas', 'El usuario o la contraseña no son correctos')
         throw new Error("Network response was not ok " + res.json());
       }
       const data = await res.json();

@@ -78,10 +78,10 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
         if (filteredLessons.length > 0) {
           setLessons(filteredLessons);
         } else {
-          Alert.alert('Error', 'No se encontraron lecciones con el tipo "CO".');
+          console.log('Error', 'No se encontraron lecciones con el tipo "CO".');
         }
       } catch (error) {
-        Alert.alert('Error', 'No se pudieron cargar las lecciones');
+        console.log('Error', 'No se pudieron cargar las lecciones');
       }
     };
 
@@ -121,7 +121,7 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
       await newSound.playAsync();
     } catch (error) {
       console.error("Error al reproducir el audio:", error);
-      Alert.alert("Error", "No se pudo reproducir el audio.");
+      console.log("Error", "No se pudo reproducir el audio.");
     }
   };
 
@@ -133,7 +133,7 @@ const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
         setIsPlaying(false);
       }
     } catch (error) {
-      Alert.alert("Error", "No se pudo detener el audio.");
+      console.log("Error", "No se pudo detener el audio.");
     }
   };
 

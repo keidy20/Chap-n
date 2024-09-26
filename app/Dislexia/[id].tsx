@@ -123,7 +123,7 @@ const CKLessonComponent: React.FC = () => {
           //console.log("Posición actual:", playbackStatus.positionMillis); // Verifica la posición
 
           if (playbackStatus.didJustFinish) {
-            /* Alert.alert("Audio Finalizado", "El audio ha terminado de reproducirse."); */
+            /* console.log("Audio Finalizado", "El audio ha terminado de reproducirse."); */
             setFinished(true);
             //nextLesson();
           }
@@ -136,7 +136,7 @@ const CKLessonComponent: React.FC = () => {
       await newSound.playAsync();
     } catch (error) {
       console.error("Error al reproducir el audio:", error);
-      Alert.alert("Error", "No se pudo reproducir el audio.");
+      console.log("Error", "No se pudo reproducir el audio.");
     }
   };
 
@@ -148,7 +148,7 @@ const CKLessonComponent: React.FC = () => {
         setIsPlaying(false);
       }
     } catch (error) {
-      Alert.alert("Error", "No se pudo detener el audio.");
+      console.log("Error", "No se pudo detener el audio.");
     }
   };
 
@@ -163,7 +163,7 @@ const CKLessonComponent: React.FC = () => {
       if (quizId) {
         goToQuiz(quizId);
       } else {
-        Alert.alert("Error", "No se encontró el ID del quiz.");
+        console.log("Error", "No se encontró el ID del quiz.");
       }
     }
   };
@@ -181,7 +181,7 @@ const CKLessonComponent: React.FC = () => {
     } else {
       stopAudio();
       goBack();
-      //Alert.alert('No hay lección anterior', 'Ya estás en la primera lección.');
+      //console.log('No hay lección anterior', 'Ya estás en la primera lección.');
     }
   };
 

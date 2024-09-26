@@ -74,11 +74,11 @@ const CompletaLaOracion = () => {
         if (filteredLessons.length > 0) {
           setLessons(filteredLessons);
         } else {
-          Alert.alert('Error', 'No se encontraron lecciones con el tipo "CO".');
+          console.log('Error', 'No se encontraron lecciones con el tipo "CO".');
         }
         setLoading(false);
       } catch (error) {
-        Alert.alert('Error', 'No se pudieron cargar las lecciones');
+        console.log('Error', 'No se pudieron cargar las lecciones');
         setLoading(false);
       }
       
@@ -215,7 +215,7 @@ const completarEjercicio = async () => {
 
 
   } catch (error) {
-    Alert.alert('Error', 'No se pudieron cargar las lecciones');
+    console.log('Error', 'No se pudieron cargar las lecciones');
     
   }
 }

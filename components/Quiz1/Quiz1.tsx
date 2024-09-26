@@ -165,7 +165,7 @@ const Quiz1: React.FC = () => {
 
   const handleQuizEnd = () => {
     setQuizComplete(true); // Establecer que el quiz está completo
-    Alert.alert('Quiz terminado', `Has respondido ${totalQuestionsAnswered} preguntas y acertado ${correctAnswers}.`);
+    console.log('Quiz terminado', `Has respondido ${totalQuestionsAnswered} preguntas y acertado ${correctAnswers}.`);
   };
 
   if (quizComplete) {

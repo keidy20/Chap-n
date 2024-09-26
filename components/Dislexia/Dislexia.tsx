@@ -60,11 +60,11 @@ const CKLessonComponent: React.FC = () => {
         if (filteredLessons.length > 0) {
           setLessons(filteredLessons); // Guardamos las lecciones filtradas
         } else {
-          Alert.alert('Error', 'No se encontraron lecciones con el tipo "RL".');
+          console.log('Error', 'No se encontraron lecciones con el tipo "RL".');
         }
         setLoading(false);
       } catch (error) {
-        Alert.alert('Error', 'No se pudieron cargar las lecciones');
+        console.log('Error', 'No se pudieron cargar las lecciones');
         setLoading(false);
       }
     };
@@ -108,7 +108,7 @@ const CKLessonComponent: React.FC = () => {
     if (currentLesson < lessons.length - 1) {
       setCurrentLesson(currentLesson + 1);
     } else {
-      Alert.alert('Finalizado', 'Has completado todas las lecciones.');
+      console.log('Finalizado', 'Has completado todas las lecciones.');
     }
   };
 
@@ -116,7 +116,7 @@ const CKLessonComponent: React.FC = () => {
     if (currentLesson > 0) {
       setCurrentLesson(currentLesson - 1);
     } else {
-      Alert.alert('No hay lección anterior', 'Ya estás en la primera lección.');
+      console.log('No hay lección anterior', 'Ya estás en la primera lección.');
     }
   };
 
