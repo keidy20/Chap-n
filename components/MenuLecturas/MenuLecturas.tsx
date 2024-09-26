@@ -44,7 +44,7 @@ const App = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={24} color="#FAF3EF" />
+        <Icon name="arrow-back" size={40} color="#FAF3EF" />
       </TouchableOpacity>
       <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
         <Text style={styles.headerText}>Lecturas</Text>

@@ -183,7 +183,7 @@ const BookDetails = () => {
         <>
           <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
             <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-              <Icon name="arrow-back" size={24} color="#FAF3EF" />
+              <Icon name="arrow-back" size={40} color="#FAF3EF" />
             </TouchableOpacity>
           </LinearGradient>
           <View style={styles.card}>

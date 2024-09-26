@@ -154,7 +154,7 @@ const CKLessonComponent: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={goBack} style={styles.goBackButton}>
-          <Icon name="arrow-back" size={24} color="#2A6F97" />
+          <Icon name="arrow-back" size={40} color="#2A6F97" />
         </TouchableOpacity>
       </View>
 

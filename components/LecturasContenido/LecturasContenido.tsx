@@ -309,7 +309,7 @@ const startEvaluation = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Icon name="arrow-back" size={24} color="#2A6F97" />
+        <Icon name="arrow-back" size={40} color="#2A6F97" />
       </TouchableOpacity>
 
       <Text style={styles.title}>Quiz de Evaluación</Text>

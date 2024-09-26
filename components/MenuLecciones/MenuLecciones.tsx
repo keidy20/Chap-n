@@ -8,50 +8,81 @@ import { LinearGradient } from "expo-linear-gradient";
 
 const LessonMenuRL: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
+  const [images, setImages] = useState<any[]>([]); // Nuevo estado para almacenar las imágenes
   const router = useRouter();
 
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
   useEffect(() => {
-    console.log('Entrando a dislexia');
-    const fetchLessons = async () => {
+    const fetchData = async () => {
       const username = await getUsuario();
-      const url = `${baseUrl}/lecciones/all/${username}`;
+      const lessonsUrl = `${baseUrl}/lecciones/all/${username}`;
+      const imagesUrl = `${baseUrl}/lecciones/all`; // URL de la segunda API para obtener las imágenes
       let token = null;
+
       if (await existToken()) {
         token = await getToken();
-        console.log('Token en lecciones ', token);
       } else {
         router.navigate('/home');
+        return;
       }
+
       try {
-        const res = await fetch(url, {
+        // Primero se llama a la API de lecciones
+        const lessonsResponse = await fetch(lessonsUrl, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`, 
-            'Content-Type': 'application/json', 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         });
 
-        if (!res.ok) {
-          console.log('Error al consumir ', res.status);
-          if (res.status == 403) {
+        if (!lessonsResponse.ok) {
+          if (lessonsResponse.status === 403) {
             removeToken();
             router.navigate('/login');
           }
-          throw new Error('Network response was not ok ' + res.statusText);
+          throw new Error('Error fetching lessons');
         }
 
-        const data = await res.json();
-        console.log('Resultado de lecciones por usuario ', data);
-        const filteredLessons = data.filter((d: any) => d.tipoLeccion === 'RL');
+        const lessonsData = await lessonsResponse.json();
+        const filteredLessons = lessonsData.filter((d: any) => d.tipoLeccion === 'RL');
         setLessons(filteredLessons);
+
+        // Ahora que tenemos las lecciones, hacemos la segunda llamada a la API de imágenes
+        const imagesResponse = await fetch(imagesUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!imagesResponse.ok) {
+          if (imagesResponse.status === 403) {
+            removeToken();
+            router.navigate('/login');
+          }
+          throw new Error('Error fetching images');
+        }
+
+      // Cambia esta parte de tu código en el useEffect
+      const imagesData = await imagesResponse.json();
+      const filteredImages = imagesData.filter((d: any) => d.tipoLeccion === 'RL');
+
+      // Cambia el formato de la variable para almacenar imágenes
+      const lessonImages = filteredImages.map((image: any) => image.contenido.imagenes[0]?.url);
+
+      // Luego, asigna esta nueva variable a tu estado de imágenes
+      setImages(lessonImages); // Guardar las imágenes obtenidas
+
+
       } catch (error) {
-        console.error('Error fetching lessons:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchLessons();
+    fetchData();
   }, []);
 
   const goToLessonDetail = (id: string) => {
@@ -65,36 +96,45 @@ const LessonMenuRL: React.FC = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={24} color="#FAF3EF" />
+        <Icon name="arrow-back" size={40} color="#FAF3EF" />
       </TouchableOpacity>
       <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
         <Text style={styles.headerText}>Ejercicios</Text>
       </LinearGradient>
-      
+
       <View style={styles.card}>
         <Text style={styles.tituloCard}>Identificación De Letras</Text>
         <ScrollView style={styles.lessonList}>
-          {lessons.length === 0 ? (
-            <Text style={styles.emptyText}></Text>
-          ) : (
-            lessons.map((lesson, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[styles.cardContainer, lesson.completado ? styles.completedCard : null]}
-                onPress={() => goToLessonDetail(lesson.id)}
-              >
-                <View style={styles.lessonCard}>
+        {lessons.length === 0 ? (
+          <Text style={styles.emptyText}></Text>
+        ) : (
+          lessons.map((lesson, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[styles.cardContainer, lesson.completado ? styles.completedCard : null]}
+              onPress={() => goToLessonDetail(lesson.id)}
+            >
+              <View style={styles.lessonCard}>
+                {/* Aquí puedes usar las imágenes obtenidas de la segunda API */}
+                {images[index] ? (
                   <Image
-                    source={{ uri: "https://firebasestorage.googleapis.com/v0/b/indigo-cider-432618-r6.appspot.com/o/lecciones%2FLI_32%2Fimagenes%2FMiedo.jpeg?alt=media" }} // Cambia la URL por la imagen que desees
+                    source={{ uri: images[index] }} // Aquí solo necesitas el URL
                     style={styles.cardImage}
                   />
-                  <View style={styles.lessonContent}>
-                    <Text style={styles.lessonTitle}>{lesson.titulo}</Text>
-                  </View>
+                ) : (
+                  <Image
+                    source={{ uri: "https://example.com/default-image.jpg" }} // Imagen por defecto
+                    style={styles.cardImage}
+                  />
+                )}
+                <View style={styles.lessonContent}>
+                  <Text style={styles.lessonTitle}>{lesson.titulo}</Text>
                 </View>
-              </TouchableOpacity>
-            ))
-          )}
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+
         </ScrollView>
       </View>
     </View>
@@ -156,10 +196,10 @@ const styles = StyleSheet.create({
   lessonCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF', // Fondo blanco sin degradado
-    borderRadius: 0, // Sin bordes
+    backgroundColor: '#FFF',
+    borderRadius: 0,
     padding: 15,
-    paddingTop: 3
+    paddingTop: 3,
   },
   cardImage: {
     width: 80,
@@ -175,9 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: "#1c506e",
-  },
-  icon: {
-    marginLeft: 'auto', // Empuja el ícono hacia la derecha
   },
   emptyText: {
     textAlign: 'center',

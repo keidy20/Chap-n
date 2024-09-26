@@ -1,9 +1,6 @@
-import Splash from '@/components/Splash'
-import Bienvenida from '../components/Bienvenida'
 import { router } from 'expo-router';
-import { existToken, removeToken } from '@/utils/TokenUtils';
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet } from 'react-native'
+import { existToken} from '@/utils/TokenUtils';
+import React, { useEffect} from "react";
 
 export default function Index() {
     useEffect(() => {

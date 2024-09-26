@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Dimensions } from "react-native";
 import { Audio } from "expo-av";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { existToken, getToken } from "@/utils/TokenUtils";
@@ -24,6 +24,9 @@ interface LessonData {
   };
   quiz: number;
 }
+
+
+const { width, height } = Dimensions.get('window'); 
 
 const CKLessonComponent: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -231,7 +234,7 @@ const CKLessonComponent: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={goBack} style={styles.goBackButton}>
-          <Icon name="arrow-back" size={30} color="#2A6F97" />
+          <Icon name="arrow-back" size={40} color="#2A6F97" />
         </TouchableOpacity>
       </View>
 
@@ -279,19 +282,18 @@ const CKLessonComponent: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    top: 50,
     flexGrow: 1,
-    padding: 20,
+    padding: width * 0.05,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 120,
+    marginBottom: height * 0.1,
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
-    padding: 20,
+    padding: width * 0.05, // Padding responsivo
     marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -302,6 +304,7 @@ const styles = StyleSheet.create({
   },
   goBackButton: {
     marginRight: 16,
+    marginTop: height * 0.02,
   },
   speakerIcon: {
     position: "absolute",
@@ -313,16 +316,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   titulo: {
-    fontSize: 32,
+    fontSize: width * 0.09, // Ajusta el tamaño de fuente según el ancho
     fontWeight: "bold",
-    marginBottom: 40,
-    marginTop: 40,
-    textAlign: "center",
+    marginBottom: height * 0.05,
+    marginTop: height * 0.02,
   },
   text: {
-    fontSize: 24,
+    fontSize: width * 0.05, // Ajusta el tamaño de fuente según el ancho
     lineHeight: 24,
-    marginBottom: 10,
   },
   highlight: {
     color: "red",
@@ -336,22 +337,22 @@ const styles = StyleSheet.create({
   navigation: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
+    paddingVertical: height * 0.02,
   },
   navigationButtonDisabled: {
-    backgroundColor: "#A9A9A9", // Color para el botón deshabilitado
+    backgroundColor: "#B0C4DE", // Color para el botón deshabilitado
   },
   navigationButton: {
     backgroundColor: "#2A6F97",
-    padding: 15,
+    padding: width * 0.03, // Padding responsivo
     borderRadius: 25,
     flex: 1,
     marginHorizontal: 5,
+    alignItems: "center",
   },
   navigationButtonText: {
     color: "#fff",
-    textAlign: "center",
-    fontSize: 22,
+    fontSize: width * 0.04, 
   },
   loadingContainer: {
     flex: 1,

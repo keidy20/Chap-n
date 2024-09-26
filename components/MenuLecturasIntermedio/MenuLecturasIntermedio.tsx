@@ -7,11 +7,14 @@ import {
   FlatList,
   TouchableOpacity,
   StatusBar,
+  Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { existToken, getToken } from "@/utils/TokenUtils";
+
+const { width, height } = Dimensions.get("window");
 
 interface Seccion {
   id: string;
@@ -37,7 +40,7 @@ interface Book {
 
 const BooksMenu = () => {
   const [books, setBooks] = useState<Book[]>([]);
-  const baseUrl: string = process.env.EXPO_PUBLIC_URL || ""; // Asegúrate de que esto esté definido correctamente
+  const baseUrl: string = process.env.EXPO_PUBLIC_URL || ""; 
 
   const goBack = () => {
     router.back();
@@ -66,11 +69,7 @@ const BooksMenu = () => {
         }
 
         const data = await response.json();
-
-        // Asegúrate de que el filtrado se aplica a la estructura correcta
         const filteredBooks = data.filter((d: any) => d.tipoLeccion === "LI");
-        console.log("Libros filtrados:", filteredBooks); // Verifica los libros filtrados
-
         setBooks(filteredBooks);
       } catch (error) {
         console.error("Error fetching books:", error);
@@ -78,16 +77,13 @@ const BooksMenu = () => {
     };
 
     fetchBooks();
-
   }, []);
-
-
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={24} color="#FAF3EF" />
+        <Icon name="arrow-back" size={40} color="#FAF3EF" />
       </TouchableOpacity>
       <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
         <Text style={styles.headerText}>Lecturas</Text>
@@ -98,18 +94,18 @@ const BooksMenu = () => {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.disabledButton}>
-            <Text style={styles.disabledButtonText}>Básico</Text>
+            <Text style={styles.disabledButtonText} numberOfLines={1} adjustsFontSizeToFit>Básico</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Intermedio</Text>
+            <Text style={styles.buttonText} numberOfLines={1} adjustsFontSizeToFit>Intermedio</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.disabledButton}>
-            <Text style={styles.disabledButtonText}>Avanzado</Text>
+            <Text style={styles.disabledButtonText} numberOfLines={1} adjustsFontSizeToFit>Avanzado</Text>
           </TouchableOpacity>
         </View>
 
         <FlatList
-          data={books} // Usar el estado de libros
+          data={books}
           keyExtractor={(item: Book) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -126,7 +122,6 @@ const BooksMenu = () => {
                     audios: encodeURIComponent(JSON.stringify(item.contenido.audios))
                   },
                 });
-                
               }}
             >
               <View style={styles.bookItem}>
@@ -154,38 +149,38 @@ const styles = StyleSheet.create({
   },
   goBackButton: {
     position: "absolute",
-    top: 50,
-    left: 10,
+    top: height * 0.05, // Adaptado a la altura del dispositivo
+    left: width * 0.03, // Adaptado al ancho del dispositivo
     padding: 10,
     zIndex: 10,
   },
   header: {
-    height: 280,
-    paddingHorizontal: 16,
+    height: height * 0.3, // Adaptado a la altura de la pantalla
+    paddingHorizontal: width * 0.05,
     alignItems: "center",
     justifyContent: "center",
   },
   headerText: {
-    fontSize: 28,
+    fontSize: width * 0.07, // Adaptado a la pantalla
     fontWeight: "bold",
     color: "#FFF",
   },
   tituloCard: {
-    paddingHorizontal: 16,
-    fontSize: 25,
+    paddingHorizontal: width * 0.05, // Adaptado al ancho de la pantalla
+    fontSize: width * 0.06,
     fontWeight: "bold",
     color: "#000",
-    marginTop: 15,
-    marginBottom: 16,
+    marginTop: height * 0.02,
+    marginBottom: height * 0.02,
   },
   card: {
     flex: 1,
     backgroundColor: "#FFF",
-    marginTop: -40,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    marginTop: height * -0.05, // Adaptado a la altura de la pantalla
+    borderTopLeftRadius: width * 0.1,
+    borderTopRightRadius: width * 0.1,
+    paddingVertical: height * 0.03,
+    paddingHorizontal: width * 0.05,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -195,63 +190,69 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 16,
+    marginBottom: height * 0.02,
   },
   button: {
     flex: 1,
-    marginHorizontal: 5,
-    padding: 10,
+    marginHorizontal: width * 0.02,
+    paddingVertical: height * 0.015,
+    paddingHorizontal: width * 0.03,
     backgroundColor: "#2A6F97",
-    borderRadius: 25,
+    borderRadius: width * 0.06,
     alignItems: "center",
-    marginTop: 15,
-    marginBottom: 16,
+    justifyContent: "center",
+    marginTop: height * 0.02,
+    marginBottom: height * 0.02,
   },
   disabledButton: {
     flex: 1,
-    marginHorizontal: 5,
-    padding: 10,
+    marginHorizontal: width * 0.02,
+    padding: height * 0.015,
     backgroundColor: "#ccc",
-    borderRadius: 25,
+    borderRadius: width * 0.06,
     alignItems: "center",
-    marginTop: 15,
-    marginBottom: 16,
+    marginTop: height * 0.02,
+    marginBottom: height * 0.02,
   },
   buttonText: {
     color: "#FFF",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: width * 0.045,
+    textAlign: "center", // Asegura que el texto esté centrado
+    flexShrink: 1, // El texto se ajusta dentro del contenedor sin desbordar
   },
   disabledButtonText: {
     color: "#666",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: width * 0.045,
+    textAlign: "center",
+    flexShrink: 1,
   },
   bookItem: {
     flexDirection: "row",
-    marginBottom: 16,
-    padding: 16,
+    marginBottom: height * 0.02,
+    padding: height * 0.02,
     backgroundColor: "#FFF",
   },
   bookImage: {
-    width: 80,
-    height: 120,
-    marginRight: 16,
-    borderRadius: 8,
+    width: width * 0.2, // Adaptado al ancho de la pantalla
+    height: height * 0.15, // Adaptado a la altura de la pantalla
+    marginRight: width * 0.05,
+    borderRadius: width * 0.02,
   },
   bookInfo: {
     justifyContent: "center",
     flex: 1,
   },
   bookTitle: {
-    fontSize: 20,
+    fontSize: width * 0.05,
     fontWeight: "bold",
     color: "#333",
   },
   bookAuthor: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: "#888",
-    marginVertical: 4,
+    marginVertical: height * 0.005,
   },
 });
 

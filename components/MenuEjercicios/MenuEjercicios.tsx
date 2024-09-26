@@ -3,42 +3,82 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } fr
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { existToken, getToken } from "@/utils/TokenUtils";
+import { existToken, getToken, removeToken } from "@/utils/TokenUtils";
 import { getUsuario } from "@/utils/UsuarioUtils";
 
 const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
 const App = () => {
   const [ejercicios, setEjercicios] = useState<any[]>([]);
+  const [images, setImages] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchMenuEjercicios = async () => {
+    const fetchData = async () => {
+      const usuario = await getUsuario();
+      const lessonsUrl = `${baseUrl}/ejercicios/menu-ejercicios/${usuario}`;
+      const imagesUrl = `${baseUrl}/ejercicios/all`; // URL de la segunda API para obtener las imágenes
       let token = null;
-      let usuario = await getUsuario();
+  
       if (await existToken()) {
         token = await getToken();
       } else {
-        router.navigate("/home");
+        router.navigate('/home');
+        return;
       }
+  
       try {
-        const response = await fetch(`${baseUrl}/ejercicios/menu-ejercicios/${usuario}`, {
-          method: "GET",
+        // Llamada a la API de lecciones
+        const lessonsResponse = await fetch(lessonsUrl, {
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         });
-        const data: any[] = await response.json();
-        setEjercicios(data);
-        console.log("CONTENIDO", data)
+  
+        if (!lessonsResponse.ok) {
+          if (lessonsResponse.status === 403) {
+            removeToken();
+            router.navigate('/login');
+          }
+          throw new Error('Error fetching lessons');
+        }
+  
+        const lessonsData = await lessonsResponse.json();
+        setEjercicios(lessonsData); // Asignar directamente las lecciones obtenidas
+  
+        // Llamada a la API de imágenes
+        const imagesResponse = await fetch(imagesUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+  
+        if (!imagesResponse.ok) {
+          if (imagesResponse.status === 403) {
+            removeToken();
+            router.navigate('/login');
+          }
+          throw new Error('Error fetching images');
+        }
+  
+        const imagesData = await imagesResponse.json();
+        
+        // Extraer las imágenes sin aplicar filtro de tipo de lección
+        const lessonImages = imagesData.map((image: any) => image.contenido?.imagenes?.[0]?.url);
+  
+        setImages(lessonImages); // Guardar las imágenes obtenidas
+  
       } catch (error) {
-        console.log("Error", "No se pudo obtener el menu de lecciones");
+        console.error('Error fetching data:', error);
       }
     };
-
-    fetchMenuEjercicios();
+  
+    fetchData(); // Llamamos a la función para obtener los datos
   }, []);
-
+  
   const goBack = () => {
     router.back();
   };
@@ -50,7 +90,7 @@ const App = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={24} color="#FAF3EF" />
+        <Icon name="arrow-back" size={40} color="#FAF3EF" />
       </TouchableOpacity>
       <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
         <Text style={styles.headerText}>Ejercicios</Text>
@@ -66,15 +106,20 @@ const App = () => {
               style={[styles.lecturaCard, ejercicio.completado && styles.completadoCard]}
             >
               <View style={styles.cardContent}>
-                <Image
-                  source={{ uri: "https://firebasestorage.googleapis.com/v0/b/indigo-cider-432618-r6.appspot.com/o/lecciones%2FLI_32%2Fimagenes%2FMiedo.jpeg?alt=media"}} // Suponiendo que cada ejercicio tenga una URL de imagen asociada
-                  style={styles.cardImage}
-                />
-                <View>
+                {images[index] ? (
+                  <Image
+                    source={{ uri: images[index] }} // Aquí solo necesitas el URL
+                    style={styles.cardImage}
+                  />
+                ) : (
+                  <Image
+                    source={{ uri: "https://example.com/default-image.jpg" }} // Imagen por defecto
+                    style={styles.cardImage}
+                  />
+                )}
                   <Text style={styles.lecturaName}>{ejercicio.nombre}</Text>
                   <Text style={styles.lecturaAddress}>{ejercicio.titulo}</Text>
                 </View>
-              </View>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -153,10 +198,10 @@ const styles = StyleSheet.create({
   lecturaName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: "#1c506e",
+    color: '#333',
   },
   lecturaAddress: {
-    fontSize: 20,
+    fontSize: 18,
     color: "#999",
   },
 });

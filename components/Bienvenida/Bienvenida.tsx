@@ -67,7 +67,7 @@ const Bienvenida: React.FC = () => {
       <View style={styles.container}>
         <Image source={require('../../assets/bombilla1.png')} style={styles.avatar} />
         <View style={styles.card}>
-          <Text style={styles.welcomeText}>HOLA!!!!</Text>
+          <Text style={styles.welcomeText}>HOLA!</Text>
           <Text style={styles.subtitle}>¡Vamos a mejorar la fluidez lectora juntos! Empecemos</Text>
           <TouchableOpacity style={styles.button} onPress={handleContinue}>
             <Text style={styles.buttonText}>INICIAR SESIÓN</Text>
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: normalize(12),
+    fontSize: normalize(15),
     color: '#fff',
     fontWeight: 'bold',
   },
