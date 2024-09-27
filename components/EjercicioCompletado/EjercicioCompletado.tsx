@@ -12,7 +12,7 @@ const EjercicioCompletado: React.FC = () => {
   const playSound = async () => {
     try {
       const { sound: audio } = await Audio.Sound.createAsync(
-        require('@/assets/Felicidades.mp3') // Reemplaza con la ruta correcta a tu archivo de audio
+        require('@/assets/EjercicioCompletado.mp3') // Reemplaza con la ruta correcta a tu archivo de audio
       );
       sound.current = audio;
       await sound.current.playAsync();
@@ -42,7 +42,7 @@ const EjercicioCompletado: React.FC = () => {
       <Icon name="celebration" size={90} color="#FFD700" style={styles.celebrationIcon} />
       <Text style={styles.congratulationsText}>¡Felicidades!</Text>
       <Text style={styles.messageText}>
-        Has completado la lectura con éxito. Continúa así para poder seguir avanzando con tu aprendizaje.
+        Has completado los ejercicios con éxito. Continúa así para poder seguir avanzando con tu aprendizaje.
       </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.goBackButton} onPress={handleContinue}>

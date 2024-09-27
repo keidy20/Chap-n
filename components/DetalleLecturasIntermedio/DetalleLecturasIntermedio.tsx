@@ -103,9 +103,12 @@ const DetalleLecturasIntermedias = () => {
       if (sound) {
         sound.unloadAsync(); // Limpiar el sonido al desmontar el componente
       }
-      //alert("Has completado la lectura.");
-      router.push('/dislexia')
-    }
+        // Navega al componente EjercicioCompletado y pasa el nivel como parámetro
+        router.push({
+          pathname: '/lecturaCompletada',
+          params: { nivel: 'Intermedio' },  // Aquí pasamos el nivel "Básico"
+        });
+      }
   };
 
   const completarLeccion = async () => {
@@ -265,7 +268,7 @@ const styles = StyleSheet.create({
   },
   goBackButton: {
     position: "absolute",
-    top: height * 0.06, // Ajustado al 6% de la altura de la pantalla
+    top: height * 0.05, // Ajustado al 6% de la altura de la pantalla
     left: width * 0.03, // Ajustado al 3% del ancho de la pantalla
     padding: width * 0.02, // Ajustado al 2% del ancho de la pantalla
     zIndex: 10,

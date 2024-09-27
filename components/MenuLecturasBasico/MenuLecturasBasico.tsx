@@ -44,7 +44,7 @@ const BooksMenu = () => {
   const baseUrl: string = process.env.EXPO_PUBLIC_URL || ""; // Asegúrate de que esto esté definido correctamente
 
   const goBack = () => {
-    router.back();
+    router.push('/menuLecturas')
   };
 
   const Intermedio = () => {

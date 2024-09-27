@@ -1,25 +1,61 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Audio } from 'expo-av';
 
-const LecturaCompletada: React.FC = () => {
+
+const EjercicioCompletado: React.FC = () => {
   const router = useRouter();
+  const sound = useRef<Audio.Sound | null>(null); // Referencia para el sonido
+  const { nivel } = useLocalSearchParams(); 
 
-  const { similitud, cantidadPalabras } = useLocalSearchParams();
-  console.log('Similitud ', similitud)
-  console.log('Cantidad Palabras ', cantidadPalabras)
+  // Función para reproducir el audio
+  const playSound = async () => {
+    try {
+      const { sound: audio } = await Audio.Sound.createAsync(
+        require('@/assets/Felicidades.mp3') // Reemplaza con la ruta correcta a tu archivo de audio
+      );
+      sound.current = audio;
+      await sound.current.playAsync();
+    } catch (error) {
+      console.log('Error al reproducir el sonido:', error);
+    }
+  };
+
+  // useEffect para reproducir el audio cuando se carga el componente
+  useEffect(() => {
+    playSound();
+
+    // Limpiar el sonido cuando el componente se desmonta
+    return () => {
+      if (sound.current) {
+        sound.current.unloadAsync();
+      }
+    };
+  }, []);
 
   const handleContinue = () => {
-    router.push('/home'); // Cambia por la ruta que desees para continuar
-  };
+    // Redirigir según el nivel
+    if (nivel === 'Basico') {
+      router.push('/menuLecturaBasico'); // Redirige al menú básico
+    } else if (nivel === 'Intermedio') {
+      router.push('/menuLecturaIntermedio'); // Redirige al menú intermedio
+    } else if (nivel === 'Avanzado') {
+      router.push('/menuLecturaAvanzado'); // Redirige al menú avanzado
+    } else {
+      console.warn('Nivel no reconocido:', nivel);
+    }
+  }
+  
 
   return (
     <View style={styles.container}>
       <Icon name="celebration" size={90} color="#FFD700" style={styles.celebrationIcon} />
       <Text style={styles.congratulationsText}>¡Felicidades!</Text>
-      <Text style={styles.messageText}>Has completado la lectura con éxito. Continúa asi para poder seguir avanzando con tu aprendizaje</Text>
-      <Text>Cantidad de palabras dichas: {cantidadPalabras}</Text>
+      <Text style={styles.messageText}>
+        Has completado la lectura con éxito. Continúa así para poder seguir avanzando con tu aprendizaje.
+      </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.goBackButton} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continuar</Text>
@@ -41,13 +77,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   congratulationsText: {
-    fontSize: 40,
+    fontSize: 36, // Tamaño de fuente ajustado
     fontWeight: 'bold',
     color: '#2A6F97',
     marginBottom: 10,
+    textAlign: 'center', // Centrado para pantallas pequeñas
   },
   messageText: {
-    fontSize: 20,
+    fontSize: 18, // Tamaño de fuente ajustado
     textAlign: 'center',
     color: '#555',
     marginBottom: 30,
@@ -58,12 +95,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
-  continueButton: {
-    backgroundColor: '#2A6F97',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-  },
   goBackButton: {
     backgroundColor: '#2A6F97',
     paddingVertical: 15,
@@ -71,10 +102,10 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   buttonText: {
-    fontSize: 25,
+    fontSize: 20, // Tamaño de fuente ajustado
     color: '#FFF',
     fontWeight: 'bold',
   },
 });
 
-export default LecturaCompletada;
+export default EjercicioCompletado;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Dimensions, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -8,6 +8,7 @@ import { FontAwesome } from '@expo/vector-icons';;
 import { Audio } from 'expo-av';
 import { existToken, getToken } from '@/utils/TokenUtils';
 import { getUsuario } from '@/utils/UsuarioUtils';
+import { Vibration } from 'react-native';
 
 interface Lesson {
   id: number;
@@ -26,6 +27,7 @@ interface LessonData {
   };
 }
 
+const { width, height } = Dimensions.get("window");
 
 const CompletaLaFrase = () => {
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
@@ -40,6 +42,9 @@ const CompletaLaFrase = () => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [ idEjercicio, setIdEjercicio ] = useState<any>(null)
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
+
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
 
   const placeholder = '_';
 
@@ -112,6 +117,11 @@ const CompletaLaFrase = () => {
     return letterMap;
   };
 
+  useEffect(() => {
+    setIsButtonDisabled(!isComplete());
+}, [selectedLetters]);
+
+
   const generateAvailableLetters = (frequency: { [letter: string]: number }) => {
     let updatedLetters: string[] = [...lessons[currentLessonIndex].letrasDisponibles];
     
@@ -147,12 +157,15 @@ const CompletaLaFrase = () => {
         }
       }
     } else {
+      Vibration.vibrate();
       console.log(`Ya seleccionaste todas las '${letter}' necesarias`);
     }
   
     if (isComplete()) {
       Speech.speak('Correcto. Continúa con la siguiente lección.', { language: 'es' });
     }
+
+
   };
 
   const isComplete = () => {
@@ -176,7 +189,10 @@ const CompletaLaFrase = () => {
     } else {
       console.log('Leccion terminada ', idEjercicio)
       await completarEjercicio()
-      router.push("/menuEjercicios")
+      router.push({
+        pathname: '/ejercicioCompletado',
+        params: { nivel: 'Intermedio' },  // Aquí pasamos el nivel "Básico"
+      });
     }
   };
 
@@ -277,7 +293,7 @@ const CompletaLaFrase = () => {
         <View style={styles.sentenceContainer}>
           <Text style={styles.sentence}>{getUpdatedSentence()}</Text>
           <TouchableOpacity onPress={handleStartReading} style={styles.speakerButton}>
-            <FontAwesome name="volume-up" size={24} color={isSpeaking ? '#1e90ff' : 'black'} />
+            <FontAwesome name="volume-up" size={40} color={isSpeaking ? '#1e90ff' : 'black'} />
           </TouchableOpacity>
         </View>
         <View style={styles.lettersContainer}>
@@ -304,8 +320,13 @@ const CompletaLaFrase = () => {
       </View>
       <View style={styles.footer}>
         <Text style={styles.pageIndicator}>{currentLessonIndex + 1} / {lessons.length}</Text>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextLesson}>
-          <Text style={styles.nextButtonText}>Siguiente</Text>
+        <TouchableOpacity 
+          style={styles.nextButton} 
+          onPress={currentLessonIndex < lessons.length - 1 ? handleNextLesson : () => router.push("/ejercicioCompletado")}
+        >
+          <Text style={styles.nextButtonText}>
+            {currentLessonIndex < lessons.length - 1 ? "Siguiente" : "Finalizar"}
+          </Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -315,44 +336,44 @@ const CompletaLaFrase = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 25,
+    padding: width * 0.06,
   },
   topGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 80,
+    height: height * 0.1, // 10% de la altura de la pantalla
     zIndex: 1,
   },
   noLettersText: {
-    fontSize: 18,
+    fontSize: width * 0.045, // Aproximadamente 18 en pantallas estándar
     color: '#FF0000',
     textAlign: 'center',
-    marginVertical: 20,
+    marginVertical: height * 0.025,
   },
   errorText: {
-    fontSize: 18,
+    fontSize: width * 0.045,
     color: '#FF0000',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: height * 0.025,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 80,
-    marginBottom: 45,
+    marginTop: height * 0.1, // Ajustado para ser dinámico
+    marginBottom: height * 0.025,
     zIndex: 2,
   },
   lessonNumber: {
-    fontSize: 30,
+    fontSize: width * 0.065, // Aproximadamente 30 en pantallas estándar
     fontWeight: 'bold',
   },
   subtitle: {
-    fontSize: 25,
+    fontSize: width * 0.060, // Aproximadamente 25
     textAlign: 'center',
-    marginBottom: 90,
+    marginBottom: height * 0.12, // Ajustado dinámicamente
     zIndex: 2,
   },
   lessonContainer: {
@@ -364,36 +385,35 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
-    marginBottom: 20,
-    marginTop: -50,
+    marginBottom: height * 0.025,  // Adjust margin for better spacing
+    marginTop: height * -0.08,
     borderWidth: 1,
     borderColor: '#e0eafc',
-    paddingVertical: 30,
-    paddingHorizontal: 30,
+    paddingVertical: height * 0.03,
+    paddingHorizontal: width * 0.08,
     zIndex: 2,
   },
   sentenceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f0f4f7',
-    padding: 20,
+    padding: width * 0.05,
     borderRadius: 8,
-    marginBottom: 20,
-    height: 180,
+    marginBottom: height * 0.025,
+    height: height * 0.20,  // Adjust height for consistency across devices
     position: 'relative',
   },
   sentence: {
-    fontSize: 30,
+    fontSize: width * 0.065, 
     textAlign: 'center',
     flex: 1,
   },
   speakerButton: {
     position: 'absolute',
     bottom: 10,
-    right: 20,
-    padding: 10,
-    borderRadius: 50,
-    zIndex: 3,
+    right: width * 0.05, 
+    width: 40,
+    height: 40,
   },
   lettersContainer: {
     flexDirection: 'row',
@@ -403,56 +423,62 @@ const styles = StyleSheet.create({
   letterButton: {
     backgroundColor: '#2A6F97',
     borderRadius: 25,
-    padding: 5,
-    margin: 10,
-    width: 50,
-    height: 50,
+    padding: width * 0.02, // Padding dinámico
+    margin: width * 0.02,
+    width: width * 0.10, // Tamaño proporcional a la pantalla
+    height: width * 0.10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   letterText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: width * 0.050, 
   },
   progressContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginVertical: 20,
+    marginVertical: height * 0.025,
   },
   progressDot: {
     backgroundColor: '#ccc',
     borderRadius: 10,
-    width: 10,
-    height: 10,
-    margin: 5,
+    width: width * 0.025, // Aproximadamente 10 en pantallas estándar
+    height: width * 0.025,
+    margin: width * 0.015,
   },
   currentProgressDot: {
     backgroundColor: '#2A6F97',
   },
   footer: {
-    marginTop: 20,
-    alignItems: 'center',
+    marginTop: height * 0.03,      // Adaptar el margen superior según el tamaño de la pantalla
+    alignItems: 'center',          // Centra el contenido horizontalmente
+    position: 'absolute',          // Mantiene la vista del pie de página fija
+    bottom: height * 0.15,         // Adaptar el espacio inferior según la pantalla (aprox. 5% de la altura)
+    left: width * 0.07,            // Espacio a la izquierda adaptable (aprox. 7% de la anchura)
+    right: width * 0.07,           // Espacio a la derecha adaptable (igual que el izquierdo)
+    zIndex: 3, 
   },
   pageIndicator: {
-    fontSize: 18,
+    fontSize: width * 0.045,
   },
   nextButton: {
-    top: 20,
+    position: 'absolute',
+    top: height * 0.050,
     backgroundColor: '#2A6F97',
-    padding: 15,
+    padding: height * 0.02,
     borderRadius: 25,
     width: '100%',
     alignItems: 'center',
   },
   nextButtonText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: width * 0.05, // Aproximadamente 20
     fontWeight: 'bold',
   },
   goBackButton: {
     position: 'absolute',
-    top: 40,
-    left: 15,
+    top: height * 0.05,
+    left: width * 0.04,
     zIndex: 2,
   },
 });

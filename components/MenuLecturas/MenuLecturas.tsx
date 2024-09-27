@@ -29,7 +29,7 @@ const App = () => {
   ];
 
   const goBack = () => {
-    router.back();
+    router.push('/home')
   };
 
   const redirectTo = (route: any) => {

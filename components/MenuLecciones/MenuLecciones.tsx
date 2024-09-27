@@ -92,7 +92,7 @@ const LessonMenuRL: React.FC = () => {
   };
 
   const goBack = () => {
-    router.back();
+    router.push('/home')
   };
 
   return (
@@ -101,7 +101,7 @@ const LessonMenuRL: React.FC = () => {
         <Icon name="arrow-back" size={48} color="#FAF3EF" />
       </TouchableOpacity>
       <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
-        <Text style={styles.headerText}>Ejercicios</Text>
+        <Text style={styles.headerText}>Lecciones</Text>
       </LinearGradient>
 
       <View style={styles.card}>

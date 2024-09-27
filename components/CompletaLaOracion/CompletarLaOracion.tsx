@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -186,7 +186,11 @@ const handleNextLesson = async () => {
   } else {
     console.log('Leccion terminada ', idEjercicio)
     await completarEjercicio()
-    router.push("/menuEjercicios")
+        // Navega al componente EjercicioCompletado y pasa el nivel como parámetro
+    router.push({
+      pathname: '/ejercicioCompletado',
+      params: { nivel: 'Intermedio' },  // Aquí pasamos el nivel "Básico"
+    });
   }
 };
 
@@ -271,7 +275,7 @@ const completarEjercicio = async () => {
             ))}
           </Text>
           <TouchableOpacity onPress={handleStartReading} style={styles.speakerButton}>
-            <FontAwesome name="volume-up" size={48} color={isSpeaking ? '#1e90ff' : 'black'} />
+            <FontAwesome name="volume-up" size={40} color={isSpeaking ? '#1e90ff' : 'black'} />
           </TouchableOpacity>
 
         </View>
@@ -320,29 +324,30 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 100,
+    height: height * 0.1,  // 10% of the screen height
     zIndex: 1,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 110,
-    marginBottom: 25,
+    marginTop: height * 0.10,  // 12% of the screen height
+    marginBottom: height * 0.03,  // 3% of the screen height
     zIndex: 2,
   },
   lessonNumber: {
-    fontSize: width * 0.06, // Ajuste dinámico basado en el ancho
+    fontSize: width * 0.065,  // Adjust font size based on screen width
     fontWeight: 'bold',
+    top: -2
   },
   flagIcon: {
-    width: 35,
-    height: 35,
+    width: width * 0.09,  // Adjust icon size based on screen width
+    height: width * 0.09, 
   },
   subtitle: {
-    fontSize: 25,
+    fontSize: width * 0.057, 
     textAlign: 'center',
-    marginBottom: 80,
+    marginBottom: height * 0.1,  // 10% of the screen height
     zIndex: 2,
   },
   lessonContainer: {
@@ -354,64 +359,64 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
-    marginBottom: 20,
-    marginTop: -50,
+    marginBottom: height * 0.025,  // Adjust margin for better spacing
+    marginTop: height * -0.08,
     borderWidth: 1,
     borderColor: '#e0eafc',
-    paddingVertical: 30,
-    paddingHorizontal: 30,
+    paddingVertical: height * 0.03,
+    paddingHorizontal: width * 0.08,
     zIndex: 2,
   },
   sentenceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f0f4f7',
-    padding: 20,
+    padding: width * 0.05,
     borderRadius: 8,
-    marginBottom: 20,
-    height: 190,
+    marginBottom: height * 0.025,
+    height: height * 0.20,  // Adjust height for consistency across devices
     position: 'relative',
   },
   sentence: {
-    fontSize: width * 0.05, // Ajuste dinámico basado en el ancho
-    lineHeight: height * 0.04, // Ajuste dinámico basado en la altura
+    fontSize: width * 0.065, 
+    textAlign: 'center',
     flex: 1,
   },
   word: {
-    fontSize: 25,
+    fontSize: width * 0.065, 
     color: '#000',
   },
   highlightedWord: {
-    fontSize: 30,
+    fontSize: width * 0.065,  // Adjusted for larger emphasis
     color: '#2A6F97',
     fontWeight: 'bold',
   },
   placeholderOval: {
-    fontSize: 30,
+    fontSize: width * 0.08,  
     color: '#2A6F97',
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#2A6F97',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: width * 0.025,
+    paddingVertical: height * 0.01,
     textAlign: 'center',
     backgroundColor: 'transparent',
     overflow: 'hidden',
-    width: 80, // Adjust width as needed
-    marginRight: 5, // Add some spacing if needed
+    width: width * 0.2,  
+    marginRight: width * 0.02, 
   },
   speakerButton: {
     position: 'absolute',
-    bottom: 15,
-    right: 20,
-    width: 48,
-    height: 48,
+    bottom: 10,
+    right: width * 0.05, 
+    width: 40,
+    height: 40,
   },
   opcionesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: height * 0.025, 
   },
   optionButton: {
     backgroundColor: '#e0eafc',
@@ -425,20 +430,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#81bdf8',
   },
   optionoracion: {
-    fontSize: 18,
+    fontSize: width * 0.038, 
     color: '#000',
   },
   progressContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: height * 0.020, 
   },
   progressDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: width * 0.025,  
+    height: width * 0.025,  
+    borderRadius: width * 0.0125,  
     backgroundColor: '#e0eafc',
-    margin: 3,
+    margin: width * 0.008, 
   },
   currentProgressDot: {
     backgroundColor: '#2A6F97',
@@ -447,34 +452,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pageIndicator: {
-    fontSize: 16,
+    fontSize: width * 0.04,  
     color: '#000',
-    marginBottom: 10,
+    marginBottom: height * 0.02,  
   },
   nextButton: {
+    top: 8,
     backgroundColor: '#2A6F97',
-    borderRadius: 5,
-    padding: 15,
+    padding: height * 0.02,  
+    borderRadius: 25,
+    width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
-    width: width * 0.8, // Ajuste dinámico
   },
   nextButtonoracion: {
     color: '#fff',
-    fontSize: 22,
+    fontSize: width * 0.06,  
     fontWeight: 'bold',
   },
   goBackButton: {
-    position: 'absolute',
-    top: 50, // Ajustar para que esté visible
-    left: 10, // Margen desde el borde izquierdo
-    padding: 10,
-    zIndex: 10, // Asegura que el botón esté encima de otros elementos
+    position: "absolute",
+    top: height * 0.05, // Ajustado al 6% de la altura de la pantalla
+    left: width * 0.03, // Ajustado al 3% del ancho de la pantalla
+    padding: width * 0.02, // Ajustado al 2% del ancho de la pantalla
+    zIndex: 10,
   },
   loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   errorContainer: {
     flex: 1,
@@ -483,19 +488,19 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   errorText: {
-    fontSize: 18,
+    fontSize: width * 0.045,  
     color: 'red',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: height * 0.02,
   },
   retryButton: {
     backgroundColor: '#2A6F97',
-    padding: 10,
+    padding: height * 0.015,  
     borderRadius: 5,
   },
   retryText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: width * 0.04,  
     textAlign: 'center',
   },
 });

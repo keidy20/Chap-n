@@ -18,7 +18,7 @@ export default function GrabarAudio() {
   const soundRef = useRef(null); // Para almacenar el sonido de instrucciones
 
   useEffect(() => {
-    setTimeLeft(60);
+    setTimeLeft(30);
     (async () => {
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
@@ -132,7 +132,7 @@ export default function GrabarAudio() {
       await recording.startAsync();
       recordingRef.current = recording;
       setIsRecording(true);
-      setTimeLeft(60); // Reiniciar el tiempo a 1 minuto
+      setTimeLeft(30); // Reiniciar el tiempo a 1 minuto
       setPhraseIndex(0); // Reiniciar el índice de frases
     } catch (err) {
       console.error('Error al iniciar la grabación:', err);
