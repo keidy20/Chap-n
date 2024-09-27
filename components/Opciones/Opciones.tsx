@@ -1,15 +1,24 @@
-import React, { useState } from "react";
+import React, { useState,  useEffect} from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 
 // Obtener dimensiones de la pantalla
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen: React.FC = () => {
+  const { evaluacionFinalHabilitada = false } = useLocalSearchParams(); 
+
   // Estado para habilitar/deshabilitar el botón de Evaluación Final
   const [isFinalEvaluationEnabled, setIsFinalEvaluationEnabled] = useState(false);
+  
+  useEffect(() => {
+    setIsFinalEvaluationEnabled(!!evaluacionFinalHabilitada);
+  }, [evaluacionFinalHabilitada]);
+  
+  
+  
 
   const redirectReconocerLetra = () => {
     router.navigate("/reconocerLetras");

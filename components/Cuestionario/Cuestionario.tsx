@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     fontSize: 24
   },
   highlightButton: {
-    backgroundColor: '#1E90FF',
+    backgroundColor: '#2A6F97',
   },
   word: {
     fontSize: 24,

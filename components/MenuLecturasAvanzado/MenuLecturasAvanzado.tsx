@@ -55,7 +55,7 @@ const BooksMenu = () => {
   };
 
   const goBack = () => {
-    router.back();
+    router.push('/menuLecturas')
   };
 
   useEffect(() => {

@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-na
 import { Audio } from 'expo-av';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
-import { router } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
+import { getUsuario } from '@/utils/UsuarioUtils';
 
 export default function EvaluacionFinal() {
   const [isStarting, setIsStarting] = useState(true); // Estado para controlar la pantalla de inicio
@@ -32,6 +33,7 @@ export default function EvaluacionFinal() {
     })();
 
     fetchPhrasesFromApi();
+    checkCompletionStatus();
   }, []);
 
   async function fetchPhrasesFromApi() {
@@ -61,6 +63,39 @@ export default function EvaluacionFinal() {
     }
 }
 
+
+  // Llama a las dos APIs y verifica si se han completado todos los ejercicios y lecciones
+  async function checkCompletionStatus() {
+    try {
+      const username = await getUsuario();
+      const usuario = await getUsuario();
+      const ejerciciosResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/ejercicios/menu-ejercicios/${usuario}`);
+      const leccionesResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/lecciones/all/${username}`);
+
+      const ejerciciosData = await ejerciciosResponse.json();
+      const leccionesData = await leccionesResponse.json();
+
+      console.log('Ejercicios obtenidos:', ejerciciosData);
+      console.log('Lecciones obtenidas:', leccionesData);
+
+      // Verifica si todos los ejercicios están completados
+      const allEjerciciosCompleted = ejerciciosData.every(ejercicio => ejercicio.completado === true);
+      console.log("EJERCICIOS COMPLETADOS"+ allEjerciciosCompleted)
+      
+      // Verifica si todas las lecciones están completadas
+      const allLeccionesCompleted = leccionesData.every(leccion => leccion.completado === true);
+      console.log("LECCIONES COMPLETADAS"+ allLeccionesCompleted)
+
+      if (allEjerciciosCompleted && allLeccionesCompleted) {
+        // Si todo está completado, habilitar la evaluación final
+        setIsReadyForFinalEval(true);
+        // Aquí puedes pasar el valor `true` al componente de Home
+        router.push({ pathname: '/home', params: { evaluacionFinalHabilitada: true } });
+      }
+    } catch (error) {
+      console.error('Error al obtener ejercicios y lecciones:', error);
+    }
+  }
 
   useEffect(() => {
     let phraseInterval = null;
@@ -208,6 +243,8 @@ export default function EvaluacionFinal() {
     }
     setIsStarting(false); // Cambia el estado para mostrar la evaluación
   };
+
+  
 
   return (
     <View style={styles.container}>

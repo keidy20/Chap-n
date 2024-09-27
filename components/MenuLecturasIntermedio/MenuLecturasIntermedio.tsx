@@ -43,7 +43,7 @@ const BooksMenu = () => {
   const baseUrl: string = process.env.EXPO_PUBLIC_URL || ""; 
 
   const goBack = () => {
-    router.back();
+    router.push('/menuLecturas')
   };
 
   const Intermedio = () => {

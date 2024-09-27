@@ -320,14 +320,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   restartButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#2A6F97",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 25,
   },
   restartButtonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 22,
     textAlign: "center",
   },
   timeText: {
