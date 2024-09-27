@@ -1,11 +1,11 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import LecturasContenido from '../components/LecturasContenido'
+import Cuestionario from '../components/Cuestionario'
 
 export default function CompletarOracionRoute(navigation: any) {
   return (
     <View style={style.container}>
-      <LecturasContenido navigation={navigation} />
+      <Cuestionario navigation={navigation} />
     </View>
   )
 }

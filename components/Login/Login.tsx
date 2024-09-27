@@ -69,10 +69,36 @@ const Login: React.FC = () => {
       storeUsuario(username)
       const token = await getToken();
       console.log("Token guardado ", token);
-      router.navigate("/home");
-    } catch (error) {
+
+      // Verificar si ha completado la lección de tipo EI
+      const leccionUrl = `${baseUrl}/usuarios_lecciones/leccion-inicial-finalizada/${username}`;
+          
+      const leccionRes = await fetch(leccionUrl, {
+        method: "GET",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!leccionRes.ok) {
+        console.log("Error al verificar si completó la lección");
+        throw new Error("Error checking exercise completion");
+      }
+
+      const leccionData = await leccionRes.json();
+
+      // Si el ejercicio está completado, redirigir a home
+      if (leccionData.completado) {
+        router.navigate("/home");
+      } else {
+        // Si no ha completado la lección, redirigir a GrabarAudio
+        router.navigate("/grabarAudio");
+      }
+
+      } catch (error) {
       console.log("Error ", error);
-    }
+      }
   };
 
   const redirectRecoveryPassword = () => {
@@ -99,13 +125,13 @@ const Login: React.FC = () => {
           <View style={styles.inputContainer}>
             <Ionicons
               name="mail-outline"
-              size={20}
+              size={30}
               color="#242424"
               style={styles.inputIcon}
             />
             <TextInput
               style={styles.input}
-              placeholder="Usuario / Correo Electrónico"
+              placeholder="Usuario"
               placeholderTextColor="#242424"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -116,7 +142,7 @@ const Login: React.FC = () => {
           <View style={styles.inputContainer}>
             <Ionicons
               name="lock-closed-outline"
-              size={20}
+              size={30}
               color="#242424"
               style={styles.inputIcon}
             />
@@ -133,7 +159,7 @@ const Login: React.FC = () => {
             >
               <Ionicons
                 name={secureTextEntry ? "eye-off-outline" : "eye-outline"}
-                size={20}
+                size={30}
                 color="#242424"
               />
             </TouchableOpacity>
@@ -147,7 +173,7 @@ const Login: React.FC = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={getLogin}>
-            <Text style={styles.buttonText}>Login</Text>
+            <Text style={styles.buttonText}>Iniciar Sesión</Text>
           </TouchableOpacity>
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>No tienes una cuenta?</Text>

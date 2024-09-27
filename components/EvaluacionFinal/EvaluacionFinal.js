@@ -5,7 +5,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import { router } from 'expo-router';
 
-export default function GrabarAudio() {
+export default function EvaluacionFinal() {
   const [isStarting, setIsStarting] = useState(true); // Estado para controlar la pantalla de inicio
   const [isRecording, setIsRecording] = useState(false);
   const [recordedURI, setRecordedURI] = useState(null);
@@ -42,7 +42,7 @@ export default function GrabarAudio() {
 
         if (data && Array.isArray(data)) {
             // Filtra las lecciones por tipoLeccion 'EI'
-            const leccionesEI = data.filter(leccion => leccion.tipoLeccion === 'EI');
+            const leccionesEI = data.filter(leccion => leccion.tipoLeccion === 'EF');
             
             // Extrae el contenido de las lecciones filtradas y divide en frases por punto.
             const frasesEI = leccionesEI.map(leccion => leccion.contenido.Texto)

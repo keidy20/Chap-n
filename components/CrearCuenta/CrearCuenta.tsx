@@ -5,7 +5,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import CryptoJS from 'crypto-js';
 import { router } from 'expo-router';
 import { validarCampos, validarPassword } from '../../utils/StringUtils';
-import * as Keychain from 'react-native-keychain';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
@@ -110,7 +109,7 @@ const CrearCuenta: React.FC = () => {
           <View style={styles.logoContainer}>
             <Ionicons name="checkmark-circle" size={80} color="#2A6F97" />
           </View>
-          <Text style={styles.title}>Crear Cuenta</Text>
+          <Text style={styles.title}>BIENVENIDO!</Text>
           <TextInput
             style={styles.input}
             placeholder="Nombre"
@@ -134,7 +133,7 @@ const CrearCuenta: React.FC = () => {
             onChangeText={text => setUsuario({ ...usuario, email: text })}
           />
           <View style={styles.passwordContainer}>
-          <Ionicons name="lock-closed-outline" size={20} color="#242424" style={styles.inputIcon} />
+          <Ionicons name="lock-closed-outline" size={30} color="#242424" style={styles.inputIcon} />
             <TextInput
               style={[styles.input, { flex: 1 }]}
               placeholder="Contraseña"
@@ -145,14 +144,14 @@ const CrearCuenta: React.FC = () => {
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons
-                name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#242424" />
+                name={showPassword ? "eye-off-outline" : "eye-outline"} size={30} color="#242424" />
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]} onPress={crearCuenta} disabled={disabled}>
-            <Text style={styles.buttonText}>Sign Up</Text>
+            <Text style={styles.buttonText}>Crear Cuenta</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={redirectLogin}>
-            <Text style={styles.signInText}>¿Ya tienes una cuenta? <Text style={styles.signInLink}>Login</Text></Text>
+            <Text style={styles.signInText}>¿Ya tienes una cuenta? <Text style={styles.signInLink}>Iniciar Sesión</Text></Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -228,6 +227,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     color: '#242424',
+    fontSize: 16
   },
   button: {
     paddingVertical: 15,
@@ -243,17 +243,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#fff',
     fontWeight: 'bold',
   },
   signInText: {
-    marginTop: 10,
+    marginTop: 20,
     color: '#242424',
+    fontSize: 16
   },
   signInLink: {
     color: '#2A6F97',
     fontWeight: 'bold',
+    fontSize: 16
   },
   passwordContainer: {
     flexDirection: 'row',

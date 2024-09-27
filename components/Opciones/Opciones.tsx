@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -8,6 +8,9 @@ import { router } from "expo-router";
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen: React.FC = () => {
+  // Estado para habilitar/deshabilitar el botón de Evaluación Final
+  const [isFinalEvaluationEnabled, setIsFinalEvaluationEnabled] = useState(false);
+
   const redirectReconocerLetra = () => {
     router.navigate("/reconocerLetras");
   };
@@ -72,6 +75,25 @@ const HomeScreen: React.FC = () => {
               <View style={styles.cardContent}>
                 <Text style={styles.projectTitle}>Ejercicios</Text>
                 <Icon name="chevron-forward" size={30} color="#fff" />
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          {/* Tarjeta 4 (Evaluación Final) */}
+          <TouchableOpacity
+            style={[styles.cardContainer, !isFinalEvaluationEnabled && { opacity: 0.5 }]}
+            onPress={isFinalEvaluationEnabled ? redirectEjercicios : undefined}
+            disabled={!isFinalEvaluationEnabled}
+          >
+            <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
+              <View style={styles.cardContent}>
+                <Text style={styles.projectTitle}>Evaluación Final</Text>
+                {/* Cambia el icono dependiendo del estado */}
+                <Icon
+                  name={isFinalEvaluationEnabled ? "chevron-forward" : "lock-closed"}
+                  size={30}
+                  color="#fff"
+                />
               </View>
             </LinearGradient>
           </TouchableOpacity>

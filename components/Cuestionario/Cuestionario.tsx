@@ -25,7 +25,7 @@ interface LessonData {
 }
 
 
-const QuizEvaluacion: React.FC<{ navigation: any }> = ({ navigation }) => {
+const Cuestionario: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [audios, setAudios] = useState<string[]>([]);
   const [words, setWords] = useState<{ audio: string, opciones: string[] }[]>([]);
@@ -309,10 +309,10 @@ const startEvaluation = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Icon name="arrow-back" size={40} color="#2A6F97" />
+        <Icon name="arrow-back" size={48} color="#2A6F97" />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Quiz de Evaluación</Text>
+      <Text style={styles.title}>Evaluación</Text>
 
       {!isEvaluating && (
         <Image 
@@ -446,4 +446,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default QuizEvaluacion;
+export default Cuestionario;

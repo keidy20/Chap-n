@@ -74,6 +74,7 @@ export const styles = StyleSheet.create({
     input: {
       flex: 1,
       color: '#242424',
+      fontSize: 16
     },
     forgotPassword: {
       alignSelf: 'flex-end',
@@ -83,6 +84,7 @@ export const styles = StyleSheet.create({
     forgotPasswordText: {
       color: '#242424',
       textDecorationLine: 'underline',
+      fontSize: 16
     },
     button: {
       backgroundColor: '#2A6F97',
@@ -99,7 +101,7 @@ export const styles = StyleSheet.create({
       alignItems: 'center',
     },
     buttonText: {
-      fontSize: 18,
+      fontSize: 20,
       color: '#fff',
       fontWeight: 'bold',
     },
@@ -109,10 +111,12 @@ export const styles = StyleSheet.create({
     },
     registerText: {
       color: '#242424',
+      fontSize: 16
     },
     registerLink: {
       color: '#2A6F97',
       marginLeft: 5,
       textDecorationLine: 'underline',
+      fontSize: 16
     },
   });

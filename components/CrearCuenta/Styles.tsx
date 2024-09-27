@@ -56,12 +56,12 @@ export const styles = StyleSheet.create({
       },
       buttonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
       },
       orText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 18,
         marginVertical: 10,
       },
       googleButton: {
