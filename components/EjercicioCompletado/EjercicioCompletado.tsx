@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { Audio } from 'expo-av';
 
-const CongratulationsScreen: React.FC = () => {
+const EjercicioCompletado: React.FC = () => {
   const router = useRouter();
   const sound = useRef<Audio.Sound | null>(null); // Referencia para el sonido
 
@@ -96,4 +96,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CongratulationsScreen;
+export default EjercicioCompletado;

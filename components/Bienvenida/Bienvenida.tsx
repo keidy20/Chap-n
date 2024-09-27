@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     marginBottom: normalize(8),
   },
   subtitle: {
-    fontSize: normalize(18),
+    fontSize: normalize(20),
     textAlign: 'center',
     color: '#242424',
     marginBottom: normalize(10),
@@ -126,11 +126,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: normalize(50),
     borderRadius: normalize(30),
     marginTop: normalize(10),
-    width: '80%',
+    width: '90%',
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: normalize(15),
+    fontSize: normalize(16),
     color: '#fff',
     fontWeight: 'bold',
   },

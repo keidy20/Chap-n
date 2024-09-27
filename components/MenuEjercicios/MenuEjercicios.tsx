@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -7,6 +7,8 @@ import { existToken, getToken, removeToken } from "@/utils/TokenUtils";
 import { getUsuario } from "@/utils/UsuarioUtils";
 
 const baseUrl: any = process.env.EXPO_PUBLIC_URL;
+
+const { width, height } = Dimensions.get("window");
 
 const App = () => {
   const [ejercicios, setEjercicios] = useState<any[]>([]);
@@ -90,7 +92,7 @@ const App = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={40} color="#FAF3EF" />
+        <Icon name="arrow-back" size={48} color="#FAF3EF" />
       </TouchableOpacity>
       <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
         <Text style={styles.headerText}>Ejercicios</Text>
@@ -117,8 +119,10 @@ const App = () => {
                     style={styles.cardImage}
                   />
                 )}
+                <View style={styles.textContainer}>
                   <Text style={styles.lecturaName}>{ejercicio.nombre}</Text>
                   <Text style={styles.lecturaAddress}>{ejercicio.titulo}</Text>
+                </View>
                 </View>
             </TouchableOpacity>
           ))}
@@ -131,78 +135,86 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAF3EF",
+    backgroundColor: "#f0f4f7",
   },
   header: {
-    height: 280,
-    paddingHorizontal: 16,
+    height: height * 0.35, // Ajustado al 35% de la altura de la pantalla
+    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
     alignItems: "center",
     justifyContent: "center",
   },
   headerText: {
-    fontSize: 28,
+    fontSize: width * 0.07, // Ajustado al 7% del ancho de la pantalla
     fontWeight: "bold",
     color: "#FFF",
   },
   tituloCard: {
-    paddingHorizontal: 16,
-    fontSize: 25,
+    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
+    fontSize: width * 0.06, // 6% del ancho de la pantalla
     fontWeight: "bold",
     color: "#000",
-    marginTop: 15,
-    marginBottom: 16,
+    marginTop: height * 0.02, // 2% de la altura de la pantalla
+    marginBottom: height * 0.02, // 2% de la altura de la pantalla
+    marginLeft: 20
   },
   goBackButton: {
     position: "absolute",
-    top: 50,
-    left: 10,
-    padding: 10,
+    top: height * 0.06, // Ajustado al 6% de la altura de la pantalla
+    left: width * 0.03, // Ajustado al 3% del ancho de la pantalla
+    padding: width * 0.02, // Ajustado al 2% del ancho de la pantalla
     zIndex: 10,
   },
   card: {
     flex: 1,
     backgroundColor: "#FFF",
-    marginTop: -40,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    marginTop: -height * 0.05, // Subir 5% de la altura de la pantalla
+    borderTopLeftRadius: width * 0.1, // 10% del ancho de la pantalla
+    borderTopRightRadius: width * 0.1, // 10% del ancho de la pantalla
+    paddingVertical: height * 0.03, // 3% de la altura de la pantalla
+    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
   },
   lecturaList: {
-    padding: 20,
-    marginTop: 10,
+    padding: width * 0.05, // 5% del ancho de la pantalla
+    marginTop: height * 0.01, // 1% de la altura de la pantalla
   },
   lecturaCard: {
-    padding: 22,
-    borderRadius: 10,
-    marginBottom: 20,
-    height: 130,
-    backgroundColor: "#FFF", // Fondo blanco sin degradado
-    flexDirection: 'row',
-    alignItems: 'center',
+    padding: width * 0.05, // 5% del ancho de la pantalla
+    borderRadius: width * 0.02, // 2% del ancho de la pantalla
+    marginBottom: height * 0.03, // 3% de la altura de la pantalla
+    height: height * 0.18, // 18% de la altura de la pantalla
+    backgroundColor: "#FFF",
+    flexDirection: "row",
+    alignItems: "center",
   },
   completadoCard: {
     opacity: 0.7,
   },
   cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
   cardImage: {
-    width: 80,
-    height: 120,
-    marginRight: 16,
-    marginLeft: -28,
-    borderRadius: 8,
+    width: width * 0.230, // 20% del ancho de la pantalla
+    height: height * 0.18, // Ajustado al 18% de la altura de la pantalla
+    marginRight: width * 0.04, // 4% del ancho de la pantalla
+    borderRadius: width * 0.02, // 2% del ancho de la pantalla
   },
   lecturaName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: width * 0.05, // 5% del ancho de la pantalla
+    fontWeight: "bold",
+    color: "#1c506e",
+    textAlign: "left",
   },
   lecturaAddress: {
-    fontSize: 18,
-    color: "#999",
+    fontSize: width * 0.045, // 4.5% del ancho de la pantalla
+    color: "#777",
+    textAlign: "left",
   },
 });
 

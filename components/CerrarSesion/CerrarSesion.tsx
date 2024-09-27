@@ -7,7 +7,7 @@ import { existToken, removeToken } from '../../utils/TokenUtils';
 
 const { width } = Dimensions.get('window');
 
-const LogoutCard: React.FC = () => {
+const CerrarSesion: React.FC = () => {
 
   
   const handleLogout = async () => {
@@ -38,7 +38,6 @@ const LogoutCard: React.FC = () => {
               <Ionicons name="log-out-outline" size={50} color="#fff" />
             </View>
           </View>
-          <Text style={styles.title}>Cerrar Sesión</Text>
           <Text style={styles.description}>
             ¿Estás seguro de que quieres cerrar sesión?
           </Text>
@@ -120,7 +119,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   description: {
-    fontSize: 16,
+    fontSize: 22,
     color: '#666',
     textAlign: 'center',
     marginBottom: 20,
@@ -139,10 +138,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#fff',
     fontWeight: 'bold',
   },
 });
 
-export default LogoutCard;
+export default CerrarSesion;

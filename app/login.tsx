@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native';
-import LecturasContenido from '../components/LecturasContenido';
+import LecturasContenido from '../components/Cuestionario';
 import Login from '../components/Login/Login';
 
 export default function LoginRoute() {

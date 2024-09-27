@@ -62,7 +62,7 @@ const IngresarToken: React.FC = () => {
             onChangeText={text => setToken(text)}
           />
           <View style={styles.passwordContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#242424" style={styles.inputIcon} />
+            <Ionicons name="lock-closed-outline" size={30} color="#242424" style={styles.inputIcon} />
             <TextInput
               style={styles.inputPassword}
               placeholder="Nueva Contraseña"

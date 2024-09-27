@@ -42,6 +42,18 @@ const BooksMenu = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const baseUrl: string = process.env.EXPO_PUBLIC_URL || ""; // Asegúrate de que esto esté definido correctamente
 
+  const Intermedio = () => {
+    router.navigate('/menuLecturaIntermedio');
+  };
+
+  const Basico = () => {
+    router.navigate('/menuLecturaBasico');
+  };
+
+  const Avanzado = () => {
+    router.navigate('/menuLecturaAvanzado');
+  };
+
   const goBack = () => {
     router.back();
   };
@@ -90,7 +102,7 @@ const BooksMenu = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={40} color="#FAF3EF" />
+        <Icon name="arrow-back" size={48} color="#FAF3EF" />
       </TouchableOpacity>
       <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
         <Text style={styles.headerText}>Lecturas</Text>
@@ -101,13 +113,13 @@ const BooksMenu = () => {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.disabledButton}>
-            <Text style={styles.disabledButtonText} numberOfLines={1} adjustsFontSizeToFit>Básico</Text>
+            <Text style={styles.disabledButtonText} numberOfLines={1} adjustsFontSizeToFit onPress={Basico}>Básico</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.disabledButton}>
-            <Text style={styles.disabledButtonText} numberOfLines={1} adjustsFontSizeToFit>Intermedio</Text>
+            <Text style={styles.disabledButtonText} numberOfLines={1} adjustsFontSizeToFit onPress={Intermedio}>Intermedio</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText} numberOfLines={1} adjustsFontSizeToFit>Avanzado</Text>
+            <Text style={styles.buttonText} numberOfLines={1} adjustsFontSizeToFit onPress={Avanzado}>Avanzado</Text>
           </TouchableOpacity>
         </View>
 

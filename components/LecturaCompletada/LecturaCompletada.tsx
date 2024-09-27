@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
-const CongratulationsScreen: React.FC = () => {
+const LecturaCompletada: React.FC = () => {
   const router = useRouter();
 
   const { similitud, cantidadPalabras } = useLocalSearchParams();
@@ -77,4 +77,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CongratulationsScreen;
+export default LecturaCompletada;

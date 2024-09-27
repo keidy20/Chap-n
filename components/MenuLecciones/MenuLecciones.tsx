@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { existToken, getToken, removeToken } from '@/utils/TokenUtils';
 import { getUsuario } from '@/utils/UsuarioUtils';
 import { LinearGradient } from "expo-linear-gradient";
+
+const { width, height } = Dimensions.get("window");
 
 const LessonMenuRL: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
@@ -96,7 +98,7 @@ const LessonMenuRL: React.FC = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={40} color="#FAF3EF" />
+        <Icon name="arrow-back" size={48} color="#FAF3EF" />
       </TouchableOpacity>
       <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.header}>
         <Text style={styles.headerText}>Ejercicios</Text>
@@ -143,48 +145,48 @@ const LessonMenuRL: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#f0f4f7',
+      flex: 1,
+      backgroundColor: "#f0f4f7",
   },
   goBackButton: {
     position: "absolute",
-    top: 50,
-    left: 10,
-    padding: 10,
+    top: height * 0.06, // Ajustado al 6% de la altura de la pantalla
+    left: width * 0.03, // Ajustado al 3% del ancho de la pantalla
+    padding: width * 0.02, // Ajustado al 2% del ancho de la pantalla
     zIndex: 10,
   },
   header: {
-    height: 280,
-    paddingHorizontal: 16,
+    height: height * 0.35, // Ajustado al 35% de la altura de la pantalla
+    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
     alignItems: "center",
     justifyContent: "center",
   },
   headerText: {
-    fontSize: 28,
+    fontSize: width * 0.07, // Ajustado al 7% del ancho de la pantalla
     fontWeight: "bold",
     color: "#FFF",
   },
   card: {
     flex: 1,
     backgroundColor: "#FFF",
-    marginTop: -40,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    marginTop: -height * 0.05, // Subir 5% de la altura de la pantalla
+    borderTopLeftRadius: width * 0.1, // 10% del ancho de la pantalla
+    borderTopRightRadius: width * 0.1, // 10% del ancho de la pantalla
+    paddingVertical: height * 0.03, // 3% de la altura de la pantalla
+    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
   },
   tituloCard: {
-    paddingHorizontal: 16,
-    fontSize: 25,
+    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
+    fontSize: width * 0.06, // 6% del ancho de la pantalla
     fontWeight: "bold",
     color: "#000",
-    marginTop: 10,
-    marginBottom: 16,
-    marginLeft: 5,
+    marginTop: height * 0.02, // 2% de la altura de la pantalla
+    marginBottom: height * 0.02, // 2% de la altura de la pantalla
+    marginLeft: 20
   },
   lessonList: {
-    padding: 20,
-    marginTop: -5,
+    padding: width * 0.05, // 5% del ancho de la pantalla
+    marginTop: height * 0.01, // 1% de la altura de la pantalla
   },
   cardContainer: {
     width: '100%',
@@ -194,31 +196,32 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   lessonCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 0,
-    padding: 15,
-    paddingTop: 3,
+    padding: width * 0.05, // 5% del ancho de la pantalla
+    borderRadius: width * 0.02, // 2% del ancho de la pantalla
+    marginBottom: height * 0.03, // 3% de la altura de la pantalla
+    height: height * 0.18, // 18% de la altura de la pantalla
+    backgroundColor: "#FFF",
+    flexDirection: "row",
+    alignItems: "center",
   },
   cardImage: {
-    width: 80,
-    height: 120,
-    marginRight: 16,
-    marginLeft: -16,
-    borderRadius: 8,
+    width: width * 0.230, // 20% del ancho de la pantalla
+    height: height * 0.18, // Ajustado al 18% de la altura de la pantalla
+    marginRight: width * 0.04, // 4% del ancho de la pantalla
+    borderRadius: width * 0.02, // 2% del ancho de la pantalla
   },
   lessonContent: {
     flex: 1,
   },
   lessonTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: width * 0.05, // 5% del ancho de la pantalla
+    fontWeight: "bold",
     color: "#1c506e",
+    textAlign: "left",
   },
   emptyText: {
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: '#888',
     marginTop: 20,
   },

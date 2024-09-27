@@ -234,7 +234,7 @@ const CKLessonComponent: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={goBack} style={styles.goBackButton}>
-          <Icon name="arrow-back" size={40} color="#2A6F97" />
+          <Icon name="arrow-back" size={48} color="#2A6F97" />
         </TouchableOpacity>
       </View>
 
@@ -248,7 +248,7 @@ const CKLessonComponent: React.FC = () => {
           >
             <FontAwesome
               name="volume-up"
-              size={24}
+              size={48}
               color={isPlaying ? "#1e90ff" : "black"}
             />
           </TouchableOpacity>
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: height * 0.1,
+    marginBottom: height * 0.05,
   },
   card: {
     backgroundColor: "#fff",
@@ -310,16 +310,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 20,
     right: 10,
-    width: 24,
-    height: 24,
+    width: 48,
+    height: 48,
     justifyContent: "center",
     alignItems: "center",
   },
   titulo: {
-    fontSize: width * 0.09, // Ajusta el tamaño de fuente según el ancho
+    fontSize: width * 0.10, // Ajusta el tamaño de fuente según el ancho
     fontWeight: "bold",
     marginBottom: height * 0.05,
-    marginTop: height * 0.02,
+    marginTop: height * 0.06,
   },
   text: {
     fontSize: width * 0.05, // Ajusta el tamaño de fuente según el ancho
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
   navigationButtonText: {
     color: "#fff",
-    fontSize: width * 0.04, 
+    fontSize: width * 0.06, 
   },
   loadingContainer: {
     flex: 1,

@@ -24,7 +24,7 @@ interface LessonData {
   };
 }
 
-const CKLessonComponent: React.FC = () => {
+const ReconocerLetras: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [currentLesson, setCurrentLesson] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -154,7 +154,7 @@ const CKLessonComponent: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={goBack} style={styles.goBackButton}>
-          <Icon name="arrow-back" size={40} color="#2A6F97" />
+          <Icon name="arrow-back" size={48} color="#2A6F97" />
         </TouchableOpacity>
       </View>
 
@@ -264,4 +264,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CKLessonComponent;
+export default ReconocerLetras;

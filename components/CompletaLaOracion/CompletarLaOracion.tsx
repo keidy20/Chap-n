@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -25,6 +25,8 @@ interface LessonData {
     audios: { url: string }[];
   };
 }
+
+const { width, height } = Dimensions.get("window");
 
 const CompletaLaOracion = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -246,7 +248,7 @@ const completarEjercicio = async () => {
         <Text style={styles.lessonNumber}>Ejercicio {currentLessonIndex + 1}</Text>
       </View>
       <TouchableOpacity style={styles.goBackButton} onPress={goBack}>
-        <Icon name="arrow-back" size={40} color="#2A6F97" />
+        <Icon name="arrow-back" size={48} color="#2A6F97" />
       </TouchableOpacity>
       <Text style={styles.subtitle}>Elije la palabra correcta que hace falta para completar la oración</Text>
       <View style={styles.lessonContainer}>
@@ -269,7 +271,7 @@ const completarEjercicio = async () => {
             ))}
           </Text>
           <TouchableOpacity onPress={handleStartReading} style={styles.speakerButton}>
-            <FontAwesome name="volume-up" size={24} color={isSpeaking ? '#1e90ff' : 'black'} />
+            <FontAwesome name="volume-up" size={48} color={isSpeaking ? '#1e90ff' : 'black'} />
           </TouchableOpacity>
 
         </View>
@@ -310,7 +312,8 @@ const completarEjercicio = async () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 25,
+    padding: 20,
+    justifyContent: 'center',
   },
   topGradient: {
     position: 'absolute',
@@ -325,21 +328,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 110,
-    marginBottom: 45,
+    marginBottom: 25,
     zIndex: 2,
   },
   lessonNumber: {
-    fontSize: 30,
+    fontSize: width * 0.06, // Ajuste dinámico basado en el ancho
     fontWeight: 'bold',
   },
   flagIcon: {
-    width: 30,
-    height: 20,
+    width: 35,
+    height: 35,
   },
   subtitle: {
     fontSize: 25,
     textAlign: 'center',
-    marginBottom: 100,
+    marginBottom: 80,
     zIndex: 2,
   },
   lessonContainer: {
@@ -366,16 +369,16 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 8,
     marginBottom: 20,
-    height: 180,
+    height: 190,
     position: 'relative',
   },
   sentence: {
-    fontSize: 30,
-    textAlign: 'center',
+    fontSize: width * 0.05, // Ajuste dinámico basado en el ancho
+    lineHeight: height * 0.04, // Ajuste dinámico basado en la altura
     flex: 1,
   },
   word: {
-    fontSize: 30,
+    fontSize: 25,
     color: '#000',
   },
   highlightedWord: {
@@ -399,11 +402,10 @@ const styles = StyleSheet.create({
   },
   speakerButton: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 15,
     right: 20,
-    padding: 10,
-    borderRadius: 50,
-    zIndex: 3,
+    width: 48,
+    height: 48,
   },
   opcionesContainer: {
     flexDirection: 'row',
@@ -450,12 +452,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   nextButton: {
-    top: 20,
     backgroundColor: '#2A6F97',
+    borderRadius: 5,
     padding: 15,
-    borderRadius: 25,
-    width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
+    width: width * 0.8, // Ajuste dinámico
   },
   nextButtonoracion: {
     color: '#fff',
@@ -470,9 +472,9 @@ const styles = StyleSheet.create({
     zIndex: 10, // Asegura que el botón esté encima de otros elementos
   },
   loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
   },
   errorContainer: {
     flex: 1,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -8,7 +8,9 @@ import { Audio } from "expo-av";
 import { getUsuario } from "@/utils/UsuarioUtils";
 import { existToken, getToken } from "@/utils/TokenUtils";
 
-const BookDetails = () => {
+const { width, height } = Dimensions.get("window");
+
+const DetalleLecturasAvanzadas = () => {
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
   const { id, titulo, sections, imageUri, audios } = useLocalSearchParams();
@@ -233,25 +235,26 @@ const styles = StyleSheet.create({
   },
   fullScreen: {
     flex: 1,
-    padding: 20,
+    padding: width * 0.05, // 5% de la anchura de la pantalla
     backgroundColor: "#FFF",
   },
   bookImage: {
-    width: 250,
-    height: 330,
+    width: width * 0.8, // 80% del ancho de la pantalla
+    height: width * 0.8,
+    aspectRatio: 250 / 330, // Mantiene la proporción
     alignSelf: "center",
     borderRadius: 12,
-    marginBottom: 16,
-    marginTop: -100,
+    marginBottom: height * 0.04, // 4% de la altura de la pantalla
+    marginTop: height * -0.1, // Márgenes negativos adaptativos
   },
   card: {
     flex: 1,
     backgroundColor: "#FFF",
-    marginTop: -40,
+    marginTop: height * -0.1, // Ajustado para que se vea la imagen
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    paddingVertical: height * 0.05, // 5% de la altura de la pantalla
+    paddingHorizontal: width * 0.05, // 5% del ancho de la pantalla
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -260,51 +263,48 @@ const styles = StyleSheet.create({
   },
   goBackButton: {
     position: "absolute",
-    top: 50,
-    left: 10,
-    padding: 10,
+    top: height * 0.06, // Ajustado al 6% de la altura de la pantalla
+    left: width * 0.03, // Ajustado al 3% del ancho de la pantalla
+    padding: width * 0.02, // Ajustado al 2% del ancho de la pantalla
     zIndex: 10,
   },
   header: {
-    height: 300,
-    paddingHorizontal: 16,
+    height: height * 0.3, // 30% de la altura de la pantalla
+    paddingHorizontal: width * 0.05, // 5% del ancho de la pantalla
     alignItems: "center",
     justifyContent: "center",
   },
   bookTitle: {
-    fontSize: 30,
+    fontSize: height * 0.03, // 6% de la altura de la pantalla
     fontWeight: "bold",
     textAlign: "center",
     color: "#333",
-    marginBottom: 16,
-    marginTop: 16,
+    marginBottom: height * 0.02, // 4% de la altura de la pantalla
+    marginTop: height * 0.01, // 4% de la altura de la pantalla
   },
   bookDescription: {
-    fontSize: 22,
+    fontSize: height * 0.025, // 4.5% de la altura de la pantalla
     textAlign: "left",
     color: "#555",
-    marginBottom: 16,
+    marginBottom: height * 0.001, // 4% de la altura de la pantalla
   },
   additionalMargin: {
-    marginTop: 40,
+    marginTop: height * 0.04, // 10% de la altura de la pantalla
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
+    justifyContent: "center",
+    marginTop: height * 0.04, // 4% de la altura de la pantalla
   },
   button: {
-    flex: 1,
     backgroundColor: "#2A6F97",
-    padding: 12,
-    borderRadius: 25,
-    alignItems: "center",
-    marginHorizontal: 8,
+    paddingVertical: height * 0.02, // 2% de la altura de la pantalla
+    paddingHorizontal: width * 0.1, // 10% del ancho de la pantalla
+    borderRadius: 20,
   },
   buttonText: {
-    fontSize: 22,
     color: "#FFF",
-    fontWeight: "bold",
+    fontSize: height * 0.03, // 3% de la altura de la pantalla
   },
   disabledButton: {
     backgroundColor: "#ccc", // Cambia el color del botón cuando está deshabilitado
@@ -314,4 +314,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BookDetails;
+export default DetalleLecturasAvanzadas;
