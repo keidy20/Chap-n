@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
-import * as Speech from 'expo-speech';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import { Audio } from 'expo-av';
-import { router } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { existToken, getToken } from '@/utils/TokenUtils';
 import { getUsuario } from '@/utils/UsuarioUtils';
 
@@ -39,12 +38,12 @@ const Cuestionario: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [instructionsGiven, setInstructionsGiven] = useState(false);
   const [finished, setFinished] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [ idEjercicio, setIdEjercicio ] = useState<any>(null)
-
+  const [ idEjercicio, setIdEjercicio ] = useState<any>(null);
 
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
   let sound: any = null;
+
 
   useEffect(() => {
     const fetchLessons = async () => {
@@ -87,6 +86,23 @@ const Cuestionario: React.FC<{ navigation: any }> = ({ navigation }) => {
 
     fetchLessons();
   }, [baseUrl]);
+
+  const playInstructionsAudio = async () => {
+    try {
+      const { sound: instructionSound } = await Audio.Sound.createAsync(
+        require('../../assets/InstruccionesCuestionario.mp3') // Asegúrate de que esta ruta sea correcta
+      );
+      await instructionSound.playAsync();
+
+    } catch (error) {
+      console.error("Error al reproducir el audio de instrucciones:", error);
+    }
+  };
+
+  // useEffect para reproducir el audio de instrucciones cuando se monta el componente
+  useEffect(() => {
+    playInstructionsAudio();
+  }, []);
 
   const playAudio = async (audioUrl: string) => {
     console.log("Intentando reproducir audio:", audioUrl); // Verifica la URL
@@ -138,17 +154,6 @@ const Cuestionario: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
 
-  // Funciones específicas para sonidos correctos, incorrectos y cronómetro
-  const playCorrectSound = async () => {
-    await stopAudio()
-    await playAudio(require('../../assets/Correcto.mp3'));
-  }
-  const playIncorrectSound = () => playAudio(require('../../assets/incorrecto.mp3'));
-  const playCronometroSound = async () => {
-    await stopAudio()
-    await playAudio(require('../../assets/cronometro.mp3'));
-  }
-
   // Función para detener y descargar el sonido
   const stopAndUnloadSound = async () => {
     if (sound) {
@@ -164,7 +169,6 @@ const Cuestionario: React.FC<{ navigation: any }> = ({ navigation }) => {
     }
     sound = null;
   };
-
 
 
   // Función para regresar y detener todos los audios
@@ -233,8 +237,6 @@ const startEvaluation = () => {
           puntuacion: correctAnswers
         })
       });
-      const data: LessonData[] = await response.json();
-      router.push("/menuEjercicios")
   
     } catch (error) {
       
@@ -297,6 +299,7 @@ const startEvaluation = () => {
       //alert(`Tiempo terminado. Respuestas correctas: ${correctAnswers}`);
       //stopAndUnloadSound(); 
       stopAudio()
+      router.push({ pathname: '/ejercicioCuestionario', params: { correctAnswers} });
     }
     return () => {
       if (isEvaluating || sound) { // Solo detener el sonido si la evaluación está activa o el sonido existe

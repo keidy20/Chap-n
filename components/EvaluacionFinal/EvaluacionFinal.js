@@ -13,6 +13,8 @@ export default function EvaluacionFinal() {
   const [timeLeft, setTimeLeft] = useState(60); // 1 minuto
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [phrasesToRead, setPhrasesToRead] = useState([]); // Nuevo 
+  const [isReadyForFinalEval, setIsReadyForFinalEval] = useState(false); // Nuevo estado
+
 
 
   const recordingRef = useRef(null);
@@ -32,68 +34,29 @@ export default function EvaluacionFinal() {
       });
     })();
 
-    fetchPhrasesFromApi();
     checkCompletionStatus();
   }, []);
-
-  async function fetchPhrasesFromApi() {
-    try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/lecciones/all`);
-        const data = await response.json();
-        console.log("Lecciones obtenidas", data);
-
-        if (data && Array.isArray(data)) {
-            // Filtra las lecciones por tipoLeccion 'EI'
-            const leccionesEI = data.filter(leccion => leccion.tipoLeccion === 'EF');
-            
-            // Extrae el contenido de las lecciones filtradas y divide en frases por punto.
-            const frasesEI = leccionesEI.map(leccion => leccion.contenido.Texto)
-                .join('. ')  // Combina todas las lecciones en un solo string
-                .split('. ')  // Separa las frases por punto seguido
-                .map((phrase) => phrase.trim());  // Elimina espacios en blanco al principio o final de cada frase
-            
-            // Actualiza el estado con las frases obtenidas
-            setPhrasesToRead(frasesEI);
-            console.log("Frases a leer:", JSON.stringify(frasesEI)); // Ajuste aquí
-        } else {
-            console.error('Error al obtener las frases de la API.');
-        }
-    } catch (error) {
-        console.error('Error al llamar a la API de lecciones:', error);
-    }
-}
-
 
   // Llama a las dos APIs y verifica si se han completado todos los ejercicios y lecciones
   async function checkCompletionStatus() {
     try {
-      const username = await getUsuario();
       const usuario = await getUsuario();
-      const ejerciciosResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/ejercicios/menu-ejercicios/${usuario}`);
-      const leccionesResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/lecciones/all/${username}`);
+      const leccionesResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/usuarios_lecciones/leccion-final-habilitada/Lore`);
 
-      const ejerciciosData = await ejerciciosResponse.json();
       const leccionesData = await leccionesResponse.json();
 
-      console.log('Ejercicios obtenidos:', ejerciciosData);
-      console.log('Lecciones obtenidas:', leccionesData);
+      console.log('EL CHACHO NO ME CREE:', leccionesData);
 
-      // Verifica si todos los ejercicios están completados
-      const allEjerciciosCompleted = ejerciciosData.every(ejercicio => ejercicio.completado === true);
-      console.log("EJERCICIOS COMPLETADOS"+ allEjerciciosCompleted)
-      
-      // Verifica si todas las lecciones están completadas
-      const allLeccionesCompleted = leccionesData.every(leccion => leccion.completado === true);
-      console.log("LECCIONES COMPLETADAS"+ allLeccionesCompleted)
-
-      if (allEjerciciosCompleted && allLeccionesCompleted) {
+      if (leccionesData === true) {
         // Si todo está completado, habilitar la evaluación final
         setIsReadyForFinalEval(true);
         // Aquí puedes pasar el valor `true` al componente de Home
         router.push({ pathname: '/home', params: { evaluacionFinalHabilitada: true } });
+      }else {
+        setIsReadyForFinalEval(false); // En caso de que no esté habilitada
       }
     } catch (error) {
-      console.error('Error al obtener ejercicios y lecciones:', error);
+      console.error('Error al obtener el estado de la evaluación final::', error);
     }
   }
 
@@ -167,7 +130,7 @@ export default function EvaluacionFinal() {
       await recording.startAsync();
       recordingRef.current = recording;
       setIsRecording(true);
-      setTimeLeft(60); // Reiniciar el tiempo a 1 minuto
+      setTimeLeft(30); // Reiniciar el tiempo a 1 minuto
       setPhraseIndex(0); // Reiniciar el índice de frases
     } catch (err) {
       console.error('Error al iniciar la grabación:', err);
@@ -256,7 +219,7 @@ export default function EvaluacionFinal() {
         <View style={styles.startContainer}>
           <Text style={styles.startHeaderText}>Instrucciones</Text>
           <Text style={styles.startInstructions}>
-            Por favor, lee en voz alta las palabras que aparecen en la pantalla. Se te evaluará para saber cuántas palabras logras decir correctamente en un minuto.
+            Por favor, lee en voz alta las palabras que aparecen en la pantalla. Se te evaluará para saber cuántas palabras logras decir correctamente en 30 segundos.
           </Text>
           <Image
             source={require('../../assets/Instrucciones.png')} // Cambia la imagen según tus necesidades
@@ -280,7 +243,7 @@ export default function EvaluacionFinal() {
           <AnimatedCircularProgress
             size={200}
             width={15}
-            fill={(60 - timeLeft) * (100 / 60)}
+            fill={(30 - timeLeft) * (100 / 30)}
             tintColor="#2A6F97"
             backgroundColor="#f0f0f0"
             style={styles.circularProgress}
