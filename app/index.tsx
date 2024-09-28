@@ -10,7 +10,7 @@ export default function Index() {
   
     const redirect = async () => {
       if (await existToken()) {
-        router.navigate('/bienvenida')
+        router.navigate('/grabarAudio')
       } else {
         router.navigate('/bienvenida')
       }
