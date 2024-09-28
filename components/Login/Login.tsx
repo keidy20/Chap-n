@@ -11,9 +11,9 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { storeToken, getToken } from "../../utils/TokenUtils";
+import { storeToken, getToken, existToken } from "../../utils/TokenUtils";
 import { styles } from "./Styles";
-import { storeUsuario } from "@/utils/UsuarioUtils";
+import { getUsuario, storeUsuario } from "@/utils/UsuarioUtils";
 
 const Login: React.FC = () => {
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
@@ -26,14 +26,16 @@ const Login: React.FC = () => {
   useEffect(() => {
     console.log("ingresando al login");
 
+
     const callGetToken = async () => {
-      setToken(await getToken());
+      if(await existToken()) {
+        setToken(await getToken());
+        router.navigate("/home");
+      } 
+      
     };
     callGetToken();
 
-    if (token != null && token != "") {
-      router.navigate("/home");
-    }
   }, []);
 
   const handleLogin = () => {
@@ -67,34 +69,12 @@ const Login: React.FC = () => {
       console.log("Respuesta del servidor ", data.token);
       storeToken(data.token);
       storeUsuario(username)
+      console.log('Usuario ', await getUsuario())
       const token = await getToken();
       console.log("Token guardado ", token);
 
-      // Verificar si ha completado la lección de tipo EI
-      const leccionUrl = `${baseUrl}/usuarios_lecciones/leccion-inicial-finalizada/${username}`;
-          
-      const leccionRes = await fetch(leccionUrl, {
-        method: "GET",
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!leccionRes.ok) {
-        console.log("Error al verificar si completó la lección");
-        throw new Error("Error checking exercise completion");
-      }
-
-      const leccionData = await leccionRes.json();
-
-      // Si el ejercicio está completado, redirigir a home
-      if (leccionData.completado) {
-        router.navigate("/home");
-      } else {
-        // Si no ha completado la lección, redirigir a GrabarAudio
-        router.navigate("/grabarAudio");
-      }
+      router.navigate("/");
+    
 
       } catch (error) {
       console.log("Error ", error);

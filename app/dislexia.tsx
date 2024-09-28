@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import MenuLecturasNuevo from '../components/MenuLecturasBasico'
 import MenuLecciones from '@/components/MenuLecciones'
 
 

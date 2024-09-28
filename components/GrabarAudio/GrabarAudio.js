@@ -4,21 +4,22 @@ import { Audio } from 'expo-av';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import { router } from 'expo-router';
+import { storeToken, getToken, existToken } from "../../utils/TokenUtils";
+import { getUsuario, storeUsuario } from "@/utils/UsuarioUtils";
 
 export default function GrabarAudio() {
   const [isStarting, setIsStarting] = useState(true); // Estado para controlar la pantalla de inicio
   const [isRecording, setIsRecording] = useState(false);
   const [recordedURI, setRecordedURI] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(60); // 1 minuto
+  const [timeLeft, setTimeLeft] = useState(10); // 1 minuto
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [phrasesToRead, setPhrasesToRead] = useState([]); // Nuevo 
-
+  const [idLeccion, setIdLeccion] = useState(0)
 
   const recordingRef = useRef(null);
   const soundRef = useRef(null); // Para almacenar el sonido de instrucciones
 
   useEffect(() => {
-    setTimeLeft(30);
     (async () => {
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
@@ -36,14 +37,29 @@ export default function GrabarAudio() {
 
   async function fetchPhrasesFromApi() {
     try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/lecciones/all`);
+      let token = null;
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+        console.log('Usuario ', await getUsuario())
+      } else {
+        router.navigate('/login')
+      }
+        const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/lecciones/all`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json', 
+          }
+        });
         const data = await response.json();
         console.log("Lecciones obtenidas", data);
 
         if (data && Array.isArray(data)) {
             // Filtra las lecciones por tipoLeccion 'EI'
             const leccionesEI = data.filter(leccion => leccion.tipoLeccion === 'EI');
-            
+            console.log('Leccion EI', leccionesEI[0].id)
+            setIdLeccion(leccionesEI[0].id)
             // Extrae el contenido de las lecciones filtradas y divide en frases por punto.
             const frasesEI = leccionesEI.map(leccion => leccion.contenido.Texto)
                 .join('. ')  // Combina todas las lecciones en un solo string
@@ -132,7 +148,7 @@ export default function GrabarAudio() {
       await recording.startAsync();
       recordingRef.current = recording;
       setIsRecording(true);
-      setTimeLeft(30); // Reiniciar el tiempo a 1 minuto
+      setTimeLeft(10); // Reiniciar el tiempo a 1 minuto
       setPhraseIndex(0); // Reiniciar el índice de frases
     } catch (err) {
       console.error('Error al iniciar la grabación:', err);
@@ -171,6 +187,9 @@ export default function GrabarAudio() {
   }
 
   async function uploadAudio(uri) {
+    let token = await getToken();
+    let usuario = await getUsuario()
+
     const formData = new FormData();
     const file = {
       uri: uri,
@@ -179,12 +198,14 @@ export default function GrabarAudio() {
     };
     formData.append('file', file);
     formData.append('texto', phrasesToRead.join('. '))
+    console.log('URL ', `${process.env.EXPO_PUBLIC_URL}/speach-to-text/compare-by-audio`)
 
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/speach-to-text/compare-by-audio`, {
         method: 'POST',
         body: formData,
         headers: {
+          'Authorization': `Bearer ${token}`, 
           'Content-Type': 'multipart/form-data',
         },
       });
@@ -192,10 +213,12 @@ export default function GrabarAudio() {
       const result = await response.json();
       console.log('Resultado del servicio ', result)
       if (typeof result.similitud === 'number') {
+        completarEvaluacion(result.cantidadPalabras)
         return result;
       } else {
         console.log('Error', 'No se pudo obtener el porcentaje de similitud.');
       }
+      
     } catch (err) {
       console.error('Error uploading audio:', err);
       console.log('Error', 'Ocurrió un error al subir el audio.');
@@ -209,6 +232,36 @@ export default function GrabarAudio() {
     setIsStarting(false); // Cambia el estado para mostrar la evaluación
   };
 
+  const completarEvaluacion = async (cantidadPalabras) => {
+    let token = null;
+    let usuario = await getUsuario()
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+        console.log('Usuario ', usuario)
+      } else {
+        router.navigate('/login')
+      }
+
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/usuarios_lecciones/registrar_leccion_by_username`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({
+          username: usuario,
+          idLeccion: idLeccion,
+          completado: true,
+          puntuacion: cantidadPalabras
+        })
+      });
+    } catch (error) {
+      
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* Botón de regresar */}
@@ -219,7 +272,7 @@ export default function GrabarAudio() {
         <View style={styles.startContainer}>
           <Text style={styles.startHeaderText}>Instrucciones</Text>
           <Text style={styles.startInstructions}>
-            Por favor, lee en voz alta las palabras que aparecen en la pantalla. Se te evaluará para saber cuántas palabras logras decir correctamente en 30 segundos.
+            Por favor, lee en voz alta las palabras que aparecen en la pantalla. Se te evaluará para saber cuántas palabras logras decir correctamente en un minuto.
           </Text>
           <Image
             source={require('../../assets/Instrucciones.png')} // Cambia la imagen según tus necesidades
@@ -243,7 +296,7 @@ export default function GrabarAudio() {
           <AnimatedCircularProgress
             size={200}
             width={15}
-            fill={(30 - timeLeft) * (100 / 30)}
+            fill={(10 - timeLeft) * (100 / 10)}
             tintColor="#2A6F97"
             backgroundColor="#f0f0f0"
             style={styles.circularProgress}

@@ -1,5 +1,5 @@
 {
-  "name": "educate",
+  "name": "chapin-appmovile",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -26,6 +26,7 @@
     "@react-navigation/drawer": "^6.7.2",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
+    "axios": "^1.7.7",
     "crypto-js": "4.2.0",
     "expo": "~51.0.28",
     "expo-av": "^14.0.7",

@@ -4,17 +4,17 @@
     "slug": "Chapin-AppMovile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/Logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/Logo.png",
-      "resizeMode": "center",
+      "image": "./assets/images/splash.png",
+      "resizeMode": "cover",
       "backgroundColor": "#2A6F97"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/Logo.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#2A6F97"
       },
       "permissions": [

@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import DetalleLecturasIntermedio from '@/components/DetalleLecturasIntermedio'
 import MenuLecturasIntermedio from '@/components/MenuLecturasIntermedio'
 
 export default function CrearCuentaRoute() {
