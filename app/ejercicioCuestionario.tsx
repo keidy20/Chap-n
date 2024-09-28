@@ -1,11 +1,11 @@
-import LeccionCompletada from '@/components/LecturaCompletada'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
+import EjercicioCuestionario from '@/components/EjercicioCuestionario'
 
 export default function BienvenidaRoute() {
   return (
     <View style={style.container}>
-      <LeccionCompletada/>
+      <EjercicioCuestionario/>
     </View>
   )
 }

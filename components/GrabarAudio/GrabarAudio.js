@@ -156,7 +156,7 @@ export default function GrabarAudio() {
         // Redirigir a LeccionCompletada con el porcentaje
 
         router.push({
-          pathname: '/leccionCompleta',
+          pathname: '/evaluacionInicial',
           params: {
             similitud: result.similitud.toFixed(0),
             cantidadPalabras:  result.cantidadPalabras
@@ -219,7 +219,7 @@ export default function GrabarAudio() {
         <View style={styles.startContainer}>
           <Text style={styles.startHeaderText}>Instrucciones</Text>
           <Text style={styles.startInstructions}>
-            Por favor, lee en voz alta las palabras que aparecen en la pantalla. Se te evaluará para saber cuántas palabras logras decir correctamente en un minuto.
+            Por favor, lee en voz alta las palabras que aparecen en la pantalla. Se te evaluará para saber cuántas palabras logras decir correctamente en 30 segundos.
           </Text>
           <Image
             source={require('../../assets/Instrucciones.png')} // Cambia la imagen según tus necesidades
@@ -243,7 +243,7 @@ export default function GrabarAudio() {
           <AnimatedCircularProgress
             size={200}
             width={15}
-            fill={(60 - timeLeft) * (100 / 60)}
+            fill={(30 - timeLeft) * (100 / 30)}
             tintColor="#2A6F97"
             backgroundColor="#f0f0f0"
             style={styles.circularProgress}
