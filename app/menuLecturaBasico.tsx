@@ -1,7 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import MenuLecturasBasico from '@/components/MenuLecturasBasico'
-import DetalleLecturasBasico from '@/components/DetalleLecturasBasico'
 
 export default function CrearCuentaRoute() {
   return (

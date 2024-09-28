@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "center",
+      "resizeMode": "cover",
       "backgroundColor": "#2A6F97"
     },
     "android": {

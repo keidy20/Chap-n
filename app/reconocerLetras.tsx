@@ -1,5 +1,4 @@
 import MenuLecciones from '@/components/MenuLecciones'
-import Bienvenida from '../components/Bienvenida'
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 
