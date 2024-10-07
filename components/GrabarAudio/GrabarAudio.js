@@ -15,6 +15,10 @@ export default function GrabarAudio() {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [phrasesToRead, setPhrasesToRead] = useState([]); // Nuevo 
   const [idLeccion, setIdLeccion] = useState(0)
+  const [showNextButton, setShowNextButton] = useState(false);
+  const [totalPalabras, setTotalPalabras] = useState(0); 
+  const [lecciones, setLecciones] = useState([]);  
+  
 
   const recordingRef = useRef(null);
   const soundRef = useRef(null); // Para almacenar el sonido de instrucciones
@@ -53,25 +57,34 @@ export default function GrabarAudio() {
           }
         });
         const data = await response.json();
-        console.log("Lecciones obtenidas", data);
+        //console.log("Lecciones obtenidas", data);
 
         if (data && Array.isArray(data)) {
-            // Filtra las lecciones por tipoLeccion 'EI'
-            const leccionesEI = data.filter(leccion => leccion.tipoLeccion === 'EI');
-            console.log('Leccion EI', leccionesEI[0].id)
-            setIdLeccion(leccionesEI[0].id)
-            // Extrae el contenido de las lecciones filtradas y divide en frases por punto.
-            const frasesEI = leccionesEI.map(leccion => leccion.contenido.Texto)
-                .join('. ')  // Combina todas las lecciones en un solo string
-                .split('. ')  // Separa las frases por punto seguido
-                .map((phrase) => phrase.trim());  // Elimina espacios en blanco al principio o final de cada frase
-            
-            // Actualiza el estado con las frases obtenidas
-            setPhrasesToRead(frasesEI);
-            console.log("Frases a leer:", JSON.stringify(frasesEI)); // Ajuste aquí
-        } else {
-            console.error('Error al obtener las frases de la API.');
+          // Filtra las lecciones por tipoLeccion 'EI'
+          const leccionesEI = data.filter(leccion => leccion.tipoLeccion === 'EI');
+
+        // Verificamos que haya al menos una lección de tipo "EI"
+        if (leccionesEI.length > 0) {
+            const evaluaciones = leccionesEI[0].contenido?.Evaluacion;
+
+            // Convertimos cada objeto de Evaluacion en un array y separamos por punto
+            const arraysDeEvaluaciones = evaluaciones.map((evaluacion) => {
+                // Dividimos el texto por punto y eliminamos espacios
+                const frases = evaluacion?.Texto.split('.').map(frase => frase.trim()).filter(frase => frase !== '');
+                return frases;  // Retornamos el array de frases
+            });
+
+            setLecciones(arraysDeEvaluaciones);
+            console.log(arraysDeEvaluaciones);
+             // Establece el primer array de frases en `phrasesToRead`
+          setPhrasesToRead(arraysDeEvaluaciones[0] || []);
+          setIdLeccion(0);
         }
+          
+      } else {
+          console.error('Error al obtener las frases de la API.');
+      }
+      
     } catch (error) {
         console.error('Error al llamar a la API de lecciones:', error);
     }
@@ -92,13 +105,14 @@ export default function GrabarAudio() {
           }
           return nextIndex;
         });
-      }, 3000);
+      }, 4000);
 
       timerInterval = setInterval(() => {
         setTimeLeft((prevTime) => {
           const newTime = prevTime - 1;
           if (newTime <= 0) {
             stopRecording(); // Detener la grabación si el tiempo se agota
+            setShowNextButton(true);
             return 0;
           }
           return newTime;
@@ -149,7 +163,7 @@ export default function GrabarAudio() {
       recordingRef.current = recording;
       setIsRecording(true);
       setTimeLeft(10); // Reiniciar el tiempo a 1 minuto
-      setPhraseIndex(0); // Reiniciar el índice de frases
+      setShowNextButton(false);
     } catch (err) {
       console.error('Error al iniciar la grabación:', err);
     }
@@ -170,14 +184,23 @@ export default function GrabarAudio() {
         const result = await uploadAudio(uri);
   
         // Redirigir a LeccionCompletada con el porcentaje
+        if (result) {
+          console.log('Resultado de palabras ', result)
+          setTotalPalabras((prevTotal) => prevTotal + result.cantidadPalabras); // Sumar palabras
+        }
+        console.log('Phrase Index', phraseIndex)
+        console.log('Ultimo index ', lecciones.length -1)
+        if (idLeccion == (lecciones.length -1)) {
 
-        router.push({
-          pathname: '/evaluacionInicial',
-          params: {
-            similitud: result.similitud.toFixed(0),
-            cantidadPalabras:  result.cantidadPalabras
-          }
-        })
+          router.push({
+            pathname: '/evaluacionInicial',
+            params: {
+              similitud: result.similitud.toFixed(0),
+              cantidadPalabras:  result.cantidadPalabras
+            }
+          })
+        }
+
       } catch (err) {
         console.error('Error al detener la grabación:', err);
       }
@@ -262,6 +285,20 @@ export default function GrabarAudio() {
     }
   }
 
+  const loadNextLesson = () => {
+    if (idLeccion < lecciones.length - 1) {
+      const nextLeccionIndex = idLeccion + 1; // Avanzar a la siguiente lección
+      setIdLeccion(nextLeccionIndex); // Actualizar el índice de la lección
+      setPhrasesToRead(lecciones[nextLeccionIndex] || []); // Establecer el nuevo conjunto de frases
+      setPhraseIndex(0);  // Reiniciar el índice de la frase
+      setTimeLeft(10);  // Reiniciar el tiempo
+      setShowNextButton(false);
+    } else {
+      Alert.alert("Fin", "No hay más lecciones disponibles.");
+    }
+  };
+  
+
   return (
     <View style={styles.container}>
       {/* Botón de regresar */}
@@ -284,19 +321,14 @@ export default function GrabarAudio() {
         </View>
       ) : (
         <>
-          {/* Botón de regresar */}
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Icon name="arrow-back" size={48} color="#2A6F97" />
-          </TouchableOpacity>
-
           <Text style={styles.phraseToRead}>
-          {phrasesToRead.length > 0 && phrasesToRead[phraseIndex] ? phrasesToRead[phraseIndex] : "Fin de la prueba"}
+            {phrasesToRead.length > 0 && phrasesToRead[phraseIndex]}
           </Text>
-
+  
           <AnimatedCircularProgress
             size={200}
             width={15}
-            fill={(10 - timeLeft) * (100 / 10)}
+            fill={(10 - timeLeft) * (100 / 10)} // Asegúrate de que esta lógica sea correcta
             tintColor="#2A6F97"
             backgroundColor="#f0f0f0"
             style={styles.circularProgress}
@@ -314,16 +346,22 @@ export default function GrabarAudio() {
               </TouchableOpacity>
             )}
           </AnimatedCircularProgress>
-
+  
           {isRecording ? (
             <Text style={styles.recordingText}>Grabando...</Text>
           ) : (
             <Text style={styles.footerText}></Text>
           )}
+          {showNextButton && (
+            <TouchableOpacity style={styles.nextButton} onPress={loadNextLesson}>
+              <Text style={styles.nextButtonText}>Siguiente</Text>
+            </TouchableOpacity>
+          )}
         </>
       )}
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({
@@ -370,6 +408,16 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: '#2A6F97',
+  },
+  nextButtonText: {
+    fontSize: 20,
+    color: '#2A6F97',
+    marginTop: 20,
+  },
+  endText: {
+    fontSize: 20,
+    color: 'red',
+    marginTop: 20,
   },
   phraseToRead: {
     marginTop: 20,

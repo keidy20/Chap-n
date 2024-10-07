@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions
 import Icon from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, router } from "expo-router";
+import { getUsuario } from "@/utils/UsuarioUtils";
 
 // Obtener dimensiones de la pantalla
 const { width, height } = Dimensions.get("window");
@@ -14,8 +15,8 @@ const HomeScreen: React.FC = () => {
   const [isFinalEvaluationEnabled, setIsFinalEvaluationEnabled] = useState(false);
   
   useEffect(() => {
-    setIsFinalEvaluationEnabled(!!evaluacionFinalHabilitada);
-  }, [evaluacionFinalHabilitada]);
+    checkCompletionStatus()
+  }, []);
   
   
   
@@ -35,6 +36,26 @@ const HomeScreen: React.FC = () => {
   const cerrarSesion = () => {
     router.navigate('/cerrarSesion');
   };
+
+  async function checkCompletionStatus() {
+    try {
+      const usuario = await getUsuario();
+      const leccionesResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/usuarios_lecciones/leccion-final-habilitada/${usuario}`);
+
+      const leccionesData = await leccionesResponse.json();
+
+      console.log('EL CHACHO NO ME CREE:', leccionesData);
+
+      if (leccionesData === true) {
+        // Si todo está completado, habilitar la evaluación final
+        setIsFinalEvaluationEnabled(true);
+      }else {
+        setIsFinalEvaluationEnabled(false); // En caso de que no esté habilitada
+      }
+    } catch (error) {
+      console.error('Error al obtener el estado de la evaluación final::', error);
+    }
+  }
 
   return (
     <>
