@@ -41,7 +41,7 @@ export default function EvaluacionFinal() {
   async function checkCompletionStatus() {
     try {
       const usuario = await getUsuario();
-      const leccionesResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/usuarios_lecciones/leccion-final-habilitada/Lore`);
+      const leccionesResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/usuarios_lecciones/leccion-final-habilitada/${usuario}`);
 
       const leccionesData = await leccionesResponse.json();
 

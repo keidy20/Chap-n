@@ -49,6 +49,7 @@ const LessonMenuRL: React.FC = () => {
 
         const lessonsData = await lessonsResponse.json();
         const filteredLessons = lessonsData.filter((d: any) => d.tipoLeccion === 'RL');
+        console.log('Lecciones RL ', filteredLessons)
         setLessons(filteredLessons);
 
         // Ahora que tenemos las lecciones, hacemos la segunda llamada a la API de imágenes
