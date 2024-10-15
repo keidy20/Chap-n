@@ -196,7 +196,8 @@ export default function GrabarAudio() {
             pathname: '/evaluacionInicial',
             params: {
               similitud: result.similitud.toFixed(0),
-              cantidadPalabras:  result.cantidadPalabras
+              //cantidadPalabras:  result.cantidadPalabras
+              cantidadPalabras: totalPalabras + result.cantidadPalabras 
             }
           })
         }
@@ -294,7 +295,7 @@ export default function GrabarAudio() {
       setTimeLeft(10);  // Reiniciar el tiempo
       setShowNextButton(false);
     } else {
-      Alert.alert("Fin", "No hay más lecciones disponibles.");
+      console.log("No hay mas evaluaciones")
     }
   };
   
@@ -353,9 +354,11 @@ export default function GrabarAudio() {
             <Text style={styles.footerText}></Text>
           )}
           {showNextButton && (
+            <View style={styles.nextButtonContainer}>
             <TouchableOpacity style={styles.nextButton} onPress={loadNextLesson}>
-              <Text style={styles.nextButtonText}>Siguiente</Text>
+              <Icon name="arrow-forward" size={50} color="#fff" />
             </TouchableOpacity>
+            </View>
           )}
         </>
       )}
@@ -381,6 +384,15 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: 'bold',
     color: '#2A6F97',
+  },
+  nextButtonContainer: {
+    position: 'absolute',
+    bottom: 20, // Pegado al fondo de la pantalla
+    left: 20,
+    right: 0,
+    width: '100%',
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
   },
   startInstructions: {
     fontSize: 22,
@@ -408,11 +420,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: '#2A6F97',
-  },
-  nextButtonText: {
-    fontSize: 20,
-    color: '#2A6F97',
-    marginTop: 20,
   },
   endText: {
     fontSize: 20,
@@ -459,5 +466,12 @@ const styles = StyleSheet.create({
     top: 30,
     left: 4,
     padding: 10,
+  },
+  nextButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60, // Altura ajustada del botón
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
   },
 });

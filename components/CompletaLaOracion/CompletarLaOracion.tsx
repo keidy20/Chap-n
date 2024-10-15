@@ -40,6 +40,8 @@ const CompletaLaOracion = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isOptionDisabled, setIsOptionDisabled] = useState(false); 
   const [ idEjercicio, setIdEjercicio ] = useState<any>(null)
+  const [isNextButtonEnabled, setIsNextButtonEnabled] = useState(false);
+
 
   const correctSound = require('../../assets/Correct.mp3');
   const incorrectSound = require('../../assets/Incorrect.mp3');
@@ -142,6 +144,19 @@ const playFeedbackSound = async (isCorrect: boolean) => {
   const soundToPlay = isCorrect ? correctSound : incorrectSound;
   const { sound } = await Audio.Sound.createAsync(soundToPlay);
   await sound.playAsync();
+
+    // Reproducir el sonido y establecer el estado al terminar
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.isLoaded && status.didJustFinish) {
+        sound.unloadAsync();
+        setIsOptionDisabled(false);
+        if (isCorrect) {
+          setIsNextButtonEnabled(true); // Habilitar el botón solo si la respuesta es correcta
+        }
+      }
+    });
+  
+    await sound.playAsync();
 };
 
 
@@ -150,15 +165,10 @@ const handleOptionSelect = async (option: string) => {
   const correct = option === currentLessonData.opcionCorrecta;
   setIsCorrect(correct);
 
-  setSelectedOption(option);
-  option === currentLessonData.opcionCorrecta;
-  setIsCorrect(correct);
+  setIsOptionDisabled(true); // Deshabilitar mientras se reproduce el sonido de retroalimentación
+  setIsNextButtonEnabled(false); // Deshabilitar el botón de siguiente
 
-  // Deshabilitar las opciones mientras se reproduce el audio de feedback
-  setIsOptionDisabled(true);
-
-  // Reproducir el sonido de feedback (correcto o incorrecto)
-  await playFeedbackSound(correct);
+  await playFeedbackSound(correct); // Reproducir el sonido de retroalimentación
 
   // Una vez que termine el audio, habilitamos las opciones nuevamente
   setIsOptionDisabled(false);
@@ -183,6 +193,7 @@ const handleNextLesson = async () => {
     setCurrentLessonIndex(currentLessonIndex + 1);
     setSelectedOption(null);
     setIsCorrect(null);
+    setIsNextButtonEnabled(false); // Restablecer para la siguiente lección
   } else {
     console.log('Leccion terminada ', idEjercicio)
     await completarEjercicio()
@@ -274,9 +285,6 @@ const completarEjercicio = async () => {
               </Text>
             ))}
           </Text>
-          <TouchableOpacity onPress={handleStartReading} style={styles.speakerButton}>
-            <FontAwesome name="volume-up" size={40} color={isSpeaking ? '#1e90ff' : 'black'} />
-          </TouchableOpacity>
 
         </View>
         <View style={styles.opcionesContainer}>
@@ -306,7 +314,7 @@ const completarEjercicio = async () => {
           onPress={handleNextLesson} 
           disabled={isNextButtonDisabled}
         >
-          <Text style={styles.nextButtonoracion}>Siguiente</Text>
+          <Icon name="arrow-forward" size={50} color="#fff" />
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -459,8 +467,8 @@ const styles = StyleSheet.create({
   nextButton: {
     top: 8,
     backgroundColor: '#2A6F97',
-    padding: height * 0.02,  
-    borderRadius: 25,
+    padding: 5, 
+    borderRadius: 15,
     width: '100%',
     alignItems: 'center',
   },

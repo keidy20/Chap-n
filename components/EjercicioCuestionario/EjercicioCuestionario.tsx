@@ -32,7 +32,7 @@ const EjercicioCuestionario: React.FC = () => {
   }, []);
 
   const handleContinue = () => {
-    router.push('/home'); // Cambia por la ruta que desees para continuar
+    router.push('/menuEjercicios'); // Cambia por la ruta que desees para continuar
   };
 
   return (

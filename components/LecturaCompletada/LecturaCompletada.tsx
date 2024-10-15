@@ -56,9 +56,9 @@ const EjercicioCompletado: React.FC = () => {
       <Text style={styles.messageText}>
         Has completado la lectura con éxito. Continúa así para poder seguir avanzando con tu aprendizaje.
       </Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.goBackButton} onPress={handleContinue}>
-          <Text style={styles.buttonText}>Continuar</Text>
+      <View style={styles.nextButtonContainer}>
+        <TouchableOpacity style={styles.nextButton} onPress={handleContinue}>
+          <Icon name="arrow-forward" size={50} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
@@ -72,6 +72,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+  },
+  nextButtonContainer: {
+    position: 'absolute',
+    bottom: 20, // Pegado al fondo de la pantalla
+    left: 20,
+    right: 0,
+    width: '100%',
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
+  },
+  nextButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60, // Altura ajustada del botón
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
   },
   celebrationIcon: {
     marginBottom: 20,

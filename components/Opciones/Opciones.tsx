@@ -9,18 +9,20 @@ import { getUsuario } from "@/utils/UsuarioUtils";
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen: React.FC = () => {
-  const { evaluacionFinalHabilitada = false } = useLocalSearchParams(); 
 
   // Estado para habilitar/deshabilitar el botón de Evaluación Final
   const [isFinalEvaluationEnabled, setIsFinalEvaluationEnabled] = useState(false);
+  const [isEvaluacionIntermediaHabilitada, setIsEvaluacionIntermediaHabilitada] = useState(false);
   
   useEffect(() => {
     checkCompletionStatus()
+    checkCompletIntermedioionStatus()
   }, []);
   
+  const redirectEvaluacionIntermedia = () => {
+    router.navigate("/evaluacionIntermedia");
+  };
   
-  
-
   const redirectReconocerLetra = () => {
     router.navigate("/reconocerLetras");
   };
@@ -57,78 +59,126 @@ const HomeScreen: React.FC = () => {
     }
   }
 
+// Llama a las dos APIs y verifica si se han completado todos los ejercicios y lecciones
+async function checkCompletIntermedioionStatus() {
+  try {
+    const usuario = await getUsuario();
+    const leccionesResponseRL = await fetch(`${process.env.EXPO_PUBLIC_URL}/lecciones/all/${usuario}`);
+
+    const leccionesData = await leccionesResponseRL.json();
+
+    console.log('Datos de lecciones recibidos:', leccionesData);
+
+    // Filtrar las lecciones que son del tipo RL
+    const leccionesRLCompletadas = leccionesData.filter((leccion: any) => leccion.tipoLeccion === 'RL' && leccion.completado === true);
+
+    console.log('Lecciones RL completadas:', leccionesRLCompletadas);
+
+    if (leccionesRLCompletadas.length > 0) {
+      // Si todas las lecciones RL están completadas, habilitar la evaluación intermedia
+      setIsEvaluacionIntermediaHabilitada(true);
+    } else {
+      setIsEvaluacionIntermediaHabilitada(false); // En caso de que no esté habilitada
+    }
+  } catch (error) {
+    console.error('Error al obtener el estado de la evaluación intermedia:', error);
+  }
+}
+
+
   return (
-    <>
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Sección de bienvenida */}
-        <View style={styles.welcomeSection}>
-          <Image
-            source={require("../../assets/Letras.png")}
-            style={styles.welcomeImage}
-            resizeMode="contain" // Ajusta la imagen para que se vea bien en diferentes tamaños
-          />
-          <View>
-            <Text style={styles.welcomeTitle}>¡Bienvenido!</Text>
+    <View style={styles.container}>
+      {/* Sección de bienvenida */}
+      <View style={styles.welcomeSection}>
+        <Image
+          source={require("../../assets/Letras.png")}
+          style={styles.welcomeImage}
+          resizeMode="contain"
+        />
+        <View>
+          <Text style={styles.welcomeTitle}>¡Bienvenido!</Text>
+        </View>
+      </View>
+
+      {/* Header de Proyectos */}
+      <View style={styles.projectsHeader}>
+        <Text style={styles.projectsTitle}>Lecciones</Text>
+      </View>
+      <View style={styles.cardsWrapper}>
+        {/* Contenedor de las tarjetas con scroll */}
+        <ScrollView contentContainerStyle={styles.projectsContainer}>
+          {/* Contenedor de tarjetas */}
+          <View style={styles.projectsContainer}>
+            {/* Tarjeta 1 */}
+            <TouchableOpacity style={styles.cardContainer} onPress={redirectReconocerLetra}>
+              <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
+                <View style={styles.cardContent}>
+                  <Text style={styles.projectTitle}>Reconocer Letras</Text>
+                  <Icon name="chevron-forward" size={30} color="#fff" />
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Tarjeta 2 */}
+            <TouchableOpacity
+              style={[styles.cardContainer, !isEvaluacionIntermediaHabilitada && { opacity: 0.5 }]}
+              onPress={isEvaluacionIntermediaHabilitada ? redirectEvaluacionIntermedia : undefined}
+              disabled={!isEvaluacionIntermediaHabilitada}
+            >
+              <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
+                <View style={styles.cardContent}>
+                  <Text style={styles.projectTitle}>Evaluación Intermedia</Text>
+                  {/* Cambia el icono dependiendo del estado */}
+                  <Icon
+                    name={isEvaluacionIntermediaHabilitada ? "chevron-forward" : "lock-closed"}
+                    size={30}
+                    color="#fff"
+                  />
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Tarjeta 3 */}
+            <TouchableOpacity style={styles.cardContainer} onPress={redirectLecturas}>
+              <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
+                <View style={styles.cardContent}>
+                  <Text style={styles.projectTitle}>Acelerador de Lectura</Text>
+                  <Icon name="chevron-forward" size={30} color="#fff" />
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Tarjeta 4 */}
+            <TouchableOpacity style={styles.cardContainer} onPress={redirectEjercicios}>
+              <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
+                <View style={styles.cardContent}>
+                  <Text style={styles.projectTitle}>Ejercicios</Text>
+                  <Icon name="chevron-forward" size={30} color="#fff" />
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Tarjeta 5 (Evaluación Final) */}
+            <TouchableOpacity
+              style={[styles.cardContainer, !isFinalEvaluationEnabled && { opacity: 0.5 }]}
+              onPress={isFinalEvaluationEnabled ? redirectEjercicios : undefined}
+              disabled={!isFinalEvaluationEnabled}
+            >
+              <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
+                <View style={styles.cardContent}>
+                  <Text style={styles.projectTitle}>Evaluación Final</Text>
+                  {/* Cambia el icono dependiendo del estado */}
+                  <Icon
+                    name={isFinalEvaluationEnabled ? "chevron-forward" : "lock-closed"}
+                    size={30}
+                    color="#fff"
+                  />
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
-        </View>
-
-        {/* Header de Proyectos */}
-        <View style={styles.projectsHeader}>
-          <Text style={styles.projectsTitle}>Lecciones</Text>
-        </View>
-
-        {/* Contenedor de tarjetas */}
-        <View style={styles.projectsContainer}>
-          {/* Tarjeta 1 */}
-          <TouchableOpacity style={styles.cardContainer} onPress={redirectReconocerLetra}>
-            <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
-              <View style={styles.cardContent}>
-                <Text style={styles.projectTitle}>Reconocer Letras</Text>
-                <Icon name="chevron-forward" size={30} color="#fff" />
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          {/* Tarjeta 2 */}
-          <TouchableOpacity style={styles.cardContainer} onPress={redirectLecturas}>
-            <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
-              <View style={styles.cardContent}>
-                <Text style={styles.projectTitle}>Acelerador de Lectura</Text>
-                <Icon name="chevron-forward" size={30} color="#fff" />
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          {/* Tarjeta 3 */}
-          <TouchableOpacity style={styles.cardContainer} onPress={redirectEjercicios}>
-            <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
-              <View style={styles.cardContent}>
-                <Text style={styles.projectTitle}>Ejercicios</Text>
-                <Icon name="chevron-forward" size={30} color="#fff" />
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-          
-          {/* Tarjeta 4 (Evaluación Final) */}
-          <TouchableOpacity
-            style={[styles.cardContainer, !isFinalEvaluationEnabled && { opacity: 0.5 }]}
-            onPress={isFinalEvaluationEnabled ? redirectEjercicios : undefined}
-            disabled={!isFinalEvaluationEnabled}
-          >
-            <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
-              <View style={styles.cardContent}>
-                <Text style={styles.projectTitle}>Evaluación Final</Text>
-                {/* Cambia el icono dependiendo del estado */}
-                <Icon
-                  name={isFinalEvaluationEnabled ? "chevron-forward" : "lock-closed"}
-                  size={30}
-                  color="#fff"
-                />
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
 
       {/* Barra de navegación inferior */}
       <View style={styles.bottomNavigation}>
@@ -139,7 +189,7 @@ const HomeScreen: React.FC = () => {
           <Icon name="settings" size={30} color="#2A6F97" />
         </TouchableOpacity>
       </View>
-    </>
+    </View>
   );
 };
 
@@ -153,6 +203,13 @@ const styles = StyleSheet.create({
   screenTitleContainer: {
     alignItems: "center",
     marginBottom: height * 0.03,
+  },
+    cardsContainer: {
+    padding: 16,
+    paddingBottom: 50, // Espacio adicional al final para el scroll
+  },
+  cardsWrapper: {
+    flex: 1, // Ocupa todo el espacio restante
   },
   welcomeSection: {
     backgroundColor: "#FFF",

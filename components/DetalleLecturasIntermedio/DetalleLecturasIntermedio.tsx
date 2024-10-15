@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, SafeAreaView, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -146,9 +146,10 @@ const DetalleLecturasIntermedias = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {isReading ? (
         <View style={styles.fullScreen}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* Mostrar la imagen solo en la primera sección de lectura */}
           {currentSection === 0 && validImageUri && (
             <Image
@@ -167,6 +168,7 @@ const DetalleLecturasIntermedias = () => {
           >
             {readingSections[currentSection]?.text || ""}
           </Text>
+          </ScrollView>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               disabled={isPlaying}
@@ -229,7 +231,7 @@ const DetalleLecturasIntermedias = () => {
           </View>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -238,14 +240,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FAF3EF",
   },
+  scrollContainer: {
+    padding: width * 0.02,
+    paddingBottom: height * 0.10,
+  },
   fullScreen: {
     flex: 1,
     padding: width * 0.05, // 5% de la anchura de la pantalla
     backgroundColor: "#FFF",
   },
   bookImage: {
-    width: width * 0.8, // 80% del ancho de la pantalla
-    height: width * 0.8,
+    width: width * 0.7, // 80% del ancho de la pantalla
+    height: width * 0.7,
     aspectRatio: 250 / 330, // Mantiene la proporción
     alignSelf: "center",
     borderRadius: 12,
@@ -288,24 +294,30 @@ const styles = StyleSheet.create({
     marginTop: height * 0.01, // 4% de la altura de la pantalla
   },
   bookDescription: {
-    fontSize: height * 0.025, // 4.5% de la altura de la pantalla
+    fontSize: height * 0.027, // 4.5% de la altura de la pantalla
     textAlign: "left",
     color: "#555",
-    marginBottom: height * 0.001, // 4% de la altura de la pantalla
+    marginBottom: height * 0.04, // 4% de la altura de la pantalla
   },
   additionalMargin: {
-    marginTop: height * 0.04, // 10% de la altura de la pantalla
+    marginTop: height * 0.01, // 10% de la altura de la pantalla
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: height * 0.04, // 4% de la altura de la pantalla
+    position: 'absolute',
+    bottom: 20, // Pegado al fondo de la pantalla
+    left: 20,
+    right: 0,
+    width: '100%',
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
+    marginTop: 10
   },
   button: {
-    backgroundColor: "#2A6F97",
-    paddingVertical: height * 0.02, // 2% de la altura de la pantalla
-    paddingHorizontal: width * 0.1, // 10% del ancho de la pantalla
-    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60, // Altura ajustada del botón
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
   },
   buttonText: {
     color: "#FFF",

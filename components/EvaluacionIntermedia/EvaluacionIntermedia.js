@@ -3,25 +3,27 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-na
 import { Audio } from 'expo-av';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
-import { useLocalSearchParams, router } from 'expo-router';
-import { getUsuario } from '@/utils/UsuarioUtils';
+import { router } from 'expo-router';
+import { storeToken, getToken, existToken } from "../../utils/TokenUtils";
+import { getUsuario, storeUsuario } from "@/utils/UsuarioUtils";
 
-export default function EvaluacionFinal() {
+export default function EvaluacionIntermedia() {
   const [isStarting, setIsStarting] = useState(true); // Estado para controlar la pantalla de inicio
   const [isRecording, setIsRecording] = useState(false);
   const [recordedURI, setRecordedURI] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(60); // 1 minuto
+  const [timeLeft, setTimeLeft] = useState(10); // 1 minuto
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [phrasesToRead, setPhrasesToRead] = useState([]); // Nuevo 
-  const [isReadyForFinalEval, setIsReadyForFinalEval] = useState(false); // Nuevo estado
-
-
+  const [idLeccion, setIdLeccion] = useState(0)
+  const [showNextButton, setShowNextButton] = useState(false);
+  const [totalPalabras, setTotalPalabras] = useState(0); 
+  const [lecciones, setLecciones] = useState([]);  
+  
 
   const recordingRef = useRef(null);
   const soundRef = useRef(null); // Para almacenar el sonido de instrucciones
 
   useEffect(() => {
-    setTimeLeft(60);
     (async () => {
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
@@ -34,31 +36,60 @@ export default function EvaluacionFinal() {
       });
     })();
 
-    checkCompletionStatus();
+    fetchPhrasesFromApi();
   }, []);
 
-  // Llama a las dos APIs y verifica si se han completado todos los ejercicios y lecciones
-  async function checkCompletionStatus() {
+  async function fetchPhrasesFromApi() {
     try {
-      const usuario = await getUsuario();
-      const leccionesResponse = await fetch(`${process.env.EXPO_PUBLIC_URL}/usuarios_lecciones/leccion-final-habilitada/${usuario}`);
-
-      const leccionesData = await leccionesResponse.json();
-
-      console.log('EL CHACHO NO ME CREE:', leccionesData);
-
-      if (leccionesData === true) {
-        // Si todo está completado, habilitar la evaluación final
-        setIsReadyForFinalEval(true);
-        // Aquí puedes pasar el valor `true` al componente de Home
-        router.push({ pathname: '/home', params: { evaluacionFinalHabilitada: true } });
-      }else {
-        setIsReadyForFinalEval(false); // En caso de que no esté habilitada
+      let token = null;
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+        console.log('Usuario ', await getUsuario())
+      } else {
+        router.navigate('/login')
       }
+        const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/lecciones/all`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json', 
+          }
+        });
+        const data = await response.json();
+        //console.log("Lecciones obtenidas", data);
+
+        if (data && Array.isArray(data)) {
+          // Filtra las lecciones por tipoLeccion 'EI'
+          const leccionesEI = data.filter(leccion => leccion.tipoLeccion === 'EM');
+
+        // Verificamos que haya al menos una lección de tipo "EI"
+        if (leccionesEI.length > 0) {
+            const evaluaciones = leccionesEI[0].contenido?.Evaluacion;
+
+            // Convertimos cada objeto de Evaluacion en un array y separamos por punto
+            const arraysDeEvaluaciones = evaluaciones.map((evaluacion) => {
+                // Dividimos el texto por punto y eliminamos espacios
+                const frases = evaluacion?.Texto.split('.').map(frase => frase.trim()).filter(frase => frase !== '');
+                return frases;  // Retornamos el array de frases
+            });
+
+            setLecciones(arraysDeEvaluaciones);
+            console.log(arraysDeEvaluaciones);
+             // Establece el primer array de frases en `phrasesToRead`
+          setPhrasesToRead(arraysDeEvaluaciones[0] || []);
+          setIdLeccion(0);
+        }
+          
+      } else {
+          console.error('Error al obtener las frases de la API.');
+      }
+      
     } catch (error) {
-      console.error('Error al obtener el estado de la evaluación final::', error);
+        console.error('Error al llamar a la API de lecciones:', error);
     }
-  }
+}
+
 
   useEffect(() => {
     let phraseInterval = null;
@@ -74,13 +105,14 @@ export default function EvaluacionFinal() {
           }
           return nextIndex;
         });
-      }, 3000);
+      }, 4000);
 
       timerInterval = setInterval(() => {
         setTimeLeft((prevTime) => {
           const newTime = prevTime - 1;
           if (newTime <= 0) {
             stopRecording(); // Detener la grabación si el tiempo se agota
+            setShowNextButton(true);
             return 0;
           }
           return newTime;
@@ -130,8 +162,8 @@ export default function EvaluacionFinal() {
       await recording.startAsync();
       recordingRef.current = recording;
       setIsRecording(true);
-      setTimeLeft(30); // Reiniciar el tiempo a 1 minuto
-      setPhraseIndex(0); // Reiniciar el índice de frases
+      setTimeLeft(10); // Reiniciar el tiempo a 1 minuto
+      setShowNextButton(false);
     } catch (err) {
       console.error('Error al iniciar la grabación:', err);
     }
@@ -152,14 +184,24 @@ export default function EvaluacionFinal() {
         const result = await uploadAudio(uri);
   
         // Redirigir a LeccionCompletada con el porcentaje
+        if (result) {
+          console.log('Resultado de palabras ', result)
+          setTotalPalabras((prevTotal) => prevTotal + result.cantidadPalabras); // Sumar palabras
+        }
+        console.log('Phrase Index', phraseIndex)
+        console.log('Ultimo index ', lecciones.length -1)
+        if (idLeccion == (lecciones.length -1)) {
 
-        router.push({
-          pathname: '/leccionCompleta',
-          params: {
-            similitud: result.similitud.toFixed(0),
-            cantidadPalabras:  result.cantidadPalabras
-          }
-        })
+          router.push({
+            pathname: '/evaluacionInicial',
+            params: {
+              similitud: result.similitud.toFixed(0),
+              //cantidadPalabras:  result.cantidadPalabras
+              cantidadPalabras: totalPalabras + result.cantidadPalabras 
+            }
+          })
+        }
+
       } catch (err) {
         console.error('Error al detener la grabación:', err);
       }
@@ -169,6 +211,9 @@ export default function EvaluacionFinal() {
   }
 
   async function uploadAudio(uri) {
+    let token = await getToken();
+    let usuario = await getUsuario()
+
     const formData = new FormData();
     const file = {
       uri: uri,
@@ -177,12 +222,14 @@ export default function EvaluacionFinal() {
     };
     formData.append('file', file);
     formData.append('texto', phrasesToRead.join('. '))
+    console.log('URL ', `${process.env.EXPO_PUBLIC_URL}/speach-to-text/compare-by-audio`)
 
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/speach-to-text/compare-by-audio`, {
         method: 'POST',
         body: formData,
         headers: {
+          'Authorization': `Bearer ${token}`, 
           'Content-Type': 'multipart/form-data',
         },
       });
@@ -190,10 +237,12 @@ export default function EvaluacionFinal() {
       const result = await response.json();
       console.log('Resultado del servicio ', result)
       if (typeof result.similitud === 'number') {
+        completarEvaluacion(result.cantidadPalabras)
         return result;
       } else {
         console.log('Error', 'No se pudo obtener el porcentaje de similitud.');
       }
+      
     } catch (err) {
       console.error('Error uploading audio:', err);
       console.log('Error', 'Ocurrió un error al subir el audio.');
@@ -207,6 +256,48 @@ export default function EvaluacionFinal() {
     setIsStarting(false); // Cambia el estado para mostrar la evaluación
   };
 
+  const completarEvaluacion = async (cantidadPalabras) => {
+    let token = null;
+    let usuario = await getUsuario()
+      if (await existToken()) {
+        token = await getToken()
+        console.log('Token en lecciones ', token)
+        console.log('Usuario ', usuario)
+      } else {
+        router.navigate('/login')
+      }
+
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/usuarios_lecciones/registrar_leccion_by_username`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({
+          username: usuario,
+          idLeccion: idLeccion,
+          completado: true,
+          puntuacion: cantidadPalabras
+        })
+      });
+    } catch (error) {
+      
+    }
+  }
+
+  const loadNextLesson = () => {
+    if (idLeccion < lecciones.length - 1) {
+      const nextLeccionIndex = idLeccion + 1; // Avanzar a la siguiente lección
+      setIdLeccion(nextLeccionIndex); // Actualizar el índice de la lección
+      setPhrasesToRead(lecciones[nextLeccionIndex] || []); // Establecer el nuevo conjunto de frases
+      setPhraseIndex(0);  // Reiniciar el índice de la frase
+      setTimeLeft(10);  // Reiniciar el tiempo
+      setShowNextButton(false);
+    } else {
+      console.log("No hay mas evaluaciones")
+    }
+  };
   
 
   return (
@@ -231,19 +322,14 @@ export default function EvaluacionFinal() {
         </View>
       ) : (
         <>
-          {/* Botón de regresar */}
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Icon name="arrow-back" size={48} color="#2A6F97" />
-          </TouchableOpacity>
-
           <Text style={styles.phraseToRead}>
-          {phrasesToRead.length > 0 && phrasesToRead[phraseIndex] ? phrasesToRead[phraseIndex] : "Fin de la prueba"}
+            {phrasesToRead.length > 0 && phrasesToRead[phraseIndex]}
           </Text>
-
+  
           <AnimatedCircularProgress
             size={200}
             width={15}
-            fill={(30 - timeLeft) * (100 / 30)}
+            fill={(10 - timeLeft) * (100 / 10)} // Asegúrate de que esta lógica sea correcta
             tintColor="#2A6F97"
             backgroundColor="#f0f0f0"
             style={styles.circularProgress}
@@ -261,16 +347,24 @@ export default function EvaluacionFinal() {
               </TouchableOpacity>
             )}
           </AnimatedCircularProgress>
-
+  
           {isRecording ? (
             <Text style={styles.recordingText}>Grabando...</Text>
           ) : (
             <Text style={styles.footerText}></Text>
           )}
+          {showNextButton && (
+            <View style={styles.nextButtonContainer}>
+            <TouchableOpacity style={styles.nextButton} onPress={loadNextLesson}>
+              <Icon name="arrow-forward" size={50} color="#fff" />
+            </TouchableOpacity>
+            </View>
+          )}
         </>
       )}
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({
@@ -290,6 +384,15 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: 'bold',
     color: '#2A6F97',
+  },
+  nextButtonContainer: {
+    position: 'absolute',
+    bottom: 20, // Pegado al fondo de la pantalla
+    left: 20,
+    right: 0,
+    width: '100%',
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
   },
   startInstructions: {
     fontSize: 22,
@@ -317,6 +420,11 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: '#2A6F97',
+  },
+  endText: {
+    fontSize: 20,
+    color: 'red',
+    marginTop: 20,
   },
   phraseToRead: {
     marginTop: 20,
@@ -358,5 +466,12 @@ const styles = StyleSheet.create({
     top: 30,
     left: 4,
     padding: 10,
+  },
+  nextButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60, // Altura ajustada del botón
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
   },
 });

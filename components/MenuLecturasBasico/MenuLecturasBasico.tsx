@@ -53,6 +53,7 @@ const BooksMenu = () => {
 
   const Basico = () => {
     router.navigate('/menuLecturaBasico');
+    console.log("PRUEBA");
   };
 
   const Avanzado = () => {

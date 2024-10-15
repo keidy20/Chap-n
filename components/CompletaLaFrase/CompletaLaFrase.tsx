@@ -42,7 +42,6 @@ const CompletaLaFrase = () => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [ idEjercicio, setIdEjercicio ] = useState<any>(null)
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
-
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
 
@@ -55,7 +54,6 @@ const CompletaLaFrase = () => {
       setLetterFrequency(frequency);
       setSelectedLetters(Array(currentLesson.oracion.split(placeholder).length - 1).fill(''));
       generateAvailableLetters(frequency);
-
       handleStartReading();
     }
     
@@ -139,6 +137,10 @@ const CompletaLaFrase = () => {
     setAvailableLetters(updatedLetters);
   };
 
+  useEffect(() => {
+    setIsButtonDisabled(!isComplete());
+  }, [selectedLetters]);
+  
   const handleLetterSelect = (letter: string) => {
     const currentCount = selectedLetters.filter(l => l === letter).length;
     const maxCount = letterFrequency[letter] || 0;
@@ -169,6 +171,7 @@ const CompletaLaFrase = () => {
   };
 
   const isComplete = () => {
+    console.log("Selected Letters: ", selectedLetters);
     return !selectedLetters.includes('');
   };
 
@@ -185,10 +188,12 @@ const CompletaLaFrase = () => {
 
   const handleNextLesson = async () => {
     if (currentLessonIndex < lessons.length - 1) {
+      //await completarEjercicio()
       setCurrentLessonIndex(currentLessonIndex + 1);
     } else {
       console.log('Leccion terminada ', idEjercicio)
       await completarEjercicio()
+          // Navega al componente EjercicioCompletado y pasa el nivel como parámetro
       router.push({
         pathname: '/ejercicioCompletado',
         params: { nivel: 'Intermedio' },  // Aquí pasamos el nivel "Básico"
@@ -247,7 +252,6 @@ const CompletaLaFrase = () => {
           puntuacion: 10
         })
       });
-      const data: LessonData[] = await response.json();
   
   
     } catch (error) {
@@ -292,9 +296,6 @@ const CompletaLaFrase = () => {
       <View style={styles.lessonContainer}>
         <View style={styles.sentenceContainer}>
           <Text style={styles.sentence}>{getUpdatedSentence()}</Text>
-          <TouchableOpacity onPress={handleStartReading} style={styles.speakerButton}>
-            <FontAwesome name="volume-up" size={40} color={isSpeaking ? '#1e90ff' : 'black'} />
-          </TouchableOpacity>
         </View>
         <View style={styles.lettersContainer}>
           {availableLetters.length > 0 ? (
@@ -321,12 +322,11 @@ const CompletaLaFrase = () => {
       <View style={styles.footer}>
         <Text style={styles.pageIndicator}>{currentLessonIndex + 1} / {lessons.length}</Text>
         <TouchableOpacity 
-          style={styles.nextButton} 
-          onPress={currentLessonIndex < lessons.length - 1 ? handleNextLesson : () => router.push("/ejercicioCompletado")}
+          onPress={handleNextLesson}
+          style={[styles.nextButton, isButtonDisabled && styles.disabledButton]} 
+          disabled={isButtonDisabled}
         >
-          <Text style={styles.nextButtonText}>
-            {currentLessonIndex < lessons.length - 1 ? "Siguiente" : "Finalizar"}
-          </Text>
+          <Icon name="arrow-forward" size={50} color="#fff" />
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -345,6 +345,9 @@ const styles = StyleSheet.create({
     right: 0,
     height: height * 0.1, // 10% de la altura de la pantalla
     zIndex: 1,
+  },
+  disabledButton: {
+    backgroundColor: '#ddd',
   },
   noLettersText: {
     fontSize: width * 0.045, // Aproximadamente 18 en pantallas estándar
@@ -465,8 +468,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: height * 0.050,
     backgroundColor: '#2A6F97',
-    padding: height * 0.02,
-    borderRadius: 25,
+    padding: 5,
+    borderRadius: 15,
     width: '100%',
     alignItems: 'center',
   },

@@ -264,16 +264,14 @@ const CKLessonComponent: React.FC = () => {
 
       <View style={styles.navigation}>
         <TouchableOpacity onPress={prevLesson} style={styles.navigationButton}>
-          <Text style={styles.navigationButtonText}>
-            {currentLesson == 0 ? "Regresar" : "Anterior"}
-          </Text>
+          <Icon name="arrow-back" size={32} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={nextLesson}
           style={[styles.navigationButton, !finished && styles.navigationButtonDisabled]}
           disabled={!finished}
         >
-          <Text style={styles.navigationButtonText}>Siguiente</Text>
+          <Icon name="arrow-forward" size={32} color="#fff" />
         </TouchableOpacity>
       </View>
     </ScrollView>

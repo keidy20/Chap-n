@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Audio } from 'expo-av';
 
-const EvaluacionInicialCompletada: React.FC = () => {
+const EvaluacionIntermediaCompletada: React.FC = () => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const router = useRouter();
   const { similitud, cantidadPalabras } = useLocalSearchParams();
@@ -16,7 +16,7 @@ const EvaluacionInicialCompletada: React.FC = () => {
     // Función para cargar y reproducir el sonido
     const playCongratulationsAudio = async () => {
       const { sound } = await Audio.Sound.createAsync(
-        require('../../assets/EvaluacionInicial1.mp3') // Asegúrate de tener este archivo de audio en tu carpeta de assets
+        require('../../assets/EvaluacionIntermedia.mp3') // Asegúrate de tener este archivo de audio en tu carpeta de assets
       );
       setSound(sound);
       await sound.playAsync();
@@ -41,7 +41,7 @@ const EvaluacionInicialCompletada: React.FC = () => {
       <Icon name="celebration" size={90} color="#FFD700" style={styles.celebrationIcon} />
       <Text style={styles.congratulationsText}>¡Felicidades!</Text>
       <Text style={styles.messageText}>
-        Has completado la Evaluación Inicial con éxito.
+        Has completado la Evaluación Intermedia con éxito.
       </Text>
       <Text style={styles.messageText}>Total de palabras dichas: {cantidadPalabras}</Text>
       <View style={styles.nextButtonContainer}>
@@ -73,6 +73,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#2A6F97',
     borderRadius: 10,
   },
+  nextButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60, // Altura ajustada del botón
+    backgroundColor: '#2A6F97',
+    borderRadius: 10,
+  },
   congratulationsText: {
     fontSize: 40,
     fontWeight: 'bold',
@@ -84,13 +91,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#555',
     marginBottom: 30,
-  },
-  nextButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 60, // Altura ajustada del botón
-    backgroundColor: '#2A6F97',
-    borderRadius: 10,
   },
   buttonContainer: {
     width: '100%',
@@ -112,4 +112,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EvaluacionInicialCompletada;
+export default EvaluacionIntermediaCompletada;
