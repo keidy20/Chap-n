@@ -10,14 +10,16 @@ import { getUsuario, storeUsuario } from "@/utils/UsuarioUtils";
 export default function GrabarAudio() {
   const [isStarting, setIsStarting] = useState(true); // Estado para controlar la pantalla de inicio
   const [isRecording, setIsRecording] = useState(false);
-  const [recordedURI, setRecordedURI] = useState(null);
   const [timeLeft, setTimeLeft] = useState(10); // 1 minuto
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [phrasesToRead, setPhrasesToRead] = useState([]); // Nuevo 
   const [idLeccion, setIdLeccion] = useState(0)
+  const [ idEvaluacion, setIdEvaluacion ] = useState(0)
   const [showNextButton, setShowNextButton] = useState(false);
   const [totalPalabras, setTotalPalabras] = useState(0); 
   const [lecciones, setLecciones] = useState([]);  
+  const [sound, setSound] = useState();
+  const [ enviando, setEnviando ] = useState(false);
   
 
   const recordingRef = useRef(null);
@@ -30,10 +32,6 @@ export default function GrabarAudio() {
         console.log('Permiso denegado', 'Necesitas otorgar permisos para grabar audio.');
         return;
       }
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
     })();
 
     fetchPhrasesFromApi();
@@ -62,11 +60,12 @@ export default function GrabarAudio() {
         if (data && Array.isArray(data)) {
           // Filtra las lecciones por tipoLeccion 'EI'
           const leccionesEI = data.filter(leccion => leccion.tipoLeccion === 'EI');
-
+          
         // Verificamos que haya al menos una lección de tipo "EI"
         if (leccionesEI.length > 0) {
             const evaluaciones = leccionesEI[0].contenido?.Evaluacion;
-
+            console.log('Evaluacion inicial ', leccionesEI[0]?.id)
+            setIdEvaluacion(leccionesEI[0]?.id)
             // Convertimos cada objeto de Evaluacion en un array y separamos por punto
             const arraysDeEvaluaciones = evaluaciones.map((evaluacion) => {
                 // Dividimos el texto por punto y eliminamos espacios
@@ -112,7 +111,6 @@ export default function GrabarAudio() {
           const newTime = prevTime - 1;
           if (newTime <= 0) {
             stopRecording(); // Detener la grabación si el tiempo se agota
-            setShowNextButton(true);
             return 0;
           }
           return newTime;
@@ -144,14 +142,28 @@ export default function GrabarAudio() {
   }, [isStarting]);
 
   async function playInstructionAudio() {
+
+    //Detener audio al inicio si existe
     try {
+      if (sound) {
+        await sound.unloadAsync(); // Detener cualquier audio que esté sonando
+      }
+
+    } catch(error) {
+      console.log('No se pudo detener el audio')
+    }
+
+
+    try {
+      console.log('Cargando sonido...');
+
       const { sound } = await Audio.Sound.createAsync(
-        require('../../assets/EvaluacionInicial.mp3') // Asegúrate de tener el archivo en esta ruta
+        require('../../assets/EvaluacionInicial.mp3')
       );
-      soundRef.current = sound;
+      setSound(sound);
       await sound.playAsync();
     } catch (error) {
-      console.error('Error al reproducir el audio de instrucciones:', error);
+      console.log('Error al reproducir el audio de instrucciones iniciales:', error);
     }
   }
 
@@ -165,7 +177,7 @@ export default function GrabarAudio() {
       setTimeLeft(10); // Reiniciar el tiempo a 1 minuto
       setShowNextButton(false);
     } catch (err) {
-      console.error('Error al iniciar la grabación:', err);
+      console.log('Error al iniciar la grabación:', err);
     }
   }
 
@@ -174,10 +186,10 @@ export default function GrabarAudio() {
     if (recordingRef.current) {
       console.log('Se esta deteniendo la grabacion ', recordingRef.current)
       setIsRecording(false);
+      setEnviando(true)
       try {
         await recordingRef.current.stopAndUnloadAsync();
         const uri = recordingRef.current.getURI();
-        setRecordedURI(uri);
         recordingRef.current = null
         console.log('Audio grabado guardado en:', uri);
         // Subir el archivo a la API
@@ -187,23 +199,25 @@ export default function GrabarAudio() {
         if (result) {
           console.log('Resultado de palabras ', result)
           setTotalPalabras((prevTotal) => prevTotal + result.cantidadPalabras); // Sumar palabras
+          setShowNextButton(true);
+          setEnviando(false)
         }
         console.log('Phrase Index', phraseIndex)
         console.log('Ultimo index ', lecciones.length -1)
         if (idLeccion == (lecciones.length -1)) {
-
+          let total = totalPalabras + result.cantidadPalabras
+          completarEvaluacion(total)
           router.push({
             pathname: '/evaluacionInicial',
             params: {
               similitud: result.similitud.toFixed(0),
-              //cantidadPalabras:  result.cantidadPalabras
-              cantidadPalabras: totalPalabras + result.cantidadPalabras 
+              cantidadPalabras: total 
             }
           })
         }
 
       } catch (err) {
-        console.error('Error al detener la grabación:', err);
+        console.log('Error al detener la grabación:', err);
       }
     } else {
       console.log('Intendando detener ', recordingRef.current)
@@ -237,7 +251,6 @@ export default function GrabarAudio() {
       const result = await response.json();
       console.log('Resultado del servicio ', result)
       if (typeof result.similitud === 'number') {
-        completarEvaluacion(result.cantidadPalabras)
         return result;
       } else {
         console.log('Error', 'No se pudo obtener el porcentaje de similitud.');
@@ -249,10 +262,17 @@ export default function GrabarAudio() {
     }
   }
 
-  const handleStart = () => {
-    if (soundRef.current) {
-      soundRef.current.stopAsync(); // Detener el audio al iniciar la evaluación
+  const handleStart = async () => {
+    //Detener audio al inicio si existe
+    try {
+      if (sound) {
+        await sound.unloadAsync(); // Detener cualquier audio que esté sonando
+      }
+
+    } catch(error) {
+      console.log('No se pudo detener el audio')
     }
+
     setIsStarting(false); // Cambia el estado para mostrar la evaluación
   };
 
@@ -268,18 +288,20 @@ export default function GrabarAudio() {
       }
 
     try {
+      let body = JSON.stringify({
+        username: usuario,
+        idLeccion: idEvaluacion,
+        completado: true,
+        puntuacion: cantidadPalabras
+      })
+      console.log('Json a enviar ', body)
       const response = await fetch(`${process.env.EXPO_PUBLIC_URL}/usuarios_lecciones/registrar_leccion_by_username`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`, 
           'Content-Type': 'application/json', 
         },
-        body: JSON.stringify({
-          username: usuario,
-          idLeccion: idLeccion,
-          completado: true,
-          puntuacion: cantidadPalabras
-        })
+        body: body
       });
     } catch (error) {
       
@@ -335,8 +357,12 @@ export default function GrabarAudio() {
             style={styles.circularProgress}
           >
             {() => (
-              <TouchableOpacity
-                style={[styles.micContainer, isRecording && styles.recording]}
+              <TouchableOpacity disabled={enviando || showNextButton}
+              style={[
+                styles.micContainer,
+                isRecording && styles.recording,
+                (enviando || showNextButton) && styles.disabledMicContainer // Aplica estilo si está deshabilitado
+              ]}
                 onPressIn={startRecording}
                 onPressOut={stopRecording}
               >
@@ -445,6 +471,11 @@ const styles = StyleSheet.create({
   },
   recording: {
     borderColor: '#ff3b30',
+  },
+  disabledMicContainer: {
+    // estilos cuando el botón está deshabilitado
+    backgroundColor: '#d3d3d3', // un color gris claro
+    opacity: 0.6, // para hacer que se vea más transparente
   },
   micImage: {
     width: 100,

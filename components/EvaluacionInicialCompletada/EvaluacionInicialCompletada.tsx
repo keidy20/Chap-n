@@ -21,8 +21,9 @@ const EvaluacionInicialCompletada: React.FC = () => {
       setSound(sound);
       await sound.playAsync();
     };
-
+    
     playCongratulationsAudio();
+    
 
     // Limpiar el sonido cuando el componente se desmonte
     return () => {
@@ -32,7 +33,16 @@ const EvaluacionInicialCompletada: React.FC = () => {
     };
   }, []);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    //Detener audio al inicio si existe
+    try {
+      if (sound) {
+        await sound.unloadAsync(); // Detener cualquier audio que esté sonando
+      }
+
+    } catch(error) {
+      console.log('No se pudo detener el audio')
+    }
     router.push('/home'); // Cambia por la ruta que desees para continuar
   };
 
@@ -45,7 +55,11 @@ const EvaluacionInicialCompletada: React.FC = () => {
       </Text>
       <Text style={styles.messageText}>Total de palabras dichas: {cantidadPalabras}</Text>
       <View style={styles.nextButtonContainer}>
-        <TouchableOpacity style={styles.nextButton} onPress={handleContinue}>
+        <TouchableOpacity
+          style={[
+            styles.nextButton,
+          ]} 
+          onPress={handleContinue}>
           <Icon name="arrow-forward" size={50} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -109,7 +123,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: '#FFF',
     fontWeight: 'bold',
-  },
+  }
 });
 
 export default EvaluacionInicialCompletada;

@@ -328,6 +328,14 @@ const CompletaLaFrase = () => {
         >
           <Icon name="arrow-forward" size={50} color="#fff" />
         </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.nextButton} 
+          onPress={currentLessonIndex < lessons.length - 1 ? handleNextLesson : () => router.push("/ejercicioCompletado")}
+        >
+          <Text style={styles.nextButtonText}>
+            {currentLessonIndex < lessons.length - 1 ? "Siguiente" : "Finalizar"}
+          </Text>
+        </TouchableOpacity>
       </View>
     </LinearGradient>
   );
