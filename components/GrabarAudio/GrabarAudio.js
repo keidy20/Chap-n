@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Alert, ActivityIndicator } from 'react-native';
 import { Audio } from 'expo-av';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import { router } from 'expo-router';
 import { storeToken, getToken, existToken } from "../../utils/TokenUtils";
 import { getUsuario, storeUsuario } from "@/utils/UsuarioUtils";
+import Modal from 'react-native-modal';
 
 export default function GrabarAudio() {
   const [isStarting, setIsStarting] = useState(true); // Estado para controlar la pantalla de inicio
@@ -20,6 +21,7 @@ export default function GrabarAudio() {
   const [lecciones, setLecciones] = useState([]);  
   const [sound, setSound] = useState();
   const [ enviando, setEnviando ] = useState(false);
+  const [recording, setRecording] = useState();
   
 
   const recordingRef = useRef(null);
@@ -173,6 +175,7 @@ export default function GrabarAudio() {
       await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
       await recording.startAsync();
       recordingRef.current = recording;
+      
       setIsRecording(true);
       setTimeLeft(10); // Reiniciar el tiempo a 1 minuto
       setShowNextButton(false);
@@ -388,6 +391,12 @@ export default function GrabarAudio() {
           )}
         </>
       )}
+      {/* <Modal isVisible={enviando}>
+        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
+          <Text>Enviando al servidor...</Text>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      </Modal> */}
     </View>
   );
   

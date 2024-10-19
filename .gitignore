@@ -21,3 +21,7 @@ package-lock.json
 
 expo-env.d.ts
 # @end expo-cli
+
+%ProgramData%/Microsoft/Windows/UUS/State/_active.uusver
+
+%ProgramData%/Microsoft/Windows/UUS/State/
