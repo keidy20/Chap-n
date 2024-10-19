@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import CryptoJS from 'crypto-js';
@@ -57,6 +57,11 @@ const CrearCuenta: React.FC = () => {
       });
 
       if (!res.ok) {
+        console.log('Resultado ', res.status)
+        Alert.alert(
+          'Error en el servidor',
+          'Ocurrio un error al intentar crear el usuario. Intenta mas tarde.',
+          [{ text: 'OK' }])
         throw new Error('Network response was not ok ' + res.statusText);
       }
       const data = await res.json()
@@ -142,11 +147,18 @@ const CrearCuenta: React.FC = () => {
               value={usuario.password}
               onChangeText={text => setUsuario({ ...usuario, password: text })}
             />
+            
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons
                 name={showPassword ? "eye-off-outline" : "eye-outline"} size={30} color="#242424" />
             </TouchableOpacity>
           </View>
+          {(!validarPassword(usuario.password) && usuario.password.length > 0) && (
+            <Text>La contraseña debe contar como mínimo con 8 caracteres incluidos caracteres
+              especiales, números y letras.
+            </Text>
+          )}
+          
           <TouchableOpacity style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]} onPress={crearCuenta} disabled={disabled}>
             <Text style={styles.buttonText}>Crear Cuenta</Text>
           </TouchableOpacity>

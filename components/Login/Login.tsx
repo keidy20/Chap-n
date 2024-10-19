@@ -60,8 +60,21 @@ const Login: React.FC = () => {
         body: JSON.stringify({ username, password }),
       });
 
+      console.log('Result ', res)
+
       if (!res.ok) {
         console.log('Error ', res.status)
+        if (res.status == 401) {
+          Alert.alert(
+            'Credenciales Incorrectas',
+            'El nombre de usuario o la contraseña son incorrectos. Por favor, inténtelo de nuevo.',
+            [{ text: 'OK' }])
+        } else {
+          Alert.alert(
+            'Error en el servidor',
+            'Ocurrio un error al intentar comunicarse con el servidor. Intenta mas tarde.',
+            [{ text: 'OK' }])
+        }
         console.log('Credenciales invalidas', 'El usuario o la contraseña no son correctos')
         throw new Error("Network response was not ok " + res.json());
       }
