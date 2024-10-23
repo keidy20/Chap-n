@@ -87,66 +87,65 @@ const CompletaLaOracion = () => {
       }
       
     };
-
     fetchLessons();
-  }, [baseUrl]);
+  }, []);
 
   const currentLessonData = lessons[currentLessonIndex];
   const currentAudioUrl = audios[currentLessonIndex];
 
    // Reproducir el audio al iniciar una lección
    useEffect(() => {
-    if (currentLessonData) {
-      handleStartReading();
+    const iniciarLeccion = async () => {
+      if (currentLessonData) {
+        console.log('dafdfasdf')
+        await handleStartReading();
+      }
     }
-    return () => {
-      stopAudio();
-    };
+
+    iniciarLeccion()
+ 
   }, [currentLessonIndex, lessons]);
 
   const handleStartReading = async () => {
-    if (!currentAudioUrl) return;
-  
+    await detenerAudio()
+    console.log('Hablando jejeje')
     setIsSpeaking(true);
     const { sound } = await Audio.Sound.createAsync({ uri: currentAudioUrl });
     setSound(sound);
     await sound.playAsync();
-  
-    sound.setOnPlaybackStatusUpdate(status => {
-      if (status.isLoaded) {
-        if (status.didJustFinish) {
-          sound.unloadAsync();
-          setIsSpeaking(false);
-        }
-      }
-    });
+
   };
 
   
 
-  const goBack = () => {
+  const goBack = async () => {
+    await detenerAudio()
     router.back();
   };
 
-  // Detener audio manualmente
-  const stopAudio = async () => {
-    if (sound) {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-      setSound(null);
-      setIsSpeaking(false);
+  const detenerAudio = async () => {
+    try {
+      if (sound) {
+        console.log('Existe un audio')
+        await sound.unloadAsync(); // Detener cualquier audio que esté sonando
+        setSound(null);
+        setIsSpeaking(false);
+      }
+    } catch (error) {
+      console.log("No se pudo detener el audio ", error);
     }
   };
-  
 
 // Reproducir sonido de retroalimentación
 const playFeedbackSound = async (isCorrect: boolean) => {
+  await detenerAudio()
   const soundToPlay = isCorrect ? correctSound : incorrectSound;
   const { sound } = await Audio.Sound.createAsync(soundToPlay);
+  setSound(sound)
   await sound.playAsync();
 
     // Reproducir el sonido y establecer el estado al terminar
-    sound.setOnPlaybackStatusUpdate((status) => {
+    /* sound.setOnPlaybackStatusUpdate((status) => {
       if (status.isLoaded && status.didJustFinish) {
         sound.unloadAsync();
         setIsOptionDisabled(false);
@@ -154,20 +153,24 @@ const playFeedbackSound = async (isCorrect: boolean) => {
           setIsNextButtonEnabled(true); // Habilitar el botón solo si la respuesta es correcta
         }
       }
-    });
+    }); */
+
+    if (isCorrect) {
+      setIsNextButtonEnabled(true); // Habilitar el botón solo si la respuesta es correcta
+    }
   
-    await sound.playAsync();
 };
 
 
 const handleOptionSelect = async (option: string) => {
+  await detenerAudio()
+  console.log('Deteniendo audio al seleccionar opcion')
   setSelectedOption(option);
   const correct = option === currentLessonData.opcionCorrecta;
   setIsCorrect(correct);
 
   setIsOptionDisabled(true); // Deshabilitar mientras se reproduce el sonido de retroalimentación
   setIsNextButtonEnabled(false); // Deshabilitar el botón de siguiente
-
   await playFeedbackSound(correct); // Reproducir el sonido de retroalimentación
 
   // Una vez que termine el audio, habilitamos las opciones nuevamente
@@ -188,6 +191,7 @@ const handleOptionSelect = async (option: string) => {
 
 
 const handleNextLesson = async () => {
+  console.log('Deteniendo audio en siguiente leccion')
   if (currentLessonIndex < lessons.length - 1) {
     //await completarEjercicio()
     setCurrentLessonIndex(currentLessonIndex + 1);
