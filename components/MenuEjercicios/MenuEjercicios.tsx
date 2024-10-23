@@ -81,12 +81,13 @@ const App = () => {
     fetchData(); // Llamamos a la función para obtener los datos
   }, []);
   
+  
   const goBack = () => {
     router.push('/home')
   };
 
   const redirectTo = (route: any) => {
-    router.navigate(route);
+    router.push(route);
   };
 
   return (
