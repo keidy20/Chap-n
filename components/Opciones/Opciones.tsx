@@ -20,23 +20,23 @@ const HomeScreen: React.FC = () => {
   }, []);
   
   const redirectEvaluacionIntermedia = () => {
-    router.navigate("/evaluacionIntermedia");
+    router.push("/evaluacionIntermedia");
   };
   
   const redirectReconocerLetra = () => {
-    router.navigate("/reconocerLetras");
+    router.push("/reconocerLetras");
   };
 
   const redirectLecturas = () => {
-    router.navigate("/menuLecturas");
+    router.push("/menuLecturas");
   };
 
   const redirectEjercicios = () => {
-    router.navigate("/menuEjercicios");
+    router.push("/menuEjercicios");
   };
 
   const cerrarSesion = () => {
-    router.navigate('/cerrarSesion');
+    router.push('/cerrarSesion');
   };
 
   async function checkCompletionStatus() {
@@ -70,15 +70,15 @@ async function checkCompletIntermedioionStatus() {
     console.log('Datos de lecciones recibidos:', leccionesData);
 
     // Filtrar las lecciones que son del tipo RL
-    const leccionesRLCompletadas = leccionesData.filter((leccion: any) => leccion.tipoLeccion === 'RL' && leccion.completado === true);
+    const leccionesRLCompletadas = leccionesData.filter((leccion: any) => leccion.tipoLeccion === 'RL' && leccion.completado === false);
 
     console.log('Lecciones RL completadas:', leccionesRLCompletadas);
 
     if (leccionesRLCompletadas.length > 0) {
       // Si todas las lecciones RL están completadas, habilitar la evaluación intermedia
-      setIsEvaluacionIntermediaHabilitada(true);
+      setIsEvaluacionIntermediaHabilitada(false);
     } else {
-      setIsEvaluacionIntermediaHabilitada(false); // En caso de que no esté habilitada
+      setIsEvaluacionIntermediaHabilitada(true); // En caso de que no esté habilitada
     }
   } catch (error) {
     console.error('Error al obtener el estado de la evaluación intermedia:', error);

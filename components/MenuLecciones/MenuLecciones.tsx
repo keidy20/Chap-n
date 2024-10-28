@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { existToken, getToken, removeToken } from '@/utils/TokenUtils';
@@ -66,6 +66,7 @@ const LessonMenuRL: React.FC = () => {
             removeToken();
             router.navigate('/login');
           }
+          Alert.alert('Ocurrio un error. Por favor cierra la aplicación y vuelve a abrirla')
           throw new Error('Error fetching images');
         }
 
