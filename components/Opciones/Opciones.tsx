@@ -22,6 +22,10 @@ const HomeScreen: React.FC = () => {
   const redirectEvaluacionIntermedia = () => {
     router.push("/evaluacionIntermedia");
   };
+
+  const redirectEvaluacionFinal = () => {
+    router.push("/evaluacionFinal");
+  };
   
   const redirectReconocerLetra = () => {
     router.push("/reconocerLetras");
@@ -161,7 +165,7 @@ async function checkCompletIntermedioionStatus() {
             {/* Tarjeta 5 (Evaluación Final) */}
             <TouchableOpacity
               style={[styles.cardContainer, !isFinalEvaluationEnabled && { opacity: 0.5 }]}
-              onPress={isFinalEvaluationEnabled ? redirectEjercicios : undefined}
+              onPress={isFinalEvaluationEnabled ? redirectEvaluacionFinal : undefined}
               disabled={!isFinalEvaluationEnabled}
             >
               <LinearGradient colors={["#2A6F97", "#539ec9"]} style={styles.projectCard}>
