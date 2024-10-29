@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { existToken, getToken, removeToken } from '@/utils/TokenUtils';
@@ -10,7 +10,8 @@ const { width, height } = Dimensions.get("window");
 
 const LessonMenuRL: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
-  const [images, setImages] = useState<any[]>([]); // Nuevo estado para almacenar las imágenes
+  const [images, setImages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
@@ -19,7 +20,7 @@ const LessonMenuRL: React.FC = () => {
     const fetchData = async () => {
       const username = await getUsuario();
       const lessonsUrl = `${baseUrl}/lecciones/all/${username}`;
-      const imagesUrl = `${baseUrl}/lecciones/all`; // URL de la segunda API para obtener las imágenes
+      const imagesUrl = `${baseUrl}/lecciones/all`;
       let token = null;
 
       if (await existToken()) {
@@ -30,7 +31,6 @@ const LessonMenuRL: React.FC = () => {
       }
 
       try {
-        // Primero se llama a la API de lecciones
         const lessonsResponse = await fetch(lessonsUrl, {
           method: 'GET',
           headers: {
@@ -49,10 +49,8 @@ const LessonMenuRL: React.FC = () => {
 
         const lessonsData = await lessonsResponse.json();
         const filteredLessons = lessonsData.filter((d: any) => d.tipoLeccion === 'RL');
-        console.log('Lecciones RL ', filteredLessons)
         setLessons(filteredLessons);
 
-        // Ahora que tenemos las lecciones, hacemos la segunda llamada a la API de imágenes
         const imagesResponse = await fetch(imagesUrl, {
           method: 'GET',
           headers: {
@@ -66,23 +64,18 @@ const LessonMenuRL: React.FC = () => {
             removeToken();
             router.navigate('/login');
           }
-          Alert.alert('Ocurrio un error. Por favor cierra la aplicación y vuelve a abrirla')
           throw new Error('Error fetching images');
         }
 
-      // Cambia esta parte de tu código en el useEffect
-      const imagesData = await imagesResponse.json();
-      const filteredImages = imagesData.filter((d: any) => d.tipoLeccion === 'RL');
-
-      // Cambia el formato de la variable para almacenar imágenes
-      const lessonImages = filteredImages.map((image: any) => image.contenido.imagenes[0]?.url);
-
-      // Luego, asigna esta nueva variable a tu estado de imágenes
-      setImages(lessonImages); // Guardar las imágenes obtenidas
-
-
+        const imagesData = await imagesResponse.json();
+        const filteredImages = imagesData.filter((d: any) => d.tipoLeccion === 'RL');
+        const lessonImages = filteredImages.map((image: any) => image.contenido.imagenes[0]?.url);
+        setImages(lessonImages);
+        
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -94,7 +87,7 @@ const LessonMenuRL: React.FC = () => {
   };
 
   const goBack = () => {
-    router.push('/home')
+    router.push('/home');
   };
 
   return (
@@ -108,38 +101,36 @@ const LessonMenuRL: React.FC = () => {
 
       <View style={styles.card}>
         <Text style={styles.tituloCard}>Identificación De Letras</Text>
-        <ScrollView style={styles.lessonList}>
-        {lessons.length === 0 ? (
-          <Text style={styles.emptyText}></Text>
+        {loading ? (
+          <ActivityIndicator size="large" color="#2A6F97" style={styles.loadingIndicator} />
         ) : (
-          lessons.map((lesson, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[styles.cardContainer, lesson.completado ? styles.completedCard : null]}
-              onPress={() => goToLessonDetail(lesson.id)}
-            >
-              <View style={styles.lessonCard}>
-                {/* Aquí puedes usar las imágenes obtenidas de la segunda API */}
-                {images[index] ? (
-                  <Image
-                    source={{ uri: images[index] }} // Aquí solo necesitas el URL
-                    style={styles.cardImage}
-                  />
-                ) : (
-                  <Image
-                    source={{ uri: "https://example.com/default-image.jpg" }} // Imagen por defecto
-                    style={styles.cardImage}
-                  />
-                )}
-                <View style={styles.lessonContent}>
-                  <Text style={styles.lessonTitle}>{lesson.titulo}</Text>
+          <ScrollView style={styles.lessonList}>
+            {lessons.map((lesson, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[styles.cardContainer, lesson.completado ? styles.completedCard : null]}
+                onPress={() => goToLessonDetail(lesson.id)}
+              >
+                <View style={styles.lessonCard}>
+                  {images[index] ? (
+                    <Image
+                      source={{ uri: images[index] }}
+                      style={styles.cardImage}
+                    />
+                  ) : (
+                    <Image
+                      source={{ uri: "https://example.com/default-image.jpg" }}
+                      style={styles.cardImage}
+                    />
+                  )}
+                  <View style={styles.lessonContent}>
+                    <Text style={styles.lessonTitle}>{lesson.titulo}</Text>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         )}
-
-        </ScrollView>
       </View>
     </View>
   );
@@ -147,48 +138,47 @@ const LessonMenuRL: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-      flex: 1,
-      backgroundColor: "#f0f4f7",
+    flex: 1,
+    backgroundColor: "#f0f4f7",
   },
   goBackButton: {
     position: "absolute",
-    top: height * 0.06, // Ajustado al 6% de la altura de la pantalla
-    left: width * 0.03, // Ajustado al 3% del ancho de la pantalla
-    padding: width * 0.02, // Ajustado al 2% del ancho de la pantalla
+    top: height * 0.06,
+    left: width * 0.03,
+    padding: width * 0.02,
     zIndex: 10,
   },
   header: {
-    height: height * 0.35, // Ajustado al 35% de la altura de la pantalla
-    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
+    height: height * 0.35,
+    paddingHorizontal: width * 0.04,
     alignItems: "center",
     justifyContent: "center",
   },
   headerText: {
-    fontSize: width * 0.07, // Ajustado al 7% del ancho de la pantalla
+    fontSize: width * 0.07,
     fontWeight: "bold",
     color: "#FFF",
   },
   card: {
     flex: 1,
     backgroundColor: "#FFF",
-    marginTop: -height * 0.05, // Subir 5% de la altura de la pantalla
-    borderTopLeftRadius: width * 0.1, // 10% del ancho de la pantalla
-    borderTopRightRadius: width * 0.1, // 10% del ancho de la pantalla
-    paddingVertical: height * 0.03, // 3% de la altura de la pantalla
-    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
+    marginTop: -height * 0.05,
+    borderTopLeftRadius: width * 0.1,
+    borderTopRightRadius: width * 0.1,
+    paddingVertical: height * 0.03,
+    paddingHorizontal: width * 0.04,
   },
   tituloCard: {
-    paddingHorizontal: width * 0.04, // 4% del ancho de la pantalla
-    fontSize: width * 0.06, // 6% del ancho de la pantalla
+    fontSize: width * 0.06,
     fontWeight: "bold",
     color: "#000",
-    marginTop: height * 0.02, // 2% de la altura de la pantalla
-    marginBottom: height * 0.02, // 2% de la altura de la pantalla
-    marginLeft: 20
+    marginTop: height * 0.02,
+    marginBottom: height * 0.02,
+    marginLeft: 20,
   },
   lessonList: {
-    padding: width * 0.05, // 5% del ancho de la pantalla
-    marginTop: height * 0.01, // 1% de la altura de la pantalla
+    padding: width * 0.05,
+    marginTop: height * 0.01,
   },
   cardContainer: {
     width: '100%',
@@ -198,33 +188,30 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   lessonCard: {
-    padding: width * 0.05, // 5% del ancho de la pantalla
-    borderRadius: width * 0.02, // 2% del ancho de la pantalla
-    marginBottom: height * 0.03, // 3% de la altura de la pantalla
-    height: height * 0.18, // 18% de la altura de la pantalla
+    padding: width * 0.05,
+    borderRadius: width * 0.02,
+    marginBottom: height * 0.03,
+    height: height * 0.18,
     backgroundColor: "#FFF",
     flexDirection: "row",
     alignItems: "center",
   },
   cardImage: {
-    width: width * 0.230, // 20% del ancho de la pantalla
-    height: height * 0.18, // Ajustado al 18% de la altura de la pantalla
-    marginRight: width * 0.04, // 4% del ancho de la pantalla
-    borderRadius: width * 0.02, // 2% del ancho de la pantalla
+    width: width * 0.23,
+    height: height * 0.18,
+    marginRight: width * 0.04,
+    borderRadius: width * 0.02,
   },
   lessonContent: {
     flex: 1,
   },
   lessonTitle: {
-    fontSize: width * 0.05, // 5% del ancho de la pantalla
+    fontSize: width * 0.05,
     fontWeight: "bold",
     color: "#1c506e",
     textAlign: "left",
   },
-  emptyText: {
-    textAlign: 'center',
-    fontSize: width * 0.04,
-    color: '#888',
+  loadingIndicator: {
     marginTop: 20,
   },
 });
