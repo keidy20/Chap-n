@@ -75,6 +75,11 @@ const IngresarToken: React.FC = () => {
               <Ionicons name={isPasswordVisible ? "eye-outline" : "eye-off-outline"} size={20} color="#242424" />
             </TouchableOpacity>
           </View>
+          {(!validarPassword(password) && password.length > 0) && (
+            <Text style={styles.nota}>La contraseña debe contar como mínimo con 8 caracteres incluidos caracteres
+              especiales, números y letras. La contraseña no debe incluir espacios en blanco.
+            </Text>
+          )}
           <TouchableOpacity
             style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]}
             onPress={handleChangePassword}
@@ -188,6 +193,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  nota: {
+    fontSize: 10,
+    marginBottom: 10,
+    color: '#808080'
+  }
 });
 
 export default IngresarToken;

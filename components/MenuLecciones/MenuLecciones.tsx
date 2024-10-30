@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, ActivityIndicator, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { existToken, getToken, removeToken } from '@/utils/TokenUtils';
@@ -16,11 +16,11 @@ const LessonMenuRL: React.FC = () => {
 
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
+  const tipoLeccion: string = 'RL'
+
   useEffect(() => {
     const fetchData = async () => {
-      const username = await getUsuario();
-      const lessonsUrl = `${baseUrl}/lecciones/all/${username}`;
-      const imagesUrl = `${baseUrl}/lecciones/all`;
+      const lessonsUrl = `${baseUrl}/lecciones/all-by-tipo/${tipoLeccion}`;
       let token = null;
 
       if (await existToken()) {
@@ -31,7 +31,7 @@ const LessonMenuRL: React.FC = () => {
       }
 
       try {
-        const lessonsResponse = await fetch(lessonsUrl, {
+        const lessonsResponse: any = await fetch(lessonsUrl, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -44,32 +44,15 @@ const LessonMenuRL: React.FC = () => {
             removeToken();
             router.navigate('/login');
           }
+          Alert.alert('Ocurrio un error al cargar las lecciones')
           throw new Error('Error fetching lessons');
         }
 
-        const lessonsData = await lessonsResponse.json();
-        const filteredLessons = lessonsData.filter((d: any) => d.tipoLeccion === 'RL');
-        setLessons(filteredLessons);
+        const lessonsDataJson = await lessonsResponse.json();
+        setLessons(lessonsDataJson);
 
-        const imagesResponse = await fetch(imagesUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!imagesResponse.ok) {
-          if (imagesResponse.status === 403) {
-            removeToken();
-            router.navigate('/login');
-          }
-          throw new Error('Error fetching images');
-        }
-
-        const imagesData = await imagesResponse.json();
-        const filteredImages = imagesData.filter((d: any) => d.tipoLeccion === 'RL');
-        const lessonImages = filteredImages.map((image: any) => image.contenido.imagenes[0]?.url);
+        const lessonImages = lessonsDataJson.map((lesson: any) => lesson.contenido.imagenes[0]?.url);
+        console.log('Imagenes ', lessonImages)
         setImages(lessonImages);
         
       } catch (error) {

@@ -14,14 +14,19 @@ import { router } from "expo-router";
 import { storeToken, getToken, existToken } from "../../utils/TokenUtils";
 import { styles } from "./Styles";
 import { getUsuario, storeUsuario } from "@/utils/UsuarioUtils";
+import { validarCampos, validarPassword, validarUsuario } from "@/utils/StringUtils";
 
 const Login: React.FC = () => {
   const baseUrl: any = process.env.EXPO_PUBLIC_URL;
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [usuario, setUsuario] = useState({
+    username: '',
+    password: ''
+  })
+
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [token, setToken] = useState("");
+  const [disabled, setDisabled] = useState(true);
 
   useEffect(() => {
     console.log("ingresando al login");
@@ -38,9 +43,18 @@ const Login: React.FC = () => {
 
   }, []);
 
+  useEffect(() => {
+
+    if (validarCampos(usuario) && validarPassword(usuario.password) && validarUsuario(usuario.username)) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [usuario]);
+
   const handleLogin = () => {
-    console.log("Username:", username);
-    console.log("Password:", password);
+    console.log("Username:", usuario.username);
+    console.log("Password:", usuario.password);
   };
 
   const goBack = () => {
@@ -57,7 +71,7 @@ const Login: React.FC = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(usuario),
       });
 
       console.log('Result ', res)
@@ -81,7 +95,7 @@ const Login: React.FC = () => {
       const data = await res.json();
       console.log("Respuesta del servidor ", data.token);
       storeToken(data.token);
-      storeUsuario(username)
+      storeUsuario(usuario.username)
       console.log('Usuario ', await getUsuario())
       const token = await getToken();
       console.log("Token guardado ", token);
@@ -101,6 +115,8 @@ const Login: React.FC = () => {
   const redirectCreateAccount = () => {
     router.navigate("/crear_cuenta");
   };
+
+
 
   return (
     <LinearGradient colors={["#2A6F97", "#FFFFFF"]} style={styles.gradient}>
@@ -128,10 +144,16 @@ const Login: React.FC = () => {
               placeholderTextColor="#242424"
               keyboardType="email-address"
               autoCapitalize="none"
-              value={username}
-              onChangeText={setUsername}
+              value={usuario.username}
+              onChangeText={text => setUsuario({ ...usuario, username: text })}
             />
+            
           </View>
+          {(!validarUsuario(usuario.username) && usuario.username.length > 0) && (
+              <Text style={styles.nota}>El usuario no debe contener caracteres especiales, debe contar con un minimo de 3 caracteres
+                y un maximo de 10, no debe de contar con espacios en blanco y no debe iniciar con un número.    
+              </Text>
+            )}
           <View style={styles.inputContainer}>
             <Ionicons
               name="lock-closed-outline"
@@ -144,9 +166,10 @@ const Login: React.FC = () => {
               placeholder="Contraseña"
               placeholderTextColor="#242424"
               secureTextEntry={secureTextEntry}
-              value={password}
-              onChangeText={setPassword}
+              value={usuario.password}
+              onChangeText={text => setUsuario({ ...usuario, password: text })}
             />
+            
             <TouchableOpacity
               onPress={() => setSecureTextEntry(!secureTextEntry)}
             >
@@ -157,6 +180,11 @@ const Login: React.FC = () => {
               />
             </TouchableOpacity>
           </View>
+          {(!validarPassword(usuario.password) && usuario.password.length > 0) && (
+              <Text style={styles.nota}>La contraseña debe contar como mínimo con 8 caracteres incluidos caracteres
+                especiales, números y letras. La contraseña no debe incluir espacios en blanco.
+              </Text>
+            )}
           <TouchableOpacity
             style={styles.forgotPassword}
             onPress={redirectRecoveryPassword}
@@ -165,7 +193,7 @@ const Login: React.FC = () => {
               Has olvidado tu contraseña?
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={getLogin}>
+          <TouchableOpacity style={[styles.button, { backgroundColor: disabled ? '#ccc' : '#2A6F97' }]} onPress={getLogin} disabled={disabled}>
             <Text style={styles.buttonText}>Iniciar Sesión</Text>
           </TouchableOpacity>
           <View style={styles.registerContainer}>

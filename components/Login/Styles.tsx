@@ -119,4 +119,9 @@ export const styles = StyleSheet.create({
       textDecorationLine: 'underline',
       fontSize: 16
     },
+    nota: {
+      fontSize: 10,
+      marginBottom: 10,
+      color: '#808080'
+    }
   });
