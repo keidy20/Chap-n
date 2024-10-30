@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import CryptoJS from 'crypto-js';
 import { router } from 'expo-router';
-import { validarCampos, validarPassword } from '../../utils/StringUtils';
+import { validarCampos, validarNombre, validarPassword, validarUsuario } from '../../utils/StringUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
@@ -29,7 +29,7 @@ const CrearCuenta: React.FC = () => {
 
   useEffect(() => {
 
-    if (validarCampos(usuario) && validarPassword(usuario.password)) {
+    if (validarCampos(usuario) && validarPassword(usuario.password) && validarUsuario(usuario.username) && validarNombre(usuario.nombre)) {
       setDisabled(false);
     } else {
       setDisabled(true);
@@ -122,6 +122,10 @@ const CrearCuenta: React.FC = () => {
             value={usuario.nombre}
             onChangeText={text => setUsuario({ ...usuario, nombre: text })}
           />
+          {(!validarNombre(usuario.nombre) && usuario.nombre.length > 0) && (
+            <Text style={styles.nota}>El nombre de usuario no debe contener números ni caracteres especiales, además de que el máximo es de 30 caracteres.    
+            </Text>
+          )}
           <TextInput
             style={styles.input}
             placeholder="Nombre de usuario"
@@ -129,6 +133,11 @@ const CrearCuenta: React.FC = () => {
             value={usuario.username}
             onChangeText={text => setUsuario({ ...usuario, username: text })}
           />
+          {(!validarUsuario(usuario.username) && usuario.username.length > 0) && (
+            <Text style={styles.nota}>El usuario no debe contener caracteres especiales, debe contar con un minimo de 3 caracteres
+              y un maximo de 10, no debe de contar con espacios en blanco y no debe iniciar con un número.    
+            </Text>
+          )}
           <TextInput
             style={styles.input}
             placeholder="Correo Electrónico"
@@ -154,8 +163,8 @@ const CrearCuenta: React.FC = () => {
             </TouchableOpacity>
           </View>
           {(!validarPassword(usuario.password) && usuario.password.length > 0) && (
-            <Text>La contraseña debe contar como mínimo con 8 caracteres incluidos caracteres
-              especiales, números y letras.
+            <Text style={styles.nota}>La contraseña debe contar como mínimo con 8 caracteres incluidos caracteres
+              especiales, números y letras. La contraseña no debe incluir espacios en blanco.
             </Text>
           )}
           
@@ -278,6 +287,11 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 20,
   },
+  nota: {
+    fontSize: 10,
+    marginBottom: 10,
+    color: '#808080'
+  }
 });
 
 export default CrearCuenta;
